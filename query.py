@@ -1,10 +1,11 @@
-import css_colors
 import httplib
 import json
 import re
+
+import css_colors
 import rgb_cie
 
-query = r'{query}'
+
 rgb_cie_converter = rgb_cie.Converter()
 
 short_color_re = re.compile(
@@ -12,6 +13,7 @@ short_color_re = re.compile(
 long_color_re = re.compile(
 	r'(?<!\w)([a-f0-9]){2}([a-f0-9]){2}([a-f0-9]){2}\b', re.IGNORECASE)
 
+query = r"""{query}"""
 query = json.loads(query)
 
 if query.get('_color'):
