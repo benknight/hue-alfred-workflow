@@ -32,7 +32,6 @@ if ( trim($query) == '' ):
 		$w->write($lights, 'lights');
 	endif;
 else:
-	// This is stupid, but I don't want to alter workflows.php
 	$lights = $w->read('lights', true);
 endif;
 

@@ -4,7 +4,7 @@ import json
 import re
 import rgb_cie
 
-query = r'{"url":"\/api\/alabamahue\/lights\/4","data":"{\"name\": \"Sean's Lamp\"}","host":"192.168.42.137","method":"PUT"}'
+query = r'{query}'
 rgb_cie_converter = rgb_cie.Converter()
 
 short_color_re = re.compile(
