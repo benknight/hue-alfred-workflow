@@ -13,7 +13,8 @@ $control = explode(':', $query);
 $results = array();
 
 // Cache a reference to lights.
-// if ( ! $query ):
+if ( trim($query) == '' ):
+	$lights = $w->write('', 'lights');
 	$lights = $w->request(
 		"http://$bridge_ip" . $base_path . '/lights',
 		array(CURLOPT_CONNECTTIMEOUT => 3)
@@ -27,12 +28,13 @@ $results = array();
 		));
 		echo $w->toxml($results);
 		return;
-	// else:
-	// 	$w->write($lights, 'lights');
+	else:
+		$w->write($lights, 'lights');
 	endif;
-// else:
-// 		$lights = $w->read('lights');
-// endif;
+else:
+	// This is stupid, but I don't want to alter workflows.php
+	$lights = $w->read('lights', true);
+endif;
 
 
 function result($r) {
@@ -69,6 +71,7 @@ elseif ( count($control) == 2 ):
 	$partial_query = $control[1];
 	result(array(
 		'title' => 'Turn Off',
+		'icon' => 'icons/switch.png',
 		'arg' => api_arg(array(
 			'url' => "/lights/$id/state",
 			'data' => '{"on": false}'
@@ -76,30 +79,41 @@ elseif ( count($control) == 2 ):
 	));
 	result(array(
 		'title' => 'Turn On',
+		'icon' => 'icons/switch.png',
 		'arg' => api_arg(array(
 			'url' => "/lights/$id/state",
 			'data' => '{"on": true}'
 		))
 	));
 	result(array(
+		'title' => 'Set Color...',
+		'icon' => 'icons/colors.png',
+		'valid' => 'no',
+		'autocomplete' => "$id:color:"
+	));
+	result(array(
 		'title' => 'Set Effect...',
+		'icon' => 'icons/effect.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:effect:"
 	));
 	result(array(
 		'title' => 'Set Brightness...',
+		'icon' => 'icons/sun.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:bri:"
 	));
 	result(array(
-		'title' => 'Set Color...',
-		'valid' => 'no',
-		'autocomplete' => "$id:color:"
-	));
-	result(array(
 		'title' => 'Set Alert...',
+		'icon' => 'icons/siren.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:alert:"
+	));
+	result(array(
+		'title' => 'Rename...',
+		'icon' => 'icons/cog.png',
+		'valid' => 'no',
+		'autocomplete' => "$id:rename:"
 	));
 
 elseif ( count($control) == 3 ):
@@ -107,15 +121,22 @@ elseif ( count($control) == 3 ):
 	$partial_query = $control[2];
 	if ( $control[1] == 'bri' ):
 		result(array(
-			'title' => "Set Brightness to {$control[2]}",
+			'title' => "Set Brightness to $partial_query",
 			'subtitle' => 'Set on a scale from 0 to 255, where 0 is off.',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
-				'data' => sprintf('{"bri": %d}', $control[2])
+				'data' => sprintf('{"bri": %d}', $partial_query)
 			))
 		));
 	elseif ( $control[1] == 'color' ):
-		result(array('title' => 'Set Color to...'));
+		result(array(
+			'title' => "Set Color to $partial_query",
+			'arg' => api_arg(array(
+				'url' => "/lights/$id/state",
+				'data' => '',
+				'_color' => $partial_query
+			))
+		));
 	elseif ( $control[1] == 'effect' ):
 		result(array(
 			'title' => 'None',
@@ -133,18 +154,26 @@ elseif ( count($control) == 3 ):
 		));
 	elseif ( $control[1] == 'alert' ):
 
+	elseif ( $control[1] == 'rename' ):
+		result(array(
+			'title' => "Set light name to $partial_query",
+			'arg' => api_arg(array(
+				'url' => "/lights/$id",
+				'data' => sprintf('{"name": "%s"}', $partial_query)
+			))
+		));
 	endif;
 
 else:
 	$partial_query = $query;
 	result(array(
 		'title' => 'Lights',
-		'subtitle' => 'Set the state for a specific bulb.',
 		'valid' => 'no',
 		'autocomplete' => 'lights'
 	));
 	result(array(
 		'title' => 'Turn all lights off',
+		'icon' => 'icons/switch.png',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"on": false}'
@@ -152,10 +181,26 @@ else:
 	));
 	result(array(
 		'title' =>'Turn all lights on',
+		'icon' => 'icons/switch.png',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"on": true}'
 		))
+	));
+	result(array(
+		'title' => 'Concentrate',
+		'valid' => 'no',
+		'icon' => 'icons/yinyang.png'
+	));
+	result(array(
+		'title' => 'Energize',
+		'valid' => 'no',
+		'icon' => 'icons/yinyang.png'
+	));
+	result(array(
+		'title' => 'Relax',
+		'valid' => 'no',
+		'icon' => 'icons/yinyang.png'
 	));
 	result(array(
 		'title' => 'Party',
@@ -169,23 +214,19 @@ else:
 	result(array(
 		'title' => 'Movie',
 		'valid' => 'no',
-		'icon' => 'icons/popcorn.png'
-	));
-	result(array(
-		'title' => 'Concentrate',
-		'valid' => 'no'
-	));
-	result(array(
-		'title' => 'Energize',
-		'valid' => 'no'
-	));
-	result(array(
-		'title' => 'Relax',
-		'valid' => 'no'
+		'icon' => 'icons/popcorn.png',
+		'subtitle' => 'Set the lights to the minimum brightness.'
 	));
 endif;
 
 // TODO: Filter by partial query.
+// function filter_by_query($result) {
+// 	return isset($result['autocomplete']) && stripos($result['autocomplete'], $partial_query) === 0;
+// }
+
+// if ( $partial_query ) {
+// 	$results = array_filter($results, 'filter_by_query');
+// }
 
 echo $w->toxml($results);
 return;
