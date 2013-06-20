@@ -155,4 +155,4 @@ class Converter:
 			b = self.color.randomRGBValue()
 			xy = self.rgbToCIE1931(r, g, b)
 
-		return xy;
+		return xy
