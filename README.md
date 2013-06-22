@@ -16,10 +16,10 @@ Trigger:
 	hue 1:effect:none
 	hue 3:color:red
 
-* = Not Implemented.
+`*` = Not Implemented.
 
 ## TODO
 
-	* Implement color picker option.
-	* Support short hex colors? e.g. #f00.  Who cares.
-	* Allow users to save current state as a preset.
+* Implement color picker option.
+* Support short hex colors? e.g. `#f00`. Eh, who cares.
+* Allow users to save current state as a preset.
