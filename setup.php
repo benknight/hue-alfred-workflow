@@ -20,18 +20,19 @@ $w->set('api.bridge_ip', $bridge_ip, 'settings.plist');
 // Create API user for this workflow.
 $resp = $w->request("http://$bridge_ip/api", array(
 	CURLOPT_POST => true,
-	CURLOPT_POSTFIELDS => array('devicetype' => 'Alfred')
+	CURLOPT_POSTFIELDS => '{"devicetype": "Alfred"}'
 ));
 
 $resp = json_decode($resp, true);
 
 if ( isset($resp[0]['error']) ):
-	die('API access denied. The link button on the bridge must be pressed first.');
+	die('Setup Error: ' . $resp[0]['error']['description']);
 endif;
 
 $username = $resp[0]['success']['username'];
 
 $w->set('api.username', $username, 'settings.plist');
+$w->set('api.group', '0', 'settings.plist');
 
 echo 'Success! You can now control your lights by using the "hue" keyword.';
 exit;

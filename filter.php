@@ -38,9 +38,17 @@ function api_arg($args) {
 }
 
 function color_picker($id) {
-	// Run osascript command to pick color, convert the response to hex.
-	// Call Alfred with `hue $id:color:hex`
-	return false;
+	$rgba = `osascript -e 'tell application "Alfred 2"' -e 'activate' -e 'choose color default color {65535, 65535, 65535}' -e 'end tell'`;
+	$hex = '';
+	if ( $rgba ):
+		$rgba = explode(',', $rgba);
+		$rgb = array_slice($rgba, 0, 3);
+		// Convert to hex
+		foreach ( $rgb as $c ):
+			$hex .= substr('0'. dechex(($c / 65535) * 255), -2);
+		endforeach;
+	endif;
+	return `osascript -e 'tell application "Alfred 2" to search "hue $id:color:$hex"'`;
 }
 
 /** Cache a reference to lights. */
@@ -152,6 +160,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => "Set brightness to $value",
 			'subtitle' => 'Set on a scale from 0 to 255, where 0 is off.',
+			'icon' => 'icons/sun.png',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
 				'data' => sprintf('{"bri": %d}', $value)
@@ -163,6 +172,8 @@ elseif ( count($control) == 3 ):
 		endif;
 		result(array(
 			'title' => "Set color to $value",
+			'subtitle' => 'Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")',
+			'icon' => 'icons/colors.png',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
 				'data' => '',
@@ -178,6 +189,7 @@ elseif ( count($control) == 3 ):
 	elseif ( $control[1] == 'effect' ):
 		result(array(
 			'title' => 'None',
+			'icon' => 'icons/effect.png',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"effect": "none"}'
@@ -185,6 +197,7 @@ elseif ( count($control) == 3 ):
 		));
 		result(array(
 			'title' => 'Color Loop',
+			'icon' => 'icons/effect.png',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"effect": "colorloop"}'
