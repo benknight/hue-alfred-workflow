@@ -11,7 +11,7 @@ $bridges = $w->request('http://www.meethue.com/api/nupnp');
 $bridges = json_decode($bridges, true);
 
 if ( empty($bridges) ):
-	die('No bridge found on your network.');
+	die('No bridges found on your network.');
 endif;
 
 $bridge_ip = $bridges[0]['internalipaddress'];
@@ -26,11 +26,12 @@ $resp = $w->request("http://$bridge_ip/api", array(
 $resp = json_decode($resp, true);
 
 if ( isset($resp[0]['error']) ):
-	die('API access denied. The link button on the bridge must be pressed and this command executed within 30 seconds.');
+	die('API access denied. The link button on the bridge must be pressed first.');
 endif;
 
 $username = $resp[0]['success']['username'];
 
 $w->set('api.username', $username, 'settings.plist');
 
-echo 'Success!';
+echo 'Success! You can now control your lights by using the "hue" keyword.';
+exit;

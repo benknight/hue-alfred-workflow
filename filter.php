@@ -37,6 +37,11 @@ function api_arg($args) {
 	return json_encode($args);
 }
 
+function color_picker($id) {
+	// Run osascript command to pick color, convert the response to hex.
+	// Call Alfred with `hue $id:color:hex`
+	return false;
+}
 
 /** Cache a reference to lights. */
 
@@ -48,19 +53,21 @@ if ( trim($query) === '' ):
 		array(CURLOPT_CONNECTTIMEOUT => 3)
 	);
 	$lights = json_decode($lights, true);
-	if ( ! $lights ):
-		result(array(
-			'title' => 'Bridge connection failed.',
-			'subtitle' => 'Use "set-hue-server" to set your bridge’s IP address.',
-			'valid' => 'no'
-		));
-		echo $w->toxml($results);
-		return;
-	else:
+	if ( $lights ):
 		$w->write($lights, 'lights');
 	endif;
 else:
 	$lights = $w->read('lights', true);
+endif;
+
+if ( ! $lights ):
+	result(array(
+		'title' => 'Bridge connection failed.',
+		'subtitle' => 'Use "setup-hue" to set your bridge’s IP address.',
+		'valid' => 'no'
+	));
+	echo $w->toxml($results);
+	exit;
 endif;
 
 
@@ -143,7 +150,7 @@ elseif ( count($control) == 3 ):
 	$value = $control[2];
 	if ( $control[1] == 'bri' ):
 		result(array(
-			'title' => "Set Brightness to $value",
+			'title' => "Set brightness to $value",
 			'subtitle' => 'Set on a scale from 0 to 255, where 0 is off.',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
@@ -151,8 +158,11 @@ elseif ( count($control) == 3 ):
 			))
 		));
 	elseif ( $control[1] == 'color' ):
+		if ( $value == 'colorpicker' ):
+			color_picker($id);
+		endif;
 		result(array(
-			'title' => "Set Color to $value",
+			'title' => "Set color to $value",
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
 				'data' => '',
@@ -161,11 +171,8 @@ elseif ( count($control) == 3 ):
 		));
 		result(array(
 			'title' => "Use color picker...",
-			'arg' => api_arg(array(
-				'url' => "/lights/$id/state",
-				'data' => '',
-				'_color' => $value
-			))
+			'valid' => 'no',
+			'autocomplete' => "$id:color:colorpicker"
 		));
 
 	elseif ( $control[1] == 'effect' ):
@@ -266,5 +273,4 @@ if ( $partial_query ) {
 }
 
 echo $w->toxml($results);
-
-return;
+exit;
