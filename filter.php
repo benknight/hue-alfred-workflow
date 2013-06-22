@@ -3,18 +3,15 @@
 require_once('workflows.php');
 $w = new Workflows();
 
-// TODO: The first time this script runs, use configuration API.
-// All the user should have to do is press the button, and this workflow will remain configured.
-
 
 /** Configuration */
 
-$user      = $w->get('api.user',   'settings.plist');
-$group     = $w->get('api.group',  'settings.plist');
-$bridge_ip = $w->get('api.server', 'settings.plist');
-$base_path = "/api/$user";
+$username  = $w->get('api.username',  'settings.plist');
+$group     = $w->get('api.group',     'settings.plist');
+$bridge_ip = $w->get('api.bridge_ip', 'settings.plist');
+$base_path = "/api/$username";
 
-$query = "{query}";
+$query = $argv[1];
 $control = explode(':', $query);
 $results = array();
 
@@ -162,6 +159,15 @@ elseif ( count($control) == 3 ):
 				'_color' => $value
 			))
 		));
+		result(array(
+			'title' => "Use color picker...",
+			'arg' => api_arg(array(
+				'url' => "/lights/$id/state",
+				'data' => '',
+				'_color' => $value
+			))
+		));
+
 	elseif ( $control[1] == 'effect' ):
 		result(array(
 			'title' => 'None',
@@ -251,7 +257,10 @@ endif;
 if ( $partial_query ) {
 	function filter_by_query($result) {
 		global $partial_query;
-		return isset($result['autocomplete']) && stripos($result['autocomplete'], $partial_query) !== false;
+		if ( isset($result['autocomplete']) ):
+			return stripos($result['autocomplete'], $partial_query) !== false;
+		endif;
+		return false;
 	}
 	$results = array_filter($results, 'filter_by_query');
 }
