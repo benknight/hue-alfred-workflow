@@ -225,6 +225,7 @@ else:
 	result(array(
 		'title' => 'Turn all lights off',
 		'icon' => 'icons/switch.png',
+		'autocomplete' => 'off',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"on": false}'
@@ -233,30 +234,17 @@ else:
 	result(array(
 		'title' =>'Turn all lights on',
 		'icon' => 'icons/switch.png',
+		'autocomplete' => 'on',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"on": true}'
 		))
 	));
-	// result(array(
-	// 	'title' => 'Concentrate',
-	// 	'valid' => 'no',
-	// 	'icon' => 'icons/yinyang.png'
-	// ));
-	// result(array(
-	// 	'title' => 'Energize',
-	// 	'valid' => 'no',
-	// 	'icon' => 'icons/yinyang.png'
-	// ));
-	// result(array(
-	// 	'title' => 'Relax',
-	// 	'valid' => 'no',
-	// 	'icon' => 'icons/yinyang.png'
-	// ));
 	result(array(
 		'title' => 'Party',
 		'subtitle' => 'Set all lights to color loop.',
 		'icon' => 'icons/colors.png',
+		'autocomplete' => 'party',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"effect": "colorloop"}'
@@ -266,6 +254,7 @@ else:
 		'title' => 'Movie',
 		'icon' => 'icons/popcorn.png',
 		'subtitle' => 'Set the lights to the minimum brightness.',
+		'autocomplete' => 'movie',
 		'arg' => api_arg(array(
 			'url' => "/groups/$group/action",
 			'data' => '{"ct": 500, "sat": 0, "bri": 1}'
