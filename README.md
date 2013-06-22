@@ -25,9 +25,9 @@ I've yet to officially release this workflow, but if you happened to stumble upo
 
 Press the link button on the top of the bridge and use the `setup-hue` Alfred keyword within 30 seconds to automatically configure the workflow to work with the Hue bridge on the local network.
 
-A group number can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  Although much of the [Groups API](http://developers.meethue.com/2_groupsapi.html) remains undocumented, some developers have figured out [how to add and configure groups](http://www.everyhue.com/vanilla/discussion/57/api-groups/p1).
+A group id can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  Although much of the [Groups API](http://developers.meethue.com/2_groupsapi.html) remains undocumented, some developers have figured out [how to add and configure groups](http://www.everyhue.com/vanilla/discussion/57/api-groups/p1).
 
 ## TODO
 
-* Allow users to save current state as a preset.
-* Implement alert
+* Ability to save current state as a preset
+* Implement alerts

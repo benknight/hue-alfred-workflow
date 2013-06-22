@@ -45,11 +45,12 @@ function color_picker($id) {
 		$rgb = array_slice($rgba, 0, 3);
 		// Convert to hex
 		foreach ( $rgb as $c ):
-			$hex .= substr('0'. dechex(($c / 65535) * 255), -2);
+			$hex .= substr('0' . dechex(($c / 65535) * 255), -2);
 		endforeach;
 	endif;
 	return `osascript -e 'tell application "Alfred 2" to search "hue $id:color:$hex"'`;
 }
+
 
 /** Cache a reference to lights. */
 
@@ -71,7 +72,7 @@ endif;
 if ( ! $lights ):
 	result(array(
 		'title' => 'Bridge connection failed.',
-		'subtitle' => 'Use "setup-hue" to set your bridge’s IP address.',
+		'subtitle' => 'Try running "setup-hue".',
 		'valid' => 'no'
 	));
 	echo $w->toxml($results);
