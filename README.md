@@ -17,9 +17,7 @@ Trigger:
 
 ## Download
 
-Download the extension here: http://goo.gl/Yt6qg
-
-I've yet to officially release this workflow, but if you happened to stumble upon this Github repo, feel free to give it a try.  I will officially publish the workflow when I've finished the TODO items below and thoroughly tested everything.
+Download the extension here: http://goo.gl/H26W2
 
 ## Setup
 
@@ -27,7 +25,24 @@ Press the link button on the top of the bridge and use the `setup-hue` Alfred ke
 
 A group id can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  Although much of the [Groups API](http://developers.meethue.com/2_groupsapi.html) remains undocumented, some developers have figured out [how to add and configure groups](http://www.everyhue.com/vanilla/discussion/57/api-groups/p1).
 
-## TODO
+## Screenshots
 
-* Ability to save current state as a preset
-* Implement alerts
+Home (blank query):
+
+![Home](/screenshots/home.png)
+
+Lights:
+
+![Lights](/screenshots/lights.png)
+
+Light controls:
+
+![Control](/screenshots/control.png)
+
+Setting the color:
+
+![Color](/screenshots/color.png)
+
+## Roadmap
+
+* Add the ability to save current state as a preset.
