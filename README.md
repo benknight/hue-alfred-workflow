@@ -17,9 +17,7 @@ Trigger:
 
 ## Download
 
-Download the extension here: http://goo.gl/Yt6qg
-
-I've yet to officially release this workflow, but if you happened to stumble upon this Github repo, feel free to give it a try.  I will officially publish the workflow when I've finished the TODO items below and thoroughly tested everything.
+Download the extension here: http://goo.gl/H26W2
 
 ## Setup
 
