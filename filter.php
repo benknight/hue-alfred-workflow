@@ -106,7 +106,7 @@ elseif ( count($control) == 2 ):
 	$id = $control[0];
 	$partial_query = $control[1];
 	result(array(
-		'title' => 'Turn Off',
+		'title' => 'Turn off',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => "$id:off",
 		'arg' => api_arg(array(
@@ -115,7 +115,7 @@ elseif ( count($control) == 2 ):
 		))
 	));
 	result(array(
-		'title' => 'Turn On',
+		'title' => 'Turn on',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => "$id:on",
 		'arg' => api_arg(array(
@@ -124,25 +124,25 @@ elseif ( count($control) == 2 ):
 		))
 	));
 	result(array(
-		'title' => 'Set Color...',
+		'title' => 'Set color...',
 		'icon' => 'icons/colors.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:color:"
 	));
 	result(array(
-		'title' => 'Set Effect...',
+		'title' => 'Set effect...',
 		'icon' => 'icons/effect.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:effect:"
 	));
 	result(array(
-		'title' => 'Set Brightness...',
+		'title' => 'Set brightness...',
 		'icon' => 'icons/sun.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:bri:"
 	));
 	result(array(
-		'title' => 'Set Alert...',
+		'title' => 'Set alert...',
 		'icon' => 'icons/siren.png',
 		'valid' => 'no',
 		'autocomplete' => "$id:alert:"
@@ -184,6 +184,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => "Use color picker...",
 			'valid' => 'no',
+			'icon' => 'icons/eyedropper.png',
 			'autocomplete' => "$id:color:colorpicker"
 		));
 
@@ -197,7 +198,7 @@ elseif ( count($control) == 3 ):
 			))
 		));
 		result(array(
-			'title' => 'Color Loop',
+			'title' => 'Color loop',
 			'icon' => 'icons/effect.png',
 			'arg' => api_arg(array(
 				'url' => "/lights/$id/state",
@@ -205,6 +206,31 @@ elseif ( count($control) == 3 ):
 			))
 		));
 	elseif ( $control[1] == 'alert' ):
+		result(array(
+			'title' => 'None',
+			'subtitle' => 'Turn off any ongoing alerts',
+			'icon' => 'icons/siren.png',
+			'arg' => api_arg(array(
+				'url' => "/lights/$id/state",
+				'data' => '{"alert": "none"}'
+			))
+		));
+		result(array(
+			'title' => 'Blink once',
+			'icon' => 'icons/siren.png',
+			'arg' => api_arg(array(
+				'url' => "/lights/$id/state",
+				'data' => '{"alert": "select"}'
+			))
+		));
+		result(array(
+			'title' => 'Blink for 30 seconds',
+			'icon' => 'icons/siren.png',
+			'arg' => api_arg(array(
+				'url' => "/lights/$id/state",
+				'data' => '{"alert": "lselect"}'
+			))
+		));
 
 	elseif ( $control[1] == 'rename' ):
 		result(array(
