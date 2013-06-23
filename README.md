@@ -25,7 +25,7 @@ Download the extension here: http://goo.gl/H26W2
 
 Press the link button on the top of the bridge and use the `setup-hue` Alfred keyword within 30 seconds to automatically configure the workflow to work with the Hue bridge on the local network.
 
-A group id can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  Check out the docs for the [Groups API](http://developers.meethue.com/2_groupsapi.html).
+A group id can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  This will control which lights are affected by the group actions (e.g. "Turn all lights off").  Check out the docs for the [Groups API](http://developers.meethue.com/2_groupsapi.html).
 
 ## Screenshots
 
