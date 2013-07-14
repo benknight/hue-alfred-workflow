@@ -1,7 +1,9 @@
 import httplib
 import json
+import plistlib
 import re
 import sys
+from os import system
 
 import rgb_cie
 
@@ -150,15 +152,39 @@ CSS_LITERALS = {
 	'yellowgreen': '#9acd32'
 }
 
+
+def get_settings():
+	"""Parse settings file."""
+	# Make sure the plist file in a readable format, since plistlib doesn't support
+	# binary plist files.
+	system('plutil -convert xml1 settings.plist')
+	return plistlib.readPlist('settings.plist')
+
+
 def send(query):
 	"""Simply decodes json query and makes the API call."""
 	query = json.loads(query)
+	settings = get_settings()
+	base_path = '/api/' + settings['api.username']
 
+	method = 'PUT'
+
+	# TODO(2013-07-14): Consider improvements to the way filter communicates with
+	# this request script.  For example, set "group", "light" keys on the filter arg,
+	# instead of building the partial URL.
 	if query.get('_color'):
-		query['data'] = json.dumps({'xy': xy_color(query['_color'])})
+		data = json.dumps({'xy': xy_color(query['_color'])})
+	else:
+		data = query['data']
 
-	conn = httplib.HTTPConnection(query.get('host'))
-	conn.request(query.get('method'), query.get('url'), query.get('data'))
+	if query.get('_group'):
+		url = base_path + '/groups/' + settings['api.group'] + '/action'
+	else:
+		url = base_path + query['url']
+
+	conn = httplib.HTTPConnection(settings['api.bridge_ip'])
+	conn.request(method, url, data)
+
 
 def xy_color(color):
 	"""Validate and convert hex color to XY space."""

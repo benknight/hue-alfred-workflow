@@ -3,14 +3,6 @@
 require_once('workflows.php');
 $w = new Workflows();
 
-
-/** Configuration */
-
-$username  = $w->get('api.username',  'settings.plist');
-$group     = $w->get('api.group',     'settings.plist');
-$bridge_ip = $w->get('api.bridge_ip', 'settings.plist');
-$base_path = "/api/$username";
-
 $query = $argv[1];
 $control = explode(':', $query);
 $results = array();
@@ -24,17 +16,6 @@ function result($r) {
 		$r['icon'] = 'icon.png';
 	endif;
 	array_push($results, $r);
-}
-
-function api_arg($args) {
-	global $bridge_ip, $base_path;
-	$args['host'] = $bridge_ip;
-	// PUT is the default HTTP method since most API calls use this.
-	if ( ! isset($args['method']) ):
-		$args['method'] = 'PUT';
-	endif;
-	$args['url'] = $base_path . $args['url'];
-	return json_encode($args);
 }
 
 function color_picker($id) {
@@ -52,9 +33,16 @@ function color_picker($id) {
 }
 
 
-/** Cache a reference to lights. */
+/**
+ * Cache a reference to lights.
+ * This should be the only case when the settings file is read.
+ */
 
 if ( trim($query) === '' ):
+	$username  = $w->get('api.username',  'settings.plist');
+	$bridge_ip = $w->get('api.bridge_ip', 'settings.plist');
+	$base_path = "/api/$username";
+
 	// clear cache
 	$lights = $w->write('', 'lights');
 	$lights = $w->request(
@@ -109,7 +97,7 @@ elseif ( count($control) == 2 ):
 		'title' => 'Turn off',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => "$id:off",
-		'arg' => api_arg(array(
+		'arg' => json_encode(array(
 			'url' => "/lights/$id/state",
 			'data' => '{"on": false}'
 		))
@@ -118,7 +106,7 @@ elseif ( count($control) == 2 ):
 		'title' => 'Turn on',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => "$id:on",
-		'arg' => api_arg(array(
+		'arg' => json_encode(array(
 			'url' => "/lights/$id/state",
 			'data' => '{"on": true}'
 		))
@@ -162,7 +150,7 @@ elseif ( count($control) == 3 ):
 			'title' => "Set brightness to $value",
 			'subtitle' => 'Set on a scale from 0 to 255, where 0 is off.',
 			'icon' => 'icons/sun.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => sprintf('{"bri": %d}', $value)
 			))
@@ -175,7 +163,7 @@ elseif ( count($control) == 3 ):
 			'title' => "Set color to $value",
 			'subtitle' => 'Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")',
 			'icon' => 'icons/colors.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '',
 				'_color' => $value
@@ -192,7 +180,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => 'None',
 			'icon' => 'icons/effect.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"effect": "none"}'
 			))
@@ -200,7 +188,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => 'Color loop',
 			'icon' => 'icons/effect.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"effect": "colorloop"}'
 			))
@@ -210,7 +198,7 @@ elseif ( count($control) == 3 ):
 			'title' => 'None',
 			'subtitle' => 'Turn off any ongoing alerts',
 			'icon' => 'icons/siren.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"alert": "none"}'
 			))
@@ -218,7 +206,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => 'Blink once',
 			'icon' => 'icons/siren.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"alert": "select"}'
 			))
@@ -226,7 +214,7 @@ elseif ( count($control) == 3 ):
 		result(array(
 			'title' => 'Blink for 30 seconds',
 			'icon' => 'icons/siren.png',
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
 				'data' => '{"alert": "lselect"}'
 			))
@@ -235,7 +223,7 @@ elseif ( count($control) == 3 ):
 	elseif ( $control[1] == 'rename' ):
 		result(array(
 			'title' => "Set light name to $value",
-			'arg' => api_arg(array(
+			'arg' => json_encode(array(
 				'url' => "/lights/$id",
 				'data' => sprintf('{"name": "%s"}', $value)
 			))
@@ -253,8 +241,8 @@ else:
 		'title' => 'Turn all lights off',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => 'off',
-		'arg' => api_arg(array(
-			'url' => "/groups/$group/action",
+		'arg' => json_encode(array(
+			'_group' => 'true',
 			'data' => '{"on": false}'
 		))
 	));
@@ -262,8 +250,8 @@ else:
 		'title' =>'Turn all lights on',
 		'icon' => 'icons/switch.png',
 		'autocomplete' => 'on',
-		'arg' => api_arg(array(
-			'url' => "/groups/$group/action",
+		'arg' => json_encode(array(
+			'_group' => 'true',
 			'data' => '{"on": true}'
 		))
 	));
@@ -272,8 +260,8 @@ else:
 		'subtitle' => 'Set all lights to color loop.',
 		'icon' => 'icons/colors.png',
 		'autocomplete' => 'party',
-		'arg' => api_arg(array(
-			'url' => "/groups/$group/action",
+		'arg' => json_encode(array(
+			'_group' => 'true',
 			'data' => '{"effect": "colorloop"}'
 		))
 	));
@@ -282,8 +270,8 @@ else:
 		'icon' => 'icons/popcorn.png',
 		'subtitle' => 'Set the lights to the minimum brightness.',
 		'autocomplete' => 'movie',
-		'arg' => api_arg(array(
-			'url' => "/groups/$group/action",
+		'arg' => json_encode(array(
+			'_group' => 'true',
 			'data' => '{"ct": 500, "sat": 0, "bri": 1}'
 		))
 	));
