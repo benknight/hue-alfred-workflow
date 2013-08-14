@@ -17,7 +17,15 @@ Trigger:
 
 ## Download
 
-Download the extension here: http://goo.gl/H26W2
+Download the current version (0.9.1) here: http://goo.gl/L3swBq
+
+### Changelog
+
+#### 0.9.1 - http://goo.gl/L3swBq
+ * Speed improvements
+
+#### 0.9 - http://goo.gl/H26W2
+ * Initial Release
 
 ## Setup
 
