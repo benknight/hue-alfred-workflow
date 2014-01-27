@@ -39,7 +39,7 @@ function color_picker($id) {
  */
 
 if ( trim($query) === '' ):
-	$username  = $w->get('api.username',  'settings.plist');
+	$username  = $w->get('api.username', 'settings.plist');
 	$bridge_ip = $w->get('api.bridge_ip', 'settings.plist');
 	$base_path = "/api/$username";
 
@@ -99,7 +99,7 @@ elseif ( count($control) == 2 ):
 		'autocomplete' => "$id:off",
 		'arg' => json_encode(array(
 			'url' => "/lights/$id/state",
-			'data' => '{"on": false}'
+			'data' => array('on' => false)
 		))
 	));
 	result(array(
@@ -108,7 +108,7 @@ elseif ( count($control) == 2 ):
 		'autocomplete' => "$id:on",
 		'arg' => json_encode(array(
 			'url' => "/lights/$id/state",
-			'data' => '{"on": true}'
+			'data' => array('on' => true)
 		))
 	));
 	result(array(
@@ -152,7 +152,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/sun.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => sprintf('{"bri": %d}', $value)
+				'data' => array('bri' => $value)
 			))
 		));
 	elseif ( $control[1] == 'color' ):
@@ -182,7 +182,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/effect.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => '{"effect": "none"}'
+				'data' => array('effect' => 'none')
 			))
 		));
 		result(array(
@@ -190,7 +190,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/effect.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => '{"effect": "colorloop"}'
+				'data' => array('effect' => 'colorloop')
 			))
 		));
 	elseif ( $control[1] == 'alert' ):
@@ -200,7 +200,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/siren.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => '{"alert": "none"}'
+				'data' => array('alert' => 'none')
 			))
 		));
 		result(array(
@@ -208,7 +208,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/siren.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => '{"alert": "select"}'
+				'data' => array('alert' => 'select')
 			))
 		));
 		result(array(
@@ -216,7 +216,7 @@ elseif ( count($control) == 3 ):
 			'icon' => 'icons/siren.png',
 			'arg' => json_encode(array(
 				'url' => "/lights/$id/state",
-				'data' => '{"alert": "lselect"}'
+				'data' => array('alert' => 'lselect')
 			))
 		));
 
@@ -225,7 +225,7 @@ elseif ( count($control) == 3 ):
 			'title' => "Set light name to $value",
 			'arg' => json_encode(array(
 				'url' => "/lights/$id",
-				'data' => sprintf('{"name": "%s"}', $value)
+				'data' => array('name' => $value)
 			))
 		));
 	endif;
@@ -243,7 +243,7 @@ else:
 		'autocomplete' => 'off',
 		'arg' => json_encode(array(
 			'_group' => 'true',
-			'data' => '{"on": false}'
+			'data' => array('on' => false)
 		))
 	));
 	result(array(
@@ -252,7 +252,7 @@ else:
 		'autocomplete' => 'on',
 		'arg' => json_encode(array(
 			'_group' => 'true',
-			'data' => '{"on": true}'
+			'data' => array('on' => true)
 		))
 	));
 	result(array(
@@ -262,7 +262,7 @@ else:
 		'autocomplete' => 'party',
 		'arg' => json_encode(array(
 			'_group' => 'true',
-			'data' => '{"effect": "colorloop"}'
+			'data' => array('effect' => 'colorloop')
 		))
 	));
 	result(array(
@@ -272,7 +272,11 @@ else:
 		'autocomplete' => 'movie',
 		'arg' => json_encode(array(
 			'_group' => 'true',
-			'data' => '{"ct": 500, "sat": 0, "bri": 1}'
+			'data' => array(
+				'ct' => 500,
+				'sat' => 0,
+				'bri' => 1
+			)
 		))
 	));
 endif;
