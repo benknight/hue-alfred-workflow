@@ -17,16 +17,17 @@ Trigger:
 
 ## Download
 
-Download the current version (0.9.1) here: http://goo.gl/L3swBq
+Download the current version here: http://goo.gl/L3swBq
 
 ### Changelog
 
-#### 0.9.1 - http://goo.gl/L3swBq
- * Speed improvements
-
-#### 0.9 - http://goo.gl/H26W2
- * Initial Release
-
+	1.0
+	 * Speed improvements
+	
+	0.9
+	 * Initial Release
+	 * Old download link: http://goo.gl/H26W2
+ 
 ## Setup
 
 ![Setup](/screenshots/setup.png)
