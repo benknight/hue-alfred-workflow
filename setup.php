@@ -3,9 +3,6 @@
 require_once('workflows.php');
 $w = new Workflows();
 
-// Make sure settings file exists.
-exec('touch settings.plist');
-
 
 /** Send request to Portal API to discover bridges on the local network. */
 
