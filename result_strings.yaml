@@ -1,0 +1,78 @@
+
+bridge_failed:
+  title: Bridge connection failed.
+  subtitle: Try running "setup-hue"
+  valid: false
+
+all_lights:
+  title: All lights
+  subtitle: Set state for all Hue lights in the set group.
+  valid: false
+  icon: icon.png
+  autocomplete: 'all:'
+
+light_off:
+  title: Turn off
+  icon: icons/switch.png
+
+light_on:
+  title: Turn on
+  icon: icon/switch.png
+
+set_color:
+  title: Set color to…
+  subtitle: Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")
+  icon: icons/colors.png
+
+color_picker:
+  title: Use color picker…
+  icon: icons/eyedropper.png
+  valid: false
+
+set_effect:
+  title: Set effect…
+  icon: icons/effect.png
+  valid: false
+
+effect_none:
+  title: None
+  subtitle: 'Cancel any ongoing effects, such as a color loop.'
+  icons: icons/effect.png
+
+color_loop:
+  title: Color loop
+  icon: icons/effect.png
+
+set_brightness:
+  title: Set brightness…
+  subtitle: 'Set on a scale from 0 to 255, where 0 is off.'
+  icon: icons/sun.png
+  valid: false
+
+set_alert:
+  title: Set alert…
+  icon: icons/siren.png
+  valid: false
+
+alert_none:
+  title: None
+  subtitle: Turn off any ongoing alerts.
+  icon: icons/siren.png
+
+alert_blink_once:
+  title: Blink once
+  icon: icons/siren.png
+
+light_rename:
+  title: Set light name to
+
+presets:
+  title: Presets
+  subtitle: Save the current group state or set group to a previous state.
+  valid: false
+  icon: icon.png
+  autocomplete: presets
+
+save_preset:
+  title: Save current state as preset…
+  icon: icon.png

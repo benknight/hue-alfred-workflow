@@ -1,4 +1,5 @@
 import urllib
+import yaml
 
 import alp
 import color_picker
@@ -8,6 +9,9 @@ import rgb_cie
 class HueAlfredFilter:
 
     results = []
+
+    def __init__(self):
+	self.strings = yaml.load(file(alp.local('result_strings.yaml'), 'r'))
 
     def _load_lights_data_from_api(self):
 	"""Downloads lights data and caches it locally.
@@ -22,8 +26,7 @@ class HueAlfredFilter:
 	# Build base uri for requests.
 	request_base_uri = 'http://{0}/api/{1}'.format(
 	    settings['api.bridge_ip'],
-	    settings['api.username'],
-	)
+	    settings['api.username'],)
 
 	r = alp.Request(request_base_uri + '/lights')
 	r.download()
@@ -45,16 +48,14 @@ class HueAlfredFilter:
 	    hex_color = converter.xyToHEX(
 		light_data['state']['xy'][0],
 		light_data['state']['xy'][1],
-		float(light_data['state']['bri']) / 255
-	    )
+		float(light_data['state']['bri']) / 255)
 
 	    urllib.urlretrieve(
 		'http://placehold.it/128.png/{0}/{0}'.format(hex_color),
-		alp.local('%s.png' % lid)
-	    )
+		alp.local('%s.png' % lid))
 
 
-    def get_lights(self, get_cached=False):
+    def _get_lights(self, get_cached=False):
 	"""Returns a list of light dictionaries containing light attributes and state, or None.
 
 	Options:
@@ -77,8 +78,15 @@ class HueAlfredFilter:
 
 	return output
 
-    def show_preset_items(self):
+    def _show_preset_items(self):
 	raise NotImplementedError()
+
+    def _add_item(self, string_key, **kwargs):
+
+	for k, v in self.strings[string_key]:
+	    kwargs.setdefault(k, v)
+
+	self.results.append(alp.Item(**kwargs))
 
     def get_results(self, args):
 	query = args[0]
@@ -86,51 +94,90 @@ class HueAlfredFilter:
 
 	# Query API at the beginning when the query is blank, otherwise use cache.
 	if not query.strip():
-	    lights = self.get_lights()
+	    lights = self._get_lights()
 	else:
-	    lights = self.get_lights(get_cached=True)
+	    lights = self._get_lights(get_cached=True)
 
 	if not lights:
-	    self.results.append(alp.Item(
-		title='Bridge connection failed.',
-		subtitle='Try running "setup-hue"',
-		valid=False,
-	    ))
+	    self._add_item('bridge_failed')
 
 	elif len(control) > 1:
+	    lid = control[0]
 
 	    if len(control) is 2:
-		pass
-	    elif len(control) > 2:
-		pass
+		self._add_item('light_off',
+		    autocomplete='%s:off' % lid,
+		    arg=json.dumps({
+			'lid': lid,
+			'data': {'on': False},
+		    }))
+		self._add_item('light_on',
+		    autocomplete='%s:on' % lid,
+		    arg=json.dumps({
+			'lid': lid,
+			'data': {'on': True},
+		    }))
+		self._add_item('set_color',
+		    autocomplete='%s:color:' % lid)
+		self._add_item('set_effect',
+		    autocomplete='%s:effect:' % lid)
+		self._add_item('set_brightness',
+		    autocomplete='%s:bri:'    % lid)
+		self._add_item('set_alert',
+		    autocomplete='%s:alert:'  % lid)
+		self._add_item('light_rename',
+		    autocomplete='%s:rename'  % lid)
+
+	    elif len(control) >= 3:
+		function = control[1]
+		value = control[2]
+
+		if function is 'color':
+		    if value is 'colorpicker':
+			color_picker.ColorPicker.color_picker()
+
+		    self._add_item('set_color',
+			arg=json.dumps({
+			    'lid': lid,
+			    'color': value,
+			}))
+		    self._add_item('color_picker',
+			autocomplete='%s:color:colorpicker' % lid)
+
+		elif function is 'bri':
+		    self._add_item('set_brightness',
+			arg=json.dumps({
+			    'lid': lid,
+			    'data': { 'bri': int(value) }
+			}))
+
+		elif function is 'effect':
+		elif function is 'alert':
+		elif function is 'rename':
 
 	else:
+
 	    if query is 'presets':
-		self.results.append(alp.Item(
-		    title='Save current state as preset...',
-		    subtitle='',
-		))
-		self.show_preset_items()
+		self._add_item('save_preset')
+		self._preset_items()
+
 	    else:
-		self.results.append(alp.Item(
-		    title='All lights',
-		    subtitle='Set state for all Hue lights in the set group.',
-		    valid=False,
-		    icon='all.png',
-		    autocomplete='all:',
-		))
+		self._add_item('all_lights')
+
 		for light in lights:
-		    self.results.append(alt.Item(
+		    self.results.append(alp.Item(
 			title=light['data']['name'],
 			subtitle='ID: {lid}, Brightness: {bri}, Hue: {hue}'.format(
 			    lid=light['lid'],
-			    bri=light['data']['bri'],
-			    hue=light['data']['hue'],
+			    bri='{0:.0f}%'.format(float(light['data']['state']['bri']) / 255 * 100),
+			    hue=light['data']['state']['hue'],
 			),
 			valid=False,
-			icon='%s.png' % light['lid'],
-			autocomplete='%s:' % light['lid'],
+			icon=('%s.png' % light['lid'] if light['state'] is 'on' else 'icons/off.png'),
+			autocomplete='%s:' % light['lid']
 		    ))
+
+		self._add_item('presets')
 
 	return alp.feedback(self.results)
 
