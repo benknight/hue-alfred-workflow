@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
+
+# System
+import json
 import urllib
 import yaml
 
+# Vendor
 import alp
+import png
+import requests
+
+# Stuff specific to this workflow
 import color_picker
 import rgb_cie
 
@@ -11,175 +20,249 @@ class HueAlfredFilter:
     results = []
 
     def __init__(self):
-	self.strings = yaml.load(file(alp.local('result_strings.yaml'), 'r'))
+        self.strings = yaml.load(file(alp.local('result_strings.yaml'), 'r'))
 
     def _load_lights_data_from_api(self):
-	"""Downloads lights data and caches it locally.
-	Also creates icon representations of each light's color.
-	"""
-	# Get settings
-	settings = alp.readPlist('settings.plist')
+        """Downloads lights data and caches it locally.
+        Returns None.
+        """
+        timeout = 6
+        settings = alp.readPlist('settings.plist')
+        request_base_uri = 'http://{0}/api/{1}'.format(
+            settings['api.bridge_ip'],
+            settings['api.username'])
 
-	# Create a color converter
-	converter = rgb_cie.Converter()
+        r = requests.get(request_base_uri + '/lights', timeout=timeout)
+        lights = r.json()
 
-	# Build base uri for requests.
-	request_base_uri = 'http://{0}/api/{1}'.format(
-	    settings['api.bridge_ip'],
-	    settings['api.username'],)
+        if settings.get('group') and settings['group'] is not 0:
+            lights = {lid: lights[lid] for lid in settings['group'].split(',')}
 
-	r = alp.Request(request_base_uri + '/lights')
-	r.download()
-	lights = r.request.json()
+        alp.jsonDump(lights, alp.cache('lights.json'))
 
-	if settings.get('group') and settings['group'] is not 0:
-	    lights = {lid: lights[lid] for lid in settings['group'].split(',')}
+        for lid in lights.keys():
+            r = requests.get('{0}/lights/{1}'.format(request_base_uri, lid), timeout=timeout)
+            light_data = r.json()
 
-	alp.jsonDump(lights, alp.cache('lights.json'))
+            # Create icon for light
+            self._create_light_icon(lid, light_data)
 
-	for lid in lights.keys():
-	    r = alp.Request('{0}/lights/{1}'.format(request_base_uri, lid))
-	    r.download()
-	    light_data = r.request.json()
+            # Cache light data
+            alp.jsonDump(light_data, alp.cache('%s.json' % lid))
 
-	    alp.jsonDump(light_data, alp.cache('%s.json' % lid))
+        return None
 
-	    # Get icons
-	    hex_color = converter.xyToHEX(
-		light_data['state']['xy'][0],
-		light_data['state']['xy'][1],
-		float(light_data['state']['bri']) / 255)
+    def _create_light_icon(self, lid, light_data):
+        """Creates a 1x1 PNG icon based on a light's color and saves the png to the local dir.
+        Returns None.
+        """
+        # Create a color converter & helper
+        converter = rgb_cie.Converter()
+        color_helper = rgb_cie.ColorHelper()
 
-	    urllib.urlretrieve(
-		'http://placehold.it/128.png/{0}/{0}'.format(hex_color),
-		alp.local('%s.png' % lid))
+        hex_color = converter.xyToHEX(
+            light_data['state']['xy'][0],
+            light_data['state']['xy'][1],
+            float(light_data['state']['bri']) / 255
+        )
+        f = open(alp.local('%s.png' % lid), 'wb')
+        w = png.Writer(1, 1)
+        w.write(f, [color_helper.hexToRGB(hex_color)])
+        f.close()
 
+        return None
 
-    def _get_lights(self, get_cached=False):
-	"""Returns a list of light dictionaries containing light attributes and state, or None.
+    def _get_lights(self, from_cache=False):
+        """Returns a dictionary of lid => data, or None if no lights data is in the cache.
 
-	Options:
-	    get_cached - Read data from cached json files instead of querying the API.
-	"""
+        Options:
+            from_cache - Read data from cached json files instead of querying the API.
+        """
 
-	output = []
+        output = dict()
 
-	if not get_cached:
-	    self._load_lights_data_from_api()
+        if not from_cache:
+            try:
+                self._load_lights_data_from_api()
+            except requests.exceptions.RequestException:
+                return None
 
-	lights = alp.jsonLoad(alp.cache('lights.json'))
+        lights = alp.jsonLoad(alp.cache('lights.json'))
 
-	if lights:
-	    for lid in lights.keys():
-		data = alp.jsonLoad(alp.cache('%s.json' % lid))
-		output.append(dict(lid=lid, data=data))
-	else:
-	    output = None
+        if lights:
+            for lid in lights.keys():
+                light_data = alp.jsonLoad(alp.cache('%s.json' % lid))
+                output[lid] = light_data
+        else:
+            output = None
 
-	return output
+        return output
 
     def _show_preset_items(self):
-	raise NotImplementedError()
+        # preset_items = presets.get_items()
+        raise NotImplementedError()
 
     def _add_item(self, string_key, **kwargs):
+        if self.strings.get(string_key):
+            for k, v in self.strings[string_key].items():
+                kwargs.setdefault(k, v)
 
-	for k, v in self.strings[string_key]:
-	    kwargs.setdefault(k, v)
-
-	self.results.append(alp.Item(**kwargs))
+        self.results.append(alp.Item(**kwargs))
+        return None
 
     def get_results(self, args):
-	query = args[0]
-	control = query.split(':')
+        query = args[0]
+        control = query.split(':')
 
-	# Query API at the beginning when the query is blank, otherwise use cache.
-	if not query.strip():
-	    lights = self._get_lights()
-	else:
-	    lights = self._get_lights(get_cached=True)
+        if len(control) > 1:
+            lights = self._get_lights(from_cache=True)
+            lid = control[0]
+            icon = ('icon.png' if lid == 'all' else '%s.png' % lid)
 
-	if not lights:
-	    self._add_item('bridge_failed')
+            if len(control) is 2:
+                if lid == 'all' or lights[lid]['state']['on']:
+                    self._add_item('light_off',
+                        autocomplete='%s:off' % lid,
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'on': False},
+                        }))
+                if lid == 'all' or not lights[lid]['state']['on']:
+                    self._add_item('light_on',
+                        autocomplete='%s:on' % lid,
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'on': True},
+                        }))
+                self._add_item('set_color',
+                    subtitle='',
+                    icon=icon,
+                    autocomplete='%s:color:' % lid)
+                self._add_item('set_effect',
+                    subtitle='',
+                    icon=icon,
+                    autocomplete='%s:effect:' % lid)
+                self._add_item('set_brightness',
+                    subtitle='',
+                    icon=icon,
+                    autocomplete='%s:bri:' % lid)
+                self._add_item('set_alert',
+                    icon=icon,
+                    autocomplete='%s:alert:' % lid)
+                self._add_item('light_rename',
+                    icon=icon,
+                    autocomplete='%s:rename:' % lid)
 
-	elif len(control) > 1:
-	    lid = control[0]
+            elif len(control) >= 3:
+                function = control[1]
+                value = control[2]
 
-	    if len(control) is 2:
-		self._add_item('light_off',
-		    autocomplete='%s:off' % lid,
-		    arg=json.dumps({
-			'lid': lid,
-			'data': {'on': False},
-		    }))
-		self._add_item('light_on',
-		    autocomplete='%s:on' % lid,
-		    arg=json.dumps({
-			'lid': lid,
-			'data': {'on': True},
-		    }))
-		self._add_item('set_color',
-		    autocomplete='%s:color:' % lid)
-		self._add_item('set_effect',
-		    autocomplete='%s:effect:' % lid)
-		self._add_item('set_brightness',
-		    autocomplete='%s:bri:'    % lid)
-		self._add_item('set_alert',
-		    autocomplete='%s:alert:'  % lid)
-		self._add_item('light_rename',
-		    autocomplete='%s:rename'  % lid)
+                if function == 'color':
+                    if value == 'colorpicker':
+                        # TODO: This doesn't work.
+                        color_picker.OSXColorPicker.color_picker(lid)
 
-	    elif len(control) >= 3:
-		function = control[1]
-		value = control[2]
+                    self._add_item('set_color',
+                        valid=True,
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'color': value,
+                        }))
+                    self._add_item('color_picker',
+                        icon=icon,
+                        autocomplete='%s:color:colorpicker' % lid)
 
-		if function is 'color':
-		    if value is 'colorpicker':
-			color_picker.ColorPicker.color_picker()
+                elif function == 'bri':
+                    self._add_item('set_brightness',
+                        icon=icon,
+                        valid=True,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': { 'bri': int(value) if value else 1 },
+                        }))
 
-		    self._add_item('set_color',
-			arg=json.dumps({
-			    'lid': lid,
-			    'color': value,
-			}))
-		    self._add_item('color_picker',
-			autocomplete='%s:color:colorpicker' % lid)
+                elif function == 'effect':
+                    self._add_item('effect_none',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'effect': 'none'},
+                        }))
+                    self._add_item('color_loop',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'effect': 'colorloop'},
+                        }))
 
-		elif function is 'bri':
-		    self._add_item('set_brightness',
-			arg=json.dumps({
-			    'lid': lid,
-			    'data': { 'bri': int(value) }
-			}))
+                elif function == 'alert':
+                    self._add_item('alert_none',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'alert': 'none'},
+                        }))
+                    self._add_item('alert_blink_once',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'alert': 'select'},
+                        }))
+                    self._add_item('alert_blink_30_secs',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'data': {'alert': 'lselect'},
+                        }))
 
-		elif function is 'effect':
-		elif function is 'alert':
-		elif function is 'rename':
+                elif function == 'rename':
+                    self._add_item('light_rename',
+                        icon=icon,
+                        arg=json.dumps({
+                            'lid': lid,
+                            'rename': True,
+                            'data': {'name': value},
+                        }))
 
-	else:
+        else:
+            lights = self._get_lights(from_cache=True)
 
-	    if query is 'presets':
-		self._add_item('save_preset')
-		self._preset_items()
+            if not lights:
+                self._add_item('bridge_failed')
 
-	    else:
-		self._add_item('all_lights')
+            elif query is 'presets':
+                self._add_item('save_preset')
+                self._preset_items()
 
-		for light in lights:
-		    self.results.append(alp.Item(
-			title=light['data']['name'],
-			subtitle='ID: {lid}, Brightness: {bri}, Hue: {hue}'.format(
-			    lid=light['lid'],
-			    bri='{0:.0f}%'.format(float(light['data']['state']['bri']) / 255 * 100),
-			    hue=light['data']['state']['hue'],
-			),
-			valid=False,
-			icon=('%s.png' % light['lid'] if light['state'] is 'on' else 'icons/off.png'),
-			autocomplete='%s:' % light['lid']
-		    ))
+            else:
+                self._add_item('all_lights')
 
-		self._add_item('presets')
+                for lid, light in lights.items():
+                    if light['state']['on']:
+                        subtitle = 'Hue: {hue}, Brightness: {bri}'.format(
+                            bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
+                            hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360),
+                        )
+                    else:
+                        subtitle = 'OFF'
 
-	return alp.feedback(self.results)
+                    self.results.append(alp.Item(
+                        title=light['name'],
+                        subtitle=u'#{lid} — {subtitle}'.format(
+                            lid=lid,
+                            subtitle=subtitle,
+                        ),
+                        valid=False,
+                        icon='%s.png' % lid,
+                        autocomplete='%s:' % lid,
+                    ))
+
+                self._add_item('presets')
+
+        return alp.feedback(self.results)
 
 
 if __name__ == '__main__':
