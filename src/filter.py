@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
-# System
+# system
 import json
 import urllib
 import yaml
 
-# Vendor
+# vendor
 import alp
 import png
 import requests
 
-# Stuff specific to this workflow
+# workflow components
 import color_picker
 import rgb_cie
 
@@ -22,12 +22,9 @@ class HueAlfredFilter:
     def __init__(self):
         self.strings = yaml.load(file(alp.local('result_strings.yaml'), 'r'))
 
-    def _load_lights_data_from_api(self):
-        """Downloads lights data and caches it locally.
-        Returns None.
-        """
-        timeout = 6
-        settings = alp.readPlist('settings.plist')
+    def _load_lights_data_from_api(self, timeout=6):
+        """Downloads lights data and caches it locally. Returns None."""
+        settings = alp.readPlist(alp.local('settings.plist'))
         request_base_uri = 'http://{0}/api/{1}'.format(
             settings['api.bridge_ip'],
             settings['api.username'])
@@ -53,7 +50,7 @@ class HueAlfredFilter:
         return None
 
     def _create_light_icon(self, lid, light_data):
-        """Creates a 1x1 PNG icon based on a light's color and saves the png to the local dir.
+        """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
         Returns None.
         """
         # Create a color converter & helper
@@ -89,20 +86,18 @@ class HueAlfredFilter:
 
         lights = alp.jsonLoad(alp.cache('lights.json'))
 
-        if lights:
+        if lights is not None:
             for lid in lights.keys():
                 light_data = alp.jsonLoad(alp.cache('%s.json' % lid))
                 output[lid] = light_data
-        else:
-            output = None
 
         return output
 
     def _show_preset_items(self):
-        # preset_items = presets.get_items()
         raise NotImplementedError()
 
     def _add_item(self, string_key, **kwargs):
+        """A convenient way of adding items based on the yaml data. Returns None."""
         if self.strings.get(string_key):
             for k, v in self.strings[string_key].items():
                 kwargs.setdefault(k, v)
@@ -111,8 +106,16 @@ class HueAlfredFilter:
         return None
 
     def get_results(self, args):
+        """Returns Alfred XML based on the args query.
+
+        Args:
+            args - a string such as: 1, 1:bri, 1:color:red, presets
+        """
         query = args[0]
         control = query.split(':')
+
+        # For filtering results at the end to add a simple autocomplete
+        partial_query = None
 
         if len(control) > 1:
             lights = self._get_lights(from_cache=True)
@@ -120,6 +123,8 @@ class HueAlfredFilter:
             icon = ('icon.png' if lid == 'all' else '%s.png' % lid)
 
             if len(control) is 2:
+                partial_query = control[1]
+
                 if lid == 'all' or lights[lid]['state']['on']:
                     self._add_item('light_off',
                         autocomplete='%s:off' % lid,
@@ -228,12 +233,12 @@ class HueAlfredFilter:
                         }))
 
         else:
-            lights = self._get_lights(from_cache=True)
+            lights = self._get_lights()
 
             if not lights:
                 self._add_item('bridge_failed')
 
-            elif query is 'presets':
+            elif query == 'presets':
                 self._add_item('save_preset')
                 self._preset_items()
 
@@ -244,8 +249,7 @@ class HueAlfredFilter:
                     if light['state']['on']:
                         subtitle = 'Hue: {hue}, Brightness: {bri}'.format(
                             bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
-                            hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360),
-                        )
+                            hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360))
                     else:
                         subtitle = 'OFF'
 
@@ -257,10 +261,12 @@ class HueAlfredFilter:
                         ),
                         valid=False,
                         icon='%s.png' % lid,
-                        autocomplete='%s:' % lid,
-                    ))
+                        autocomplete='%s:' % lid,))
 
                 self._add_item('presets')
+
+        if partial_query:
+            self.results = [result for result in self.results if partial_query in result.autocomplete]
 
         return alp.feedback(self.results)
 
