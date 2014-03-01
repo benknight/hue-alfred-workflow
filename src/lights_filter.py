@@ -55,8 +55,9 @@ set_brightness:
   subtitle: 'Set on a scale from 0 to 255, where 0 is off.'
   valid: false
 
-set_alert:
-  title: Set alert…
+set_reminder:
+  title: Set reminder…
+  subtitle: This will cause the light(s) to blink after the specified interval.
   valid: false
 
 alert_none:
@@ -174,7 +175,7 @@ class HueLightsFilter:
         # For filtering results at the end to add a simple autocomplete
         partial_query = None
 
-        if (query.startswith('lights') and len(query.split(':')) > 1):
+        if (query.startswith('lights') and len(query.split(':')) > 2):
 
             lights = self._get_lights(from_cache=True)
             control = query.split(':')[1:]
@@ -217,9 +218,9 @@ class HueLightsFilter:
                     icon=icon,
                     autocomplete='lights:%s:bri:' % lid)
 
-                self._add_item('set_alert',
+                self._add_item('set_reminder',
                     icon=icon,
-                    autocomplete='lights:%s:alert:' % lid)
+                    autocomplete='lights:%s:reminder:' % lid)
 
                 self._add_item('light_rename',
                     icon=icon,
@@ -248,8 +249,9 @@ class HueLightsFilter:
 
                 elif function == 'bri':
                     self._add_item('set_brightness',
+                        title='Set brightness to %s' % (value or u'…'),
                         icon=icon,
-                        valid=True,
+                        valid=True if value else False,
                         arg=json.dumps({
                             'lid': lid,
                             'data': { 'bri': int(value) if value else 1 },
@@ -269,25 +271,38 @@ class HueLightsFilter:
                             'data': {'effect': 'colorloop'},
                         }))
 
-                elif function == 'alert':
-                    self._add_item('alert_none',
+                elif function == 'reminder':
+                    self._add_item('set_reminder',
+                        title='Blink in %s seconds' % (value or u'…'),
+                        subtitle='',
                         icon=icon,
+                        valid=True if value else False,
                         arg=json.dumps({
                             'lid': lid,
-                            'data': {'alert': 'none'},
+                            'action': 'reminder',
+                            'time_delta': value,
                         }))
-                    self._add_item('alert_blink_once',
+                    self._add_item('set_reminder',
+                        title='Blink in %s minutes' % (value or u'…'),
+                        subtitle='',
                         icon=icon,
+                        valid=True if value else False,
                         arg=json.dumps({
                             'lid': lid,
-                            'data': {'alert': 'select'},
+                            'action': 'reminder',
+                            'time_delta': (int(value) * 60) if value else 0,
                         }))
-                    self._add_item('alert_blink_30_secs',
+                    self._add_item('set_reminder',
+                        title='Blink in %s hours' % (value or u'…'),
+                        subtitle='',
                         icon=icon,
+                        valid=True if value else False,
                         arg=json.dumps({
                             'lid': lid,
-                            'data': {'alert': 'lselect'},
+                            'action': 'reminder',
+                            'time_delta': (int(value) * 60 * 60) if value else 0,
                         }))
+
 
                 elif function == 'rename':
                     self._add_item('light_rename',
@@ -316,6 +331,9 @@ class HueLightsFilter:
                 self._add_item('bridge_failed')
             else:
                 self._add_item('all_lights')
+
+                if query.startswith('lights:'):
+                    partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
                     if light['state']['on']:

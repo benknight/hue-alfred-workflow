@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+import time
 
 import alp
 import requests
@@ -15,9 +16,11 @@ class HueAlfredAction:
 
     def __init__(self):
         self.settings = alp.Settings()
-        self.request_base_path = 'http://{bridge_ip}/api/{username}'.format(
+        self.group_id = self.settings.get('group_id') if self.settings.get('group') else '/groups/0'
+        self.request_path = '/api/%s' % self.settings.get('username')
+        self.request_path_full = 'http://{bridge_ip}{request_path}'.format(
             bridge_ip=self.settings.get('bridge_ip'),
-            username=self.settings.get('username'),
+            request_path=self.request_path,
         )
 
     def _get_xy_color(self, color):
@@ -59,7 +62,7 @@ class HueAlfredAction:
         for lid in lights:
             light = alp.jsonLoad('presets/{0}/{1}.json'.format(preset_name, lid))
             requests.put(
-                self.request_base_path + ('/lights/%s/state' % lid),
+                self.request_path_full + ('/lights/%s/state' % lid),
                 json.dumps({
                      'xy': light['state']['xy'],
                      'on': light['state']['on'],
@@ -83,6 +86,27 @@ class HueAlfredAction:
         elif query.get('action') == 'rename':
             endoint = '/lights/%s' % query['lid']
             data = json.dumps(query['data'])
+            requests.put(self.request_path_full + endpoint, data)
+
+        elif query.get('action') == 'reminder':
+            if query['lid'] == 'all':
+                address = self.request_path + ('%s/action' % self.group_id)
+            else:
+                address = self.request_path + ('/lights/%s/state' % query['lid'])
+
+            data = json.dumps({
+                'name': 'Alfred Hue Reminder',
+                'command': {
+                    'address': address,
+                    'method': 'PUT',
+                    'body': {'alert': 'lselect'},
+                },
+                'time': time.strftime(
+                    '%Y-%m-%dT%H-%M-%S',
+                    time.gmtime(time.time() + int(query['time_delta']))
+                ),
+            })
+            requests.post(self.request_path_full + '/schedules', data)
 
         else:
             if query.get('action') == 'set_color':
@@ -95,12 +119,11 @@ class HueAlfredAction:
                 data = json.dumps(query['data'])
 
             if query['lid'] == 'all':
-                group_id = self.settings.get('group_id') if self.settings.get('group') else '/groups/0'
-                endpoint = '%s/action' % group_id
+                endpoint = '%s/action' % self.group_id
             else:
                 endpoint = '/lights/%s/state' % query['lid']
 
-        requests.put(self.request_base_path + endpoint, data)
+            requests.put(self.request_path_full + endpoint, data)
 
 
 if __name__ == '__main__':

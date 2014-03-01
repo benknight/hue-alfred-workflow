@@ -16,7 +16,6 @@ class HueAlfredSetup:
         else:
             bridge_ip = bridges[0]['internalipaddress']
             settings = alp.Settings()
-            settings.set(bridge_ip=bridge_ip, group='/groups/0')
 
             # Create API user for the workflow
             r = requests.post(
@@ -28,6 +27,7 @@ class HueAlfredSetup:
             if resp.get('error'):
                 print 'Setup Error: %s' % resp['error'].get('description')
             else:
+                settings.set(bridge_ip=bridge_ip, group='')
                 settings.set(username=resp['success']['username'])
                 print 'Success! You can now control your lights by using the "hue" keyword.'
 
