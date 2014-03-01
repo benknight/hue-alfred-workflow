@@ -1,39 +1,107 @@
 # -*- coding: utf-8 -*-
-
-# system
 import json
 import urllib
 import yaml
 
-# vendor
 import alp
 import png
 import requests
 
-# workflow components
 import color_picker
 import rgb_cie
+from presets_filter import HuePresetsFilter
 
 
-class HueAlfredFilter:
+ITEMS = '''
+bridge_failed:
+  title: Bridge connection failed.
+  subtitle: Try running "setup-hue"
+  valid: false
+
+all_lights:
+  title: All lights
+  subtitle: Set state for all Hue lights in the set group.
+  valid: false
+  autocomplete: 'lights:all:'
+
+light_off:
+  title: Turn OFF
+
+light_on:
+  title: Turn ON
+
+set_color:
+  title: Set color to…
+  subtitle: Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")
+  valid: false
+
+color_picker:
+  title: Use color picker…
+  valid: false
+
+set_effect:
+  title: Set effect…
+  valid: false
+
+effect_none:
+  title: None
+  subtitle: 'Cancel any ongoing effects, such as a color loop.'
+
+color_loop:
+  title: Color loop
+
+set_brightness:
+  title: Set brightness…
+  subtitle: 'Set on a scale from 0 to 255, where 0 is off.'
+  valid: false
+
+set_alert:
+  title: Set alert…
+  valid: false
+
+alert_none:
+  title: None
+  subtitle: Turn off any ongoing alerts.
+
+alert_blink_once:
+  title: Blink once
+
+alert_blink_30_secs:
+  title: Blink for 30 seconds
+
+light_rename:
+  title: Set light name to…
+  valid: false
+
+presets:
+  title: Presets
+  subtitle: Save the current group state or set group to a previous state.
+  valid: false
+  autocomplete: presets
+  icon: icons/preset.png
+'''
+
+
+class HueLightsFilter:
 
     results = []
 
     def __init__(self):
-        self.strings = yaml.load(file(alp.local('result_strings.yaml'), 'r'))
+        self.items = yaml.load(ITEMS)
 
     def _load_lights_data_from_api(self, timeout=6):
-        """Downloads lights data and caches it locally. Returns None."""
-        settings = alp.readPlist(alp.local('settings.plist'))
+        """Downloads lights data and caches it locally."""
+        settings = alp.Settings()
         request_base_uri = 'http://{0}/api/{1}'.format(
-            settings['api.bridge_ip'],
-            settings['api.username'])
+            settings.get('bridge_ip'),
+            settings.get('username'),
+        )
 
         r = requests.get(request_base_uri + '/lights', timeout=timeout)
         lights = r.json()
 
-        if settings.get('group') and settings['group'] is not 0:
-            lights = {lid: lights[lid] for lid in settings['group'].split(',')}
+        if settings.get('group'):
+            lights = {lid: lights[lid] for lid in settings.get('group')}
 
         alp.jsonDump(lights, alp.cache('lights.json'))
 
@@ -47,11 +115,8 @@ class HueAlfredFilter:
             # Cache light data
             alp.jsonDump(light_data, alp.cache('%s.json' % lid))
 
-        return None
-
     def _create_light_icon(self, lid, light_data):
         """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
-        Returns None.
         """
         # Create a color converter & helper
         converter = rgb_cie.Converter()
@@ -62,12 +127,10 @@ class HueAlfredFilter:
             light_data['state']['xy'][1],
             float(light_data['state']['bri']) / 255
         )
-        f = open(alp.local('%s.png' % lid), 'wb')
+        f = open(alp.local('icons/%s.png' % lid), 'wb')
         w = png.Writer(1, 1)
         w.write(f, [color_helper.hexToRGB(hex_color)])
         f.close()
-
-        return None
 
     def _get_lights(self, from_cache=False):
         """Returns a dictionary of lid => data, or None if no lights data is in the cache.
@@ -75,7 +138,6 @@ class HueAlfredFilter:
         Options:
             from_cache - Read data from cached json files instead of querying the API.
         """
-
         output = dict()
 
         if not from_cache:
@@ -93,72 +155,75 @@ class HueAlfredFilter:
 
         return output
 
-    def _show_preset_items(self):
-        raise NotImplementedError()
-
     def _add_item(self, string_key, **kwargs):
-        """A convenient way of adding items based on the yaml data. Returns None."""
-        if self.strings.get(string_key):
-            for k, v in self.strings[string_key].items():
+        """A convenient way of adding items based on the yaml data."""
+        if self.items.get(string_key):
+            for k, v in self.items[string_key].items():
                 kwargs.setdefault(k, v)
 
         self.results.append(alp.Item(**kwargs))
-        return None
 
     def get_results(self, args):
         """Returns Alfred XML based on the args query.
 
         Args:
-            args - a string such as: 1, 1:bri, 1:color:red, presets
+            args - a string such as: 1, 1:bri, 1:color:red
         """
         query = args[0]
-        control = query.split(':')
 
         # For filtering results at the end to add a simple autocomplete
         partial_query = None
 
-        if len(control) > 1:
+        if (query.startswith('lights') and len(query.split(':')) > 1):
+
             lights = self._get_lights(from_cache=True)
+            control = query.split(':')[1:]
             lid = control[0]
-            icon = ('icon.png' if lid == 'all' else '%s.png' % lid)
+            icon = ('icon.png' if lid == 'all' else 'icons/%s.png' % lid)
 
             if len(control) is 2:
                 partial_query = control[1]
 
                 if lid == 'all' or lights[lid]['state']['on']:
                     self._add_item('light_off',
-                        autocomplete='%s:off' % lid,
+                        autocomplete='lights:%s:off' % lid,
                         icon=icon,
                         arg=json.dumps({
                             'lid': lid,
                             'data': {'on': False},
                         }))
+
                 if lid == 'all' or not lights[lid]['state']['on']:
                     self._add_item('light_on',
-                        autocomplete='%s:on' % lid,
+                        autocomplete='lights:%s:on' % lid,
                         icon=icon,
                         arg=json.dumps({
                             'lid': lid,
                             'data': {'on': True},
                         }))
+
                 self._add_item('set_color',
                     subtitle='',
                     icon=icon,
-                    autocomplete='%s:color:' % lid)
+                    autocomplete='lights:%s:color:' % lid)
+
                 self._add_item('set_effect',
                     subtitle='',
                     icon=icon,
-                    autocomplete='%s:effect:' % lid)
+                    autocomplete='lights:%s:effect:' % lid)
+
                 self._add_item('set_brightness',
                     subtitle='',
                     icon=icon,
-                    autocomplete='%s:bri:' % lid)
+                    autocomplete='lights:%s:bri:' % lid)
+
                 self._add_item('set_alert',
                     icon=icon,
-                    autocomplete='%s:alert:' % lid)
+                    autocomplete='lights:%s:alert:' % lid)
+
                 self._add_item('light_rename',
                     icon=icon,
-                    autocomplete='%s:rename:' % lid)
+                    autocomplete='lights:%s:rename:' % lid)
 
             elif len(control) >= 3:
                 function = control[1]
@@ -173,6 +238,7 @@ class HueAlfredFilter:
                         valid=True,
                         icon=icon,
                         arg=json.dumps({
+                            'action': 'set_color',
                             'lid': lid,
                             'color': value,
                         }))
@@ -227,21 +293,27 @@ class HueAlfredFilter:
                     self._add_item('light_rename',
                         icon=icon,
                         arg=json.dumps({
+                            'action': 'rename',
                             'lid': lid,
-                            'rename': True,
                             'data': {'name': value},
                         }))
 
-        else:
+        elif query.startswith('presets'):
+            control = query.split(' ')
+
+            if len(control) > 1:
+                presets_query = ' '.join(control[1:])
+            else:
+                presets_query = ''
+
+            presets_filter = HuePresetsFilter()
+            self.results = presets_filter.get_results(presets_query)
+
+        else: # Show index
             lights = self._get_lights()
 
             if not lights:
                 self._add_item('bridge_failed')
-
-            elif query == 'presets':
-                self._add_item('save_preset')
-                self._preset_items()
-
             else:
                 self._add_item('all_lights')
 
@@ -250,8 +322,10 @@ class HueAlfredFilter:
                         subtitle = 'Hue: {hue}, Brightness: {bri}'.format(
                             bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
                             hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360))
+                        icon = 'icons/%s.png' % lid
                     else:
                         subtitle = 'OFF'
+                        icon = 'icons/off.png'
 
                     self.results.append(alp.Item(
                         title=light['name'],
@@ -260,17 +334,24 @@ class HueAlfredFilter:
                             subtitle=subtitle,
                         ),
                         valid=False,
-                        icon='%s.png' % lid,
-                        autocomplete='%s:' % lid,))
+                        icon=icon,
+                        autocomplete='lights:%s:' % lid,))
 
                 self._add_item('presets')
 
         if partial_query:
-            self.results = [result for result in self.results if partial_query in result.autocomplete]
+            def partial_query_filter(result):
+                if result.autocomplete:
+                    return partial_query in result.autocomplete
+                else:
+                    return True
 
-        return alp.feedback(self.results)
+            self.results = [result for result in self.results if partial_query_filter(result)]
+
+        return self.results
 
 
 if __name__ == '__main__':
-    hue_filter = HueAlfredFilter()
-    hue_filter.get_results(alp.args())
+    hue_lights_filter = HueLightsFilter()
+    results = hue_lights_filter.get_results(alp.args())
+    alp.feedback(results)
