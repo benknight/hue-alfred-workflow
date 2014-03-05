@@ -1,3 +1,7 @@
+# Hey YOU!
+
+Want to try out v2 of this workflow?  I need testers to help me try it out before I publish it!  Interested?  Tweet at @benjamin_knight
+
 # Alfred 2 Workflow for Philips Hue
 
 Trigger:
