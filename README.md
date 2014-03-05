@@ -1,10 +1,14 @@
-# Hey YOU!
-
-Want to try out v2 of this workflow?  I need testers to help me try it out before I publish it!  Interested?  Tweet at @benjamin_knight
-
 # Alfred 2 Workflow for Philips Hue
 
-Trigger:
+## I need v2 Testers!
+
+Want to try out version 2 of this workflow?  I need testers to help me try it out before I publish it!  Interested?  Tweet at [@benjamin_knight](https://twitter.com/benjamin_knight)
+
+Here's a sneak peek:
+
+![v2](http://cl.ly/image/0R2p2H0z2443/Screen%20Shot%202014-03-04%20at%209.32.11%20PM.png)
+
+## Usage
 
 	hue [<command> | <light>:<function>:<query>]
 
