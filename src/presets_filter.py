@@ -4,52 +4,38 @@ import os
 
 import alp
 
+from base_filter import HueFilterBase
 
-class HuePresetsFilter:
+
+class HuePresetsFilter(HueFilterBase):
+
+    ICON = 'icons/preset.png'
 
     def get_results(self, query):
-        results = []
-        partial_query = None
+        self.partial_query = query
 
-        if query.startswith('save:'):
-            control = query.split(':')
-            preset_name = control[1]
+        for _, dirnames, __ in os.walk(alp.storage(join='presets')):
+            for subdirname in dirnames:
+                self._add_item(
+                    title=subdirname,
+                    icon=self.ICON,
+                    autocomplete=subdirname,
+                    arg=json.dumps({
+                        'action': 'load_preset',
+                        'preset_name': subdirname,
+                    }),
+                )
 
-            results.append(alp.Item(
-                title=u'Save current state as…',
-                arg=json.dumps({
-                    'action': 'save_preset',
-                    'preset_name': preset_name,
-                }),
-            ))
-        else:
-            partial_query = query
-
-            results.append(alp.Item(
-                title=u'Save current state as…',
+        if not self.results:
+            self._add_item(
+                title='You have no saved presets!',
+                subtitle='Use "-hue save-preset" to save the current lights state as a preset.',
+                icon=self.ICON,
                 valid=False,
-                autocomplete='presets save:',
-            ))
-            for _, dirnames, __ in os.walk(alp.storage(join='presets')):
-                for subdirname in dirnames:
-                    results.append(alp.Item(
-                        title=subdirname,
-                        icon='icons/preset.png',
-                        autocomplete=subdirname,
-                        arg=json.dumps({
-                            'action': 'load_preset',
-                            'preset_name': subdirname
-                        }),
-                    ))
+            )
 
-        if partial_query:
-            results = [
-                result
-                for result in results
-                if partial_query.lower() in result.autocomplete.lower()
-            ]
-
-        return results
+        self._filter_results()
+        return self.results
 
 
 if __name__ == '__main__':
