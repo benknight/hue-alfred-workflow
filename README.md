@@ -8,6 +8,15 @@ Here's a sneak peek:
 
 ![v2](http://cl.ly/image/0R2p2H0z2443/Screen%20Shot%202014-03-04%20at%209.32.11%20PM.png)
 
+Features:
+
+* "Lights" is now the index result set.
+* "All Lights" option for setting the state for all lights in one command.
+* Lights icons are now the actual current light color!  Plus better icons overall.
+* Save presets states for all lights.
+* Set which lights the workflow controls.
+* Set reminders using the scheduling API.
+
 ## Usage
 
 	hue [<command> | <light>:<function>:<query>]
