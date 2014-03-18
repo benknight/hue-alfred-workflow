@@ -22,7 +22,7 @@ For convenience basic light control is available using the `hue` keyword, while 
 
 Control the on/off state, color, and brightness for any individual light, or all lights at once.
 
-![Light Control](/screenshots/lights.png)
+![Light Control](/screenshots/light_control.png)
 
 ### Presets
 
@@ -56,9 +56,15 @@ To reset the group to all lamps again, use `-hue set-group 0`
     * Set reminders (blink lights after some time delta).
 
     1.0
-     * Speed improvements
-     * Download link: http://goo.gl/L3swBq
+    * Speed improvements
+    * Download link: http://goo.gl/L3swBq
 
     0.9
-     * Initial Release
-     * Download link: http://goo.gl/H26W2
+    * Initial Release
+    * Download link: http://goo.gl/H26W2
+     
+## Thanks
+
+Thanks to my testers & feature suggesters [Danny Ricciotti](https://github.com/objectiveSee) and [James Taylor](https://twitter.com/JamesCMTaylor)
+
+Thanks to [Daniel Shannon](https://github.com/phyllisstein) for creating [alp](https://github.com/phyllisstein/alp), which removed all the grunt work in creating a Workflow.
