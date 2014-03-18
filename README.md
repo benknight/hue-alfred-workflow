@@ -8,7 +8,7 @@
 
 *NOTE:* Unfortunately, Alfred Workflows require Powerpack (a paid feature).
 
-Download the workflow here: http://goo.gl/7DI6GU
+Download the workflow here: http://goo.gl/6oZwOZ
 
 Press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -62,7 +62,7 @@ To reset the group to all lamps again, use `-hue set-group 0`
     0.9
     * Initial Release
     * Download link: http://goo.gl/H26W2
-     
+
 ## Thanks
 
 Thanks to my testers & feature suggesters [Danny Ricciotti](https://github.com/objectiveSee) and [James Taylor](https://twitter.com/JamesCMTaylor)
