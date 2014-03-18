@@ -56,12 +56,12 @@ To reset the group to all lamps again, use `-hue set-group 0`
     * Set reminders (blink lights after some time delta).
 
     1.0
-     * Speed improvements
-     * Download link: http://goo.gl/L3swBq
+    * Speed improvements
+    * Download link: http://goo.gl/L3swBq
 
     0.9
-     * Initial Release
-     * Download link: http://goo.gl/H26W2
+    * Initial Release
+    * Download link: http://goo.gl/H26W2
      
 ## Thanks
 
