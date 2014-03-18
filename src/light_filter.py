@@ -23,14 +23,14 @@ set_effect:
 
 effect_none:
   title: None
-  subtitle: 'Cancel any ongoing effects, such as a color loop.'
+  subtitle: Cancel any ongoing effects, such as a color loop.
 
 color_loop:
   title: Color loop
 
 set_brightness:
   title: Set brightness…
-  subtitle: 'Set on a scale from 0 to 255, where 0 is off.'
+  subtitle: Set on a scale from 0 to 100. Note that 0 is not off.
   valid: false
 
 set_reminder:
@@ -124,12 +124,12 @@ class HueLightFilter(HueFilterBase):
 
             elif function == 'bri':
                 self._add_item('set_brightness',
-                    title='Set brightness to %s' % (value or u'…'),
+                    title='Set brightness to %s' % (value + '%' if value else u'…'),
                     icon=icon,
                     valid=True if value else False,
                     arg=json.dumps({
                         'lid': lid,
-                        'data': { 'bri': int(value) if value else 1 },
+                        'data': { 'bri': int((float(value) / 100) * 255) if value else 255 },
                     }))
 
             elif function == 'effect':
