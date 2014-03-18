@@ -1,59 +1,64 @@
-# Alfred 2 Workflow for Philips Hue
+# Philips Hue Controller for Alfred 2
 
-Trigger:
+> Quickly and easily control Philips Hue lights with Alfred.
 
-	hue [<command> | <light>:<function>:<query>]
+![Index](/screenshots/index.png)
 
-## Examples
+## Installation
 
-	hue off
-	hue on
-	hue party
-	hue lights
-	hue 2:off
-	hue 1:effect:colorloop
-	hue 1:effect:none
-	hue 3:color:red
+*NOTE:* Unfortunately, Alfred Workflows require Powerpack (a paid feature).
 
-## Download
+Download the workflow here: http://goo.gl/7DI6GU
 
-Download the current version here: http://goo.gl/L3swBq
+Press the button on top of the Hue bridge and then run this command within 30 seconds:
 
-### Changelog
+    -hue set-bridge
 
-	1.0
-	 * Speed improvements
-	
-	0.9
-	 * Initial Release
-	 * Old download link: http://goo.gl/H26W2
- 
-## Setup
+## Features
 
-![Setup](/screenshots/setup.png)
+For convenience basic light control is available using the `hue` keyword, while all admin features are accessed using `-hue` keyword.
 
-Press the link button on the top of the bridge and use the `setup-hue` Alfred keyword within 30 seconds to automatically configure the workflow to work with the Hue bridge on the local network.
+### Light control
 
-A group id can optionally be specified, e.g. `setup-hue 1` (defaults to `0`, which is all of the Hue bulbs).  This will control which lights are affected by the group actions (e.g. "Turn all lights off").  Check out the docs for the [Groups API](http://developers.meethue.com/2_groupsapi.html).
+Control the on/off state, color, and brightness for any individual light, or all lights at once.
 
-## Screenshots
+![Light Control](/screenshots/lights.png)
 
-Home (blank query):
+### Presets
 
-![Home](/screenshots/home.png)
+Quickly save the current state as a named preset.
 
-Lights:
+![Save Preset](/screenshots/save_preset.png)
 
-![Lights](/screenshots/lights.png)
+Then load them:
 
-Light controls:
+![Presets](/screenshots/presets.png)
 
-![Control](/screenshots/control.png)
+### Easy light groups
 
-Setting the color:
+Control or save the state of just subset of lights so that you can have group presets or avoid turning your roommate's light off by accident.
 
-![Color](/screenshots/color.png)
+![Set Group](/screenshots/set_group.png)
 
-## Roadmap
+This affects which lights will be changed when setting the state for "All lights" using the workflow.
 
-* Add the ability to save current state as a preset.
+To reset the group to all lamps again, use `-hue set-group 0`
+
+## Changelog
+
+    2.0
+    * Ported all workflow code to Python, built on top of alp.
+    * 'Lights' is now the index result set.
+    * New 'All Lights' option for setting the state for all lights in one command.
+    * Lights icons are now the actual current light color!
+    * Save presets states for all lights.
+    * Set which lights the workflow controls using easy group management via `-hue set-group`
+    * Set reminders (blink lights after some time delta).
+
+    1.0
+     * Speed improvements
+     * Download link: http://goo.gl/L3swBq
+
+    0.9
+     * Initial Release
+     * Download link: http://goo.gl/H26W2
