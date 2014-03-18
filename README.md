@@ -22,7 +22,7 @@ For convenience basic light control is available using the `hue` keyword, while 
 
 Control the on/off state, color, and brightness for any individual light, or all lights at once.
 
-![Light Control](/screenshots/lights.png)
+![Light Control](/screenshots/light_control.png)
 
 ### Presets
 
