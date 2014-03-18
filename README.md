@@ -62,3 +62,9 @@ To reset the group to all lamps again, use `-hue set-group 0`
     0.9
      * Initial Release
      * Download link: http://goo.gl/H26W2
+     
+## Thanks
+
+Thanks to my testers & feature suggesters [Danny Ricciotti](https://github.com/objectiveSee) and [James Taylor](https://twitter.com/JamesCMTaylor)
+
+Thanks to [Daniel Shannon](https://github.com/phyllisstein) for creating [alp](https://github.com/phyllisstein/alp), which removed all the grunt work in creating a Workflow.
