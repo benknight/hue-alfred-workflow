@@ -8,7 +8,7 @@
 
 *NOTE:* Unfortunately, Alfred Workflows require Powerpack (a paid feature).
 
-Download the workflow here: http://goo.gl/6oZwOZ
+Download the workflow here: http://goo.gl/Uut2RH
 
 Press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -46,6 +46,10 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ## Changelog
 
+    2.1
+    * Using full state/datastore API for getting lights state instead of getting and storing every light individually.  This is backwards incompatible and won't work with old presets since it saves data differently.
+    * Download link: http://goo.gl/Uut2RH
+
     2.0
     * Ported all workflow code to Python, built on top of alp.
     * 'Lights' is now the index result set.
@@ -54,14 +58,15 @@ To reset the group to all lamps again, use `-hue set-group 0`
     * Save presets states for all lights.
     * Set which lights the workflow controls using easy group management via `-hue set-group`
     * Set reminders (blink lights after some time delta).
+    * Download: http://goo.gl/6oZwOZ
 
     1.0
     * Speed improvements
-    * Download link: http://goo.gl/L3swBq
+    * Download: http://goo.gl/L3swBq
 
     0.9
     * Initial Release
-    * Download link: http://goo.gl/H26W2
+    * Download: http://goo.gl/H26W2
 
 ## Thanks
 
