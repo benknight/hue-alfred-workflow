@@ -42,28 +42,25 @@ class HueFilter(HueFilterBase):
         import requests
 
         settings = alp.Settings()
-        request_base_uri = 'http://{0}/api/{1}'.format(
-            settings.get('bridge_ip'),
-            settings.get('username'),
-        )
 
-        r = requests.get(request_base_uri + '/lights', timeout=timeout)
-        lights = r.json()
+        r = requests.get(
+            'http://{0}/api/{1}'.format(
+                settings.get('bridge_ip'),
+                settings.get('username'),
+            ),
+            timeout=timeout,
+        )
+        data = r.json()
+        lights = data['lights']
 
         if settings.get('group'):
             lights = {lid: lights[lid] for lid in settings.get('group')}
 
         alp.jsonDump(lights, alp.cache('lights.json'))
 
-        for lid in lights.keys():
-            r = requests.get('{0}/lights/{1}'.format(request_base_uri, lid), timeout=timeout)
-            light_data = r.json()
-
-            # Create icon for light
+        # Create icon for light
+        for lid, light_data in lights.iteritems():
             self._create_light_icon(lid, light_data)
-
-            # Cache light data
-            alp.jsonDump(light_data, alp.cache('%s.json' % lid))
 
     def _create_light_icon(self, lid, light_data):
         """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
@@ -99,12 +96,7 @@ class HueFilter(HueFilterBase):
 
         lights = alp.jsonLoad(alp.cache('lights.json'))
 
-        if lights is not None:
-            for lid in lights.keys():
-                light_data = alp.jsonLoad(alp.cache('%s.json' % lid))
-                output[lid] = light_data
-
-        return output
+        return lights
 
     def get_results(self, args):
         """Returns Alfred XML based on the args query.

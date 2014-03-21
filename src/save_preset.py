@@ -1,24 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
+import shutil
 
 import alp
 
 
 def save_preset(preset_name):
-    lights = alp.jsonLoad(alp.cache('lights.json'))
-
-    # Create dir
-    preset_dir = alp.storage(join='presets/' + preset_name)
+    preset_dir = alp.storage(join='presets/%s/' % preset_name)
     os.makedirs(preset_dir)
-
-    # Dump lights.json
-    alp.jsonDump(lights, preset_dir + '/lights.json')
-
-    # for each light do this
-    for lid in lights:
-        light = alp.jsonLoad(alp.cache('%s.json' % lid))
-        alp.jsonDump(light, preset_dir + ('/%s.json' % lid))
-
+    shutil.copy2(alp.cache('lights.json'), preset_dir)
     print 'Preset saved: %s' % preset_name
 
 

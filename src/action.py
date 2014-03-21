@@ -42,15 +42,14 @@ class HueAlfredAction:
     def _load_preset(self, preset_name):
         lights = alp.jsonLoad('presets/%s/lights.json' % preset_name)
 
-        for lid in lights:
-            light = alp.jsonLoad('presets/{0}/{1}.json'.format(preset_name, lid))
+        for lid, light_data in lights.iteritems():
             self.hue_request.request(
                 'put',
                 '/lights/%s/state' % lid,
                 json.dumps({
-                     'xy': light['state']['xy'],
-                     'on': light['state']['on'],
-                    'bri': light['state']['bri'],
+                     'xy': light_data['state']['xy'],
+                     'on': light_data['state']['on'],
+                    'bri': light_data['state']['bri'],
                 }),
             )
 
