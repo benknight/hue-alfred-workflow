@@ -56,6 +56,10 @@ class HueFilter(HueFilterBase):
         if settings.get('group'):
             lights = {lid: lights[lid] for lid in settings.get('group')}
 
+        # Filter out anything that doesn't have an "xy" key in its state
+        # e.g. "Dimmable plug-in unit", see: http://goo.gl/a5P7yN
+        lights = {lid: lights[lid] for lid in lights if lights[lid]['state'].get('xy')}
+
         alp.jsonDump(lights, alp.cache('lights.json'))
 
         # Create icon for light
