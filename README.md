@@ -6,9 +6,9 @@
 
 ## Installation
 
-1. **[Download the workflow](http://goo.gl/o49DeD)**
+1. **[Download the workflow](http://cl.ly/3R2N1Q1M1v0Z/Philips%20Hue%20Controller%20v2.1.1.alfredworkflow)**
 
-2. After adding the workflow, press the button on top of the Hue bridge and then run this command within 30 seconds:
+2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
 ```
 -hue set-bridge
