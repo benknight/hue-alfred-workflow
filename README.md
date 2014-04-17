@@ -48,14 +48,14 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ## Changelog
 
-2.1.1
+#### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
 
-2.1
+#### 2.1
 * Using full state/datastore API for getting lights state instead of getting and storing every light individually.  This is backwards incompatible and won't work with old presets since it saves data differently.
 * Old download link: http://goo.gl/o49DeD
 
-2.0
+#### 2.0
 * Ported all workflow code to Python, built on top of alp.
 * 'Lights' is now the index result set.
 * New 'All Lights' option for setting the state for all lights in one command.
@@ -65,11 +65,11 @@ To reset the group to all lamps again, use `-hue set-group 0`
 * Set reminders (blink lights after some time delta).
 * Old download link: http://goo.gl/6oZwOZ
 
-1.0
+#### 1.0
 * Speed improvements
 * Old download link: http://goo.gl/L3swBq
 
-0.9
+#### 0.9
 * Initial Release
 * Old download link: http://goo.gl/H26W2
 
