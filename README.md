@@ -6,13 +6,15 @@
 
 ## Installation
 
-*NOTE:* Unfortunately, Alfred Workflows require Powerpack (a paid feature).
+1. **[Download the workflow](http://goo.gl/o49DeD)**
 
-Download the workflow here: http://goo.gl/o49DeD
+2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
-Press the button on top of the Hue bridge and then run this command within 30 seconds:
+```
+-hue set-bridge
+```
 
-    -hue set-bridge
+*Note: Unfortunately, Alfred has only made workflows available to users who have purchased [Powerpack](http://www.alfredapp.com/powerpack/).*
 
 ## Features
 
@@ -46,15 +48,14 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ## Changelog
 
-2.1.1
+#### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
-* Download: http://goo.gl/aot0aU
 
-2.1
+#### 2.1
 * Using full state/datastore API for getting lights state instead of getting and storing every light individually.  This is backwards incompatible and won't work with old presets since it saves data differently.
-* Download: http://goo.gl/o49DeD
+* Old download link: http://goo.gl/o49DeD
 
-2.0
+#### 2.0
 * Ported all workflow code to Python, built on top of alp.
 * 'Lights' is now the index result set.
 * New 'All Lights' option for setting the state for all lights in one command.
@@ -62,15 +63,15 @@ To reset the group to all lamps again, use `-hue set-group 0`
 * Save presets states for all lights.
 * Set which lights the workflow controls using easy group management via `-hue set-group`
 * Set reminders (blink lights after some time delta).
-* Download: http://goo.gl/6oZwOZ
+* Old download link: http://goo.gl/6oZwOZ
 
-1.0
+#### 1.0
 * Speed improvements
-* Download: http://goo.gl/L3swBq
+* Old download link: http://goo.gl/L3swBq
 
-0.9
+#### 0.9
 * Initial Release
-* Download: http://goo.gl/H26W2
+* Old download link: http://goo.gl/H26W2
 
 ## Thanks
 
