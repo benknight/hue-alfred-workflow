@@ -47,20 +47,37 @@ class HueLightFilter(HueFilterBase):
 
     items_yaml = ITEMS
 
-    def get_results(self, lid, light_name, query, is_on=None):
+    def get_results(self, lid, light, query):
         control = query.split(':')
+        is_on = light and light['state']['on']
+        is_reachable = light and light['state']['reachable']
 
         if lid != 'all':
-            icon = ('icons/%s.png' % lid) if is_on else 'icons/off.png'
+            icon = ('icons/%s.png' % lid) if is_on and is_reachable else 'icons/off.png'
         else:
             icon = 'icon.png'
 
-        if len(control) is 1:
+        if lid != 'all' and not is_reachable:
+            self._add_item(
+                title='%s is not reachable.' % light['name'],
+                subtitle='Try turning on the light switch.',
+                valid=False,
+                icon=icon,
+            )
+
+        elif len(control) is 1:
             self.partial_query = control[0]
 
-            if is_on or lid == 'all':
+            if lid == 'all':
+                self._add_item(
+                    title='Toggle on/off',
+                    icon=icon,
+                    arg=json.dumps({'action': 'toggle_all'}),
+                )
+
+            if is_on:
                 self._add_item('light_off',
-                    title='Turn %s off' % light_name,
+                    title='Turn %s off' % light['name'],
                     autocomplete='lights:%s:off' % lid,
                     icon=icon,
                     arg=json.dumps({
@@ -68,9 +85,9 @@ class HueLightFilter(HueFilterBase):
                         'data': {'on': False},
                     }))
 
-            if not is_on or lid == 'all':
+            elif is_on is not None:
                 self._add_item(
-                    title='Turn %s on' % light_name,
+                    title='Turn %s on' % light['name'],
                     autocomplete='lights:%s:on' % lid,
                     icon=icon,
                     arg=json.dumps({
@@ -155,7 +172,7 @@ class HueLightFilter(HueFilterBase):
 
                 def reminder_title(suffix):
                     return u'Blink {light_name} in {time} {suffix}'.format(
-                        light_name=light_name,
+                        light_name=light['name'],
                         time=(int_value or u'…'),
                         suffix=suffix,
                     )

@@ -101,6 +101,16 @@ class HueAlfredAction:
             })
             self.hue_request.request('post', '/schedules', data)
 
+        elif query.get('action') == 'toggle_all':
+            if self.settings.get('all_off', False):
+                data = json.dumps({'on': True})
+                self.settings.set(all_off=False)
+            else:
+                data = json.dumps({'on': False})
+                self.settings.set(all_off=True)
+
+            self.hue_request.request('put', '%s/action' % self.group_id, data)
+
         else:
             if query.get('action') == 'set_color':
                 try:

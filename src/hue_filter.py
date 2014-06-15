@@ -118,9 +118,8 @@ class HueFilter(HueFilterBase):
 
             self.results = light_filter.get_results(
                 lid=lid,
-                light_name=lights[lid]['name'] if lights.get(lid) else 'all',
+                light=lights.get(lid, None),
                 query=':'.join(control[2:]), # lights:1:<light_query>
-                is_on=(None if lid == 'all' else lights[lid]['state']['on'])
             )
 
         elif query.startswith('presets'):
@@ -147,7 +146,7 @@ class HueFilter(HueFilterBase):
                     self.partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
-                    if light['state']['on']:
+                    if light['state']['on'] and light['state']['reachable']:
                         subtitle = 'Hue: {hue}, Brightness: {bri}'.format(
                             bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
                             hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360))
