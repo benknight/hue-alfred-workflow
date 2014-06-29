@@ -7,39 +7,39 @@ import requests
 
 class HueAlfredSetup:
 
-    def setup(self):
-        r = requests.get('http://www.meethue.com/api/nupnp')
-        bridges = r.json()
+    def setup(self, bridge_ip=None):
+        if not bridge_ip:
+            r = requests.get('http://www.meethue.com/api/nupnp')
+            bridges = r.json()
 
-        if not bridges:
-            print 'No bridges found on your network.'
-        else:
-            bridge_ip = bridges[0]['internalipaddress']
-            settings = alp.Settings()
-
-            # Create API user for the workflow
-            r = requests.post(
-                'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
-                data=json.dumps({'devicetype': 'Alfred 2'}))
-
-            resp = r.json()[0]
-
-            if resp.get('error'):
-                print 'Setup Error: %s' % resp['error'].get('description')
+            if not bridges:
+                print 'No bridges found on your network.'
             else:
-                settings.set(bridge_ip=bridge_ip, group='')
-                settings.set(username=resp['success']['username'])
-                print 'Success! You can now control your lights by using the "hue" keyword.'
+                bridge_ip = bridges[0]['internalipaddress']
 
-        return None
-
-    def set_group(self, arg):
         settings = alp.Settings()
 
-        if arg == '0':
+        # Create API user for the workflow
+        r = requests.post(
+            'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
+            data=json.dumps({'devicetype': 'Alfred 2'}))
+
+        resp = r.json()[0]
+
+        if resp.get('error'):
+            print 'Setup Error: %s' % resp['error'].get('description')
+        else:
+            settings.set(bridge_ip=bridge_ip, group='')
+            settings.set(username=resp['success']['username'])
+            print 'Success! You can now control your lights by using the "hue" keyword.'
+
+    def set_group(self, group):
+        settings = alp.Settings()
+
+        if group == '0':
             settings.set(group='')
         else:
-            lights = arg.split(',')
+            lights = group.split(',')
 
             if not settings.get('group_id'):
                 # Create a custom group for the workflow to use
@@ -74,18 +74,3 @@ class HueAlfredSetup:
                 )
 
             settings.set(group=lights)
-
-        return None
-
-
-if __name__ == '__main__':
-    hue_setup = HueAlfredSetup()
-    args = alp.args()
-
-    if args:
-        hue_setup.set_group(args[0])
-    else:
-        try:
-            hue_setup.setup()
-        except requests.exceptions.RequestException:
-            print 'Connection error.'
