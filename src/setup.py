@@ -13,25 +13,30 @@ class HueAlfredSetup:
             bridges = r.json()
 
             if not bridges:
-                print 'No bridges found on your network.'
+                print (
+                    'No bridges found on your network. '
+                    "If you already know the bridge's IP address, you can specify it "
+                    'as an argument: -hue set-bridge <IP address>.'
+                )
             else:
                 bridge_ip = bridges[0]['internalipaddress']
 
-        settings = alp.Settings()
+        if bridge_ip:
+            settings = alp.Settings()
 
-        # Create API user for the workflow
-        r = requests.post(
-            'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
-            data=json.dumps({'devicetype': 'Alfred 2'}))
+            # Create API user for the workflow
+            r = requests.post(
+                'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
+                data=json.dumps({'devicetype': 'Alfred 2'}))
 
-        resp = r.json()[0]
+            resp = r.json()[0]
 
-        if resp.get('error'):
-            print 'Setup Error: %s' % resp['error'].get('description')
-        else:
-            settings.set(bridge_ip=bridge_ip, group='')
-            settings.set(username=resp['success']['username'])
-            print 'Success! You can now control your lights by using the "hue" keyword.'
+            if resp.get('error'):
+                print 'Setup Error: %s' % resp['error'].get('description')
+            else:
+                settings.set(bridge_ip=bridge_ip, group='')
+                settings.set(username=resp['success']['username'])
+                print 'Success! You can now control your lights by using the "hue" keyword.'
 
     def set_group(self, group):
         settings = alp.Settings()
