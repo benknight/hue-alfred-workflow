@@ -7,7 +7,6 @@ import sys
 import time
 
 import alp
-import requests
 
 import css_colors
 import rgb_cie
@@ -58,10 +57,7 @@ class HueAlfredAction:
         This whole system is rather inelegant, but right now I'm too lazy to come
         up with a better way, so deal with it. :D
         """
-        if json_query.startswith('colorpicker'):
-            return None
-        else:
-            query = json.loads(json_query)
+        query = json.loads(json_query)
 
         if query.get('action') == 'load_preset':
             self._load_preset(query['preset_name'])
@@ -100,16 +96,6 @@ class HueAlfredAction:
                 'time': reminder_time.replace(microsecond=0).isoformat(),
             })
             self.hue_request.request('post', '/schedules', data)
-
-        elif query.get('action') == 'toggle_all':
-            if self.settings.get('all_off', False):
-                data = json.dumps({'on': True})
-                self.settings.set(all_off=False)
-            else:
-                data = json.dumps({'on': False})
-                self.settings.set(all_off=True)
-
-            self.hue_request.request('put', '%s/action' % self.group_id, data)
 
         else:
             if query.get('action') == 'set_color':

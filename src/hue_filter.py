@@ -2,15 +2,23 @@
 import json
 
 import alp
-import png
-import rgb_cie
 
+import helpers
 from base_filter import HueFilterBase
 from light_filter import HueLightFilter
 from presets_filter import HuePresetsFilter
 
 
-ITEMS = '''
+class HueFilter(HueFilterBase):
+
+    items_yaml = '''
+help:
+  title: Help
+  subtitle: Get general info about how to use this workflow.
+  valid: true
+  arg: help
+  icon: icons/help.png
+
 bridge_failed:
   title: Bridge connection failed.
   subtitle: Try running "-hue set-bridge"
@@ -21,6 +29,7 @@ all_lights:
   subtitle: Set state for all Hue lights in the set group.
   valid: false
   autocomplete: 'lights:all:'
+  icon: icons/light-alt.png
 
 presets:
   title: Presets
@@ -29,78 +38,6 @@ presets:
   autocomplete: presets
   icon: icons/preset.png
 '''
-
-
-class HueFilter(HueFilterBase):
-
-    items_yaml = ITEMS
-
-    def _load_lights_data_from_api(self, timeout=6):
-        """Downloads lights data and caches it locally."""
-
-        # Requests is an expensive import so we only do it when necessary.
-        import requests
-
-        settings = alp.Settings()
-
-        r = requests.get(
-            'http://{0}/api/{1}'.format(
-                settings.get('bridge_ip'),
-                settings.get('username'),
-            ),
-            timeout=timeout,
-        )
-        data = r.json()
-        lights = data['lights']
-
-        if settings.get('group'):
-            lights = {lid: lights[lid] for lid in settings.get('group')}
-
-        # Filter out anything that doesn't have an "xy" key in its state
-        # e.g. "Dimmable plug-in unit", see: http://goo.gl/a5P7yN
-        lights = {lid: lights[lid] for lid in lights if lights[lid]['state'].get('xy')}
-
-        alp.jsonDump(lights, alp.cache('lights.json'))
-
-        # Create icon for light
-        for lid, light_data in lights.iteritems():
-            self._create_light_icon(lid, light_data)
-
-    def _create_light_icon(self, lid, light_data):
-        """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
-        """
-        # Create a color converter & helper
-        converter = rgb_cie.Converter()
-        color_helper = rgb_cie.ColorHelper()
-
-        hex_color = converter.xyToHEX(
-            light_data['state']['xy'][0],
-            light_data['state']['xy'][1],
-            float(light_data['state']['bri']) / 255
-        )
-        f = open(alp.local('icons/%s.png' % lid), 'wb')
-        w = png.Writer(1, 1)
-        w.write(f, [color_helper.hexToRGB(hex_color)])
-        f.close()
-
-    def _get_lights(self, from_cache=False):
-        """Returns a dictionary of lid => data, or None if no lights data is in the cache.
-
-        Options:
-            from_cache - Read data from cached json files instead of querying the API.
-        """
-        output = dict()
-
-        if not from_cache:
-            from requests.exceptions import RequestException
-            try:
-                self._load_lights_data_from_api()
-            except RequestException:
-                return None
-
-        lights = alp.jsonLoad(alp.cache('lights.json'))
-
-        return lights
 
     def get_results(self, args):
         """Returns Alfred XML based on the args query.
@@ -113,7 +50,7 @@ class HueFilter(HueFilterBase):
         if (query.startswith('lights') and len(query.split(':')) >= 3):
             light_filter = HueLightFilter()
             control = query.split(':')
-            lights = self._get_lights(from_cache=True)
+            lights = helpers.get_lights(from_cache=True)
             lid = control[1]
 
             self.results = light_filter.get_results(
@@ -135,7 +72,7 @@ class HueFilter(HueFilterBase):
             self.results = presets_filter.get_results(presets_query)
 
         else: # Show index
-            lights = self._get_lights()
+            lights = helpers.get_lights()
 
             if not lights:
                 self._add_item('bridge_failed')
@@ -167,6 +104,7 @@ class HueFilter(HueFilterBase):
 
                 self._add_item('presets')
 
+        self._add_item('help')
         self._filter_results()
         return self.results
 

@@ -7,7 +7,9 @@ import alp
 from base_filter import HueFilterBase
 
 
-ITEMS = '''
+class HueLightFilter(HueFilterBase):
+
+    items_yaml = '''
 set_color:
   title: Set color to…
   subtitle: Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")
@@ -41,11 +43,6 @@ light_rename:
   title: Set light name to…
   valid: false
 '''
-
-
-class HueLightFilter(HueFilterBase):
-
-    items_yaml = ITEMS
 
     def get_results(self, lid, light, query):
         control = query.split(':')

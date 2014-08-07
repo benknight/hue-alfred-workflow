@@ -13,11 +13,7 @@ class HueAlfredSetup:
             bridges = r.json()
 
             if not bridges:
-                print (
-                    'No bridges found on your network. '
-                    "If you already know the bridge's IP address, you can specify it "
-                    'as an argument: -hue set-bridge <IP address>.'
-                )
+                print 'No bridges found on your network.  Try specifying the IP if you know it.'
             else:
                 bridge_ip = bridges[0]['internalipaddress']
 
