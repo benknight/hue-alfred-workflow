@@ -3,6 +3,7 @@
 > Quickly and easily control Philips Hue lights with Alfred.
 
 ![Index](/screenshots/index.png)
+![Admin](/screenshots/admin.png)
 
 ## Installation
 
