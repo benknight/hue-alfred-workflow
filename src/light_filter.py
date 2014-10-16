@@ -67,9 +67,23 @@ light_rename:
 
             if lid == 'all':
                 self._add_item(
-                    title='Toggle on/off',
+                    title='ALL OFF',
                     icon=icon,
-                    arg=json.dumps({'action': 'toggle_all'}),
+                    arg=json.dumps({
+                        'data': {'on': False},
+                        'lid': 'all',
+                        'feedback': 'All lights toggled off.'
+                    }),
+                )
+
+                self._add_item(
+                    title='ALL ON',
+                    icon=icon,
+                    arg=json.dumps({
+                        'data': {'on': True},
+                        'lid': 'all',
+                        'feedback': 'All lights toggled on.'
+                    }),
                 )
 
             if is_on:
@@ -80,6 +94,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'on': False},
+                        'feedback': '%s turned off.' % light['name'],
                     }))
 
             elif is_on is not None:
@@ -90,6 +105,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'on': True},
+                        'feedback': '%s turned on.' % light['name'],
                     }))
 
             if is_on or lid == 'all':
@@ -130,6 +146,7 @@ light_rename:
                         'action': 'set_color',
                         'lid': lid,
                         'color': value,
+                        'feedback': '%s color set to %s.' % (light['name'], value),
                     }))
 
                 self._add_item('color_picker',
@@ -144,6 +161,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': { 'bri': int((float(value) / 100) * 255) if value else 255 },
+                        'feedback': '%s brigtness set to %s%%.' % (light['name'], value),
                     }))
 
             elif function == 'effect':
@@ -152,6 +170,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'effect': 'none'},
+                        'feedback': '%s effect set to none.' % light['name'],
                     }))
 
                 self._add_item('color_loop',
@@ -159,6 +178,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'effect': 'colorloop'},
+                        'feedback': '%s effect set to colorloop.' % light['name'],
                     }))
 
             elif function == 'reminder':
@@ -183,6 +203,7 @@ light_rename:
                         'lid': lid,
                         'action': 'reminder',
                         'time_delta': int_value,
+                        'feedback': 'Reminder set for %s seconds.' % int_value,
                     }))
 
                 self._add_item(
@@ -194,6 +215,7 @@ light_rename:
                         'lid': lid,
                         'action': 'reminder',
                         'time_delta': (int_value * 60) if int_value else 0,
+                        'feedback': 'Reminder set for %s minute(s).' % int_value,
                     }))
 
                 self._add_item(
@@ -205,6 +227,7 @@ light_rename:
                         'lid': lid,
                         'action': 'reminder',
                         'time_delta': (int_value * 60 * 60) if int_value else 0,
+                        'feedback': 'Reminder set for %s hour(s).' % int_value,
                     }))
 
             elif function == 'rename':
@@ -215,6 +238,7 @@ light_rename:
                         'action': 'rename',
                         'lid': lid,
                         'data': {'name': value},
+                        'feedback': '%s renamed to %s.' % (light['name'], value),
                     }))
 
         self._filter_results()

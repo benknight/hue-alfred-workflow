@@ -114,6 +114,9 @@ class HueAlfredAction:
 
             self.hue_request.request('put', endpoint, json.dumps(data))
 
+        if query.get('feedback'):
+            print query['feedback'].encode('utf8')
+
 
 if __name__ == '__main__':
     hue_action = HueAlfredAction()
