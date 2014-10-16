@@ -15,7 +15,7 @@
 -hue set-bridge
 ```
 
-This command attempts to find the bridge on your network.  If it fails, you can specify the bridge's IP address on the local network:
+This command attempts to find the bridge on your local network.  If it fails, you can specify the bridge's IP address.  For example, if your bridge's IP is `192.168.42.126`:
 
 ```
 -hue set-bridge 192.168.42.126
