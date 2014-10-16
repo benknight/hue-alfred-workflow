@@ -46,6 +46,18 @@ This affects which lights will be changed when setting the state for "All lights
 
 To reset the group to all lamps again, use `-hue set-group 0`
 
+### Hotkeys
+
+![Hotkeys](/screenshots/hotkeys.png)
+
+After installing the workflow you can edit it within the "Workflows" tab in the Alfred Preferences to set hotkey shortcuts for the following actions:
+
+1. Toggle all lights on
+2. Toggle all lights off
+3. Set lamps to random colors.
+
+These have to be set by the user.  Personally I use `Control+O`, `Control+Shift+O`, and `Control+R` for each, respectively, as I find there are no collisions here with existing shortcuts.
+
 ## Changelog
 
 #### 2.2
