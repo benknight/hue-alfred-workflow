@@ -15,7 +15,11 @@
 -hue set-bridge
 ```
 
-*Note: Unfortunately, Alfred has only made workflows available to users who have purchased [Powerpack](http://www.alfredapp.com/powerpack/).*
+This command attempts to find the bridge on your network.  If it fails, you can specify the bridge's IP address on the local network:
+
+```
+-hue set-bridge 192.168.42.126
+```
 
 ## Features
 
