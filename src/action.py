@@ -55,7 +55,7 @@ class HueAlfredAction:
     def send_filter_query(self, json_query):
         """Decodes a json query sent by the script filter and makes the API call.
         This whole system is rather inelegant, but right now I'm too lazy to come
-        up with a better way, so deal with it. :D
+        up with a better way, so deal with it.
         """
         query = json.loads(json_query)
 

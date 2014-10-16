@@ -5,7 +5,7 @@ import requests
 
 
 REMOTE_VERSION_URI = 'https://raw.githubusercontent.com/benknight/hue-alfred-workflow/master/VERSION'
-DOWNLOAD_URI = 'http://google.com'
+DOWNLOAD_URI = 'https://github.com/benknight/hue-alfred-workflow'
 
 results = []
 
