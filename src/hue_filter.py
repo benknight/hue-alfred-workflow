@@ -29,7 +29,6 @@ all_lights:
   subtitle: Set state for all Hue lights in the set group.
   valid: false
   autocomplete: 'lights:all:'
-  icon: icons/light-alt.png
 
 presets:
   title: Presets
@@ -84,9 +83,9 @@ presets:
 
                 for lid, light in lights.items():
                     if light['state']['on'] and light['state']['reachable']:
-                        subtitle = 'Hue: {hue}, Brightness: {bri}'.format(
-                            bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
-                            hue='{0:.0f}deg'.format(float(light['state']['hue']) / 65535 * 360))
+                        subtitle = u'hue: {hue}, brightness: {bri}'.format(
+                            bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
+                            hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360))
                         icon = 'icons/%s.png' % lid
                     else:
                         subtitle = 'OFF'
@@ -94,7 +93,7 @@ presets:
 
                     self.results.append(alp.Item(
                         title=light['name'],
-                        subtitle=u'#{lid} — {subtitle}'.format(
+                        subtitle=u'({lid}) {subtitle}'.format(
                             lid=lid,
                             subtitle=subtitle,
                         ),
@@ -103,8 +102,8 @@ presets:
                         autocomplete='lights:%s:' % lid,))
 
                 self._add_item('presets')
+                self._add_item('help')
 
-        self._add_item('help')
         self._filter_results()
         return self.results
 
