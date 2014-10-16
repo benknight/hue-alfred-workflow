@@ -1,9 +1,9 @@
 import json
+import random
 
 import alp
 
 import helpers
-import rgb_cie
 from hue_request import HueRequest
 
 
@@ -25,7 +25,7 @@ else:
         hue_request.request(
             'put',
             '%s/action' % group_id,
-            json.dumps({'on': True})
+            json.dumps({'on': False})
         )
         print 'All lights toggled off.'
 
@@ -33,16 +33,19 @@ else:
         hue_request.request(
             'put',
             '%s/action' % group_id,
-            json.dumps({'on': False})
+            json.dumps({'on': True})
         )
         print 'All lights toggled on.'
 
     elif q == 'Random':
-        converter = rgb_cie.Converter()
         for lid in lights:
             hue_request.request(
                 'put',
                 '/lights/%s/state' % lid,
-                json.dumps({'xy': converter.getCIEColor()})
+                json.dumps({
+                    'hue': random.randrange(0, 65535),
+                    'sat': 255,
+                })
             )
+        print 'Lights set to random hues.'
 
