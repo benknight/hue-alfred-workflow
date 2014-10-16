@@ -6,7 +6,7 @@
 
 ## Installation
 
-1. **[Download the workflow](http://goo.gl/o49DeD)**
+1. **[Download the workflow](http://goo.gl/Ofxh2A)**
 
 2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -24,13 +24,13 @@ For convenience basic light control is available using the `hue` keyword, while 
 
 Control the on/off state, color, and brightness for any individual light, or all lights at once.
 
-![Light Control](/screenshots/light_control.png)
+![Light Control](/screenshots/light.png)
 
 ### Presets
 
 Quickly save the current state as a named preset.
 
-![Save Preset](/screenshots/save_preset.png)
+![Save Preset](/screenshots/save.png)
 
 Then load them:
 
@@ -40,7 +40,7 @@ Then load them:
 
 Control or save the state of just subset of lights so that you can have group presets or avoid turning your roommate's light off by accident.
 
-![Set Group](/screenshots/set_group.png)
+![Set Group](/screenshots/group.png)
 
 This affects which lights will be changed when setting the state for "All lights" using the workflow.
 
@@ -48,8 +48,18 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ## Changelog
 
+#### 2.2
+* Adds hotkeys for toggling all lights on and off, and setting all lights to random color.
+* Adds help item to `hue` and `-hue` commands.
+* Adds more helpful feedback text for light actions.
+* Adds mechanism for checking if a new version exists.
+* New icons & style tweaks.
+* Made it possible to specify bridge IP as an argument to `-hue set-bridge`
+* Download link: http://goo.gl/Ofxh2A
+
 #### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
+* Old download link: http://goo.gl/aot0aU
 
 #### 2.1
 * Using full state/datastore API for getting lights state instead of getting and storing every light individually.  This is backwards incompatible and won't work with old presets since it saves data differently.
