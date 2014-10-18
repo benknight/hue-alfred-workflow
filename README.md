@@ -7,7 +7,7 @@
 
 ## Installation
 
-1. **[Download the workflow](http://goo.gl/Ofxh2A)**
+1. **[Download the workflow](http://goo.gl/ydZPJy)**
 
 2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -72,7 +72,7 @@ These have to be set by the user.  Personally I use `Control+O`, `Control+Shift+
 * Adds mechanism for checking if a new version exists.
 * New icons & style tweaks.
 * Made it possible to specify bridge IP as an argument to `-hue set-bridge`
-* Download link: http://goo.gl/Ofxh2A
+* Download link: http://goo.gl/ydZPJy
 
 #### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
