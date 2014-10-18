@@ -5,6 +5,7 @@ import alp
 
 import helpers
 from hue_request import HueRequest
+from action import HueAlfredAction
 
 
 q = alp.args()[0]
@@ -49,3 +50,8 @@ else:
             )
         print 'Lights set to random hues.'
 
+    else:
+        # Assume this is a preset
+        action = HueAlfredAction()
+        action._load_preset(q)
+        print 'Preset loaded: %s' % q

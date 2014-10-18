@@ -63,7 +63,19 @@ After installing the workflow you can edit it within the "Workflows" tab in the 
 
 These have to be set by the user.  Personally I use `Control+O`, `Control+Shift+O`, and `Control+R` for each, respectively, as I find there are no collisions here with existing shortcuts.
 
+You can also add your own Hotkeys for saved presets:
+
+1. Create your preset (see [Presets](#presets) section).
+2. Open up the Alfred Preferences, click the "Workflows" tab, and select the Philips Hue Controller workflow.
+3. Select the "+" icon, and select "Triggers > Hotkey" to add a new Hotkey.
+4. Edit your Hotkey to select the keyboard shortcut, and set the argument to "Text" with the value as the name of your preset.
+5. Connect this Hotkey action to the `/bin/bash` "Run Script" action that the other Hotkeys are attached to.
+
 ## Changelog
+
+#### 2.3
+* Adds the ability to set Hotkeys for user-created presets.
+* Download link:
 
 #### 2.2
 * Adds hotkeys for toggling all lights on and off, and setting all lights to random color.
