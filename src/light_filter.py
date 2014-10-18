@@ -161,7 +161,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': { 'bri': int((float(value) / 100) * 255) if value else 255 },
-                        'feedback': '%s brigtness set to %s%%.' % (light['name'], value),
+                        'feedback': '%s brightness set to %s%%.' % (light['name'], value),
                     }))
 
             elif function == 'effect':
