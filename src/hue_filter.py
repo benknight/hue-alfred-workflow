@@ -17,6 +17,7 @@ help:
   subtitle: Get general info about how to use this workflow.
   valid: true
   arg: help
+  autocomplete: help
   icon: icons/help.png
 
 bridge_failed:
@@ -88,7 +89,7 @@ presets:
                             hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360))
                         icon = 'icons/%s.png' % lid
                     else:
-                        subtitle = 'OFF'
+                        subtitle = 'off' if light['state']['reachable'] else 'not reachable'
                         icon = 'icons/off.png'
 
                     self.results.append(alp.Item(

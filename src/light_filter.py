@@ -48,6 +48,7 @@ light_rename:
         control = query.split(':')
         is_on = light and light['state']['on']
         is_reachable = light and light['state']['reachable']
+        light_name = light['name'] if lid != 'all' else 'All lights'
 
         if lid != 'all':
             icon = ('icons/%s.png' % lid) if is_on and is_reachable else 'icons/off.png'
@@ -56,7 +57,7 @@ light_rename:
 
         if lid != 'all' and not is_reachable:
             self._add_item(
-                title='%s is not reachable.' % light['name'],
+                title='%s is not reachable.' % light_name,
                 subtitle='Try turning on the light switch.',
                 valid=False,
                 icon=icon,
@@ -88,24 +89,24 @@ light_rename:
 
             if is_on:
                 self._add_item('light_off',
-                    title='Turn %s off' % light['name'],
+                    title='Turn %s off' % light_name,
                     autocomplete='lights:%s:off' % lid,
                     icon=icon,
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'on': False},
-                        'feedback': '%s turned off.' % light['name'],
+                        'feedback': '%s turned off.' % light_name,
                     }))
 
             elif is_on is not None:
                 self._add_item(
-                    title='Turn %s on' % light['name'],
+                    title='Turn %s on' % light_name,
                     autocomplete='lights:%s:on' % lid,
                     icon=icon,
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'on': True},
-                        'feedback': '%s turned on.' % light['name'],
+                        'feedback': '%s turned on.' % light_name,
                     }))
 
             if is_on or lid == 'all':
@@ -146,7 +147,7 @@ light_rename:
                         'action': 'set_color',
                         'lid': lid,
                         'color': value,
-                        'feedback': '%s color set to %s.' % (light['name'], value),
+                        'feedback': '%s color set to %s.' % (light_name, value),
                     }))
 
                 self._add_item('color_picker',
@@ -161,7 +162,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': { 'bri': int((float(value) / 100) * 255) if value else 255 },
-                        'feedback': '%s brightness set to %s%%.' % (light['name'], value),
+                        'feedback': '%s brigtness set to %s%%.' % (light_name, value),
                     }))
 
             elif function == 'effect':
@@ -170,7 +171,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'effect': 'none'},
-                        'feedback': '%s effect set to none.' % light['name'],
+                        'feedback': '%s effect set to none.' % light_name,
                     }))
 
                 self._add_item('color_loop',
@@ -178,7 +179,7 @@ light_rename:
                     arg=json.dumps({
                         'lid': lid,
                         'data': {'effect': 'colorloop'},
-                        'feedback': '%s effect set to colorloop.' % light['name'],
+                        'feedback': '%s effect set to colorloop.' % light_name,
                     }))
 
             elif function == 'reminder':
@@ -189,7 +190,7 @@ light_rename:
 
                 def reminder_title(suffix):
                     return u'Blink {light_name} in {time} {suffix}'.format(
-                        light_name=light['name'],
+                        light_name=light_name,
                         time=(int_value or u'…'),
                         suffix=suffix,
                     )
@@ -238,7 +239,7 @@ light_rename:
                         'action': 'rename',
                         'lid': lid,
                         'data': {'name': value},
-                        'feedback': '%s renamed to %s.' % (light['name'], value),
+                        'feedback': '%s renamed to %s.' % (light_name, value),
                     }))
 
         self._filter_results()
