@@ -74,6 +74,7 @@ You can also add your own Hotkeys for saved presets:
 ## Changelog
 
 #### 2.3
+* Bugfix: #17
 * Adds the ability to set Hotkeys for user-created presets.
 * Download link: http://goo.gl/O0Pk0f
 
