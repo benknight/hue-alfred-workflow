@@ -84,7 +84,8 @@ You can also add your own Hotkeys for saved presets:
 * Adds mechanism for checking if a new version exists.
 * New icons & style tweaks.
 * Made it possible to specify bridge IP as an argument to `-hue set-bridge`
-<!-- Download Link: http://goo.gl/aot0aU (Don't use! Has bugs! #17) -->
+
+<!-- 2.2 Download Link: http://goo.gl/aot0aU (Don't use! Has bugs! #17) -->
 
 #### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
