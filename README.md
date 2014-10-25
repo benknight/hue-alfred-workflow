@@ -7,7 +7,7 @@
 
 ## Installation
 
-1. **[Download the workflow](http://goo.gl/aot0aU)**
+1. **[Download the workflow](http://goo.gl/O0Pk0f)**
 
 2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -74,8 +74,9 @@ You can also add your own Hotkeys for saved presets:
 ## Changelog
 
 #### 2.3
+* Bugfix: #17
 * Adds the ability to set Hotkeys for user-created presets.
-* Download link:
+* Download link: http://goo.gl/O0Pk0f
 
 #### 2.2
 * Adds hotkeys for toggling all lights on and off, and setting all lights to random color.
@@ -84,6 +85,8 @@ You can also add your own Hotkeys for saved presets:
 * Adds mechanism for checking if a new version exists.
 * New icons & style tweaks.
 * Made it possible to specify bridge IP as an argument to `-hue set-bridge`
+
+<!-- 2.2 Download Link: http://goo.gl/aot0aU (Don't use! Has bugs! #17) -->
 
 #### 2.1.1
 * Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
