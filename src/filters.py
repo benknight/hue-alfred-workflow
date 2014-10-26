@@ -119,13 +119,13 @@ presets:
                     self.partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
-                    if light['state']['on'] and light['state']['reachable']:
+                    if light['state']['on']:
                         subtitle = u'hue: {hue}, brightness: {bri}'.format(
                             bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
                             hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360))
                         icon = 'icons/%s.png' % lid
                     else:
-                        subtitle = 'off' if light['state']['reachable'] else 'not reachable'
+                        subtitle = 'off'
                         icon = 'icons/off.png'
 
                     self.results.append(alp.Item(
@@ -185,23 +185,14 @@ light_rename:
     def get_results(self, lid, light, query):
         control = query.split(':')
         is_on = light and light['state']['on']
-        is_reachable = light and light['state']['reachable']
         light_name = light['name'] if lid != 'all' else 'All lights'
 
         if lid != 'all':
-            icon = ('icons/%s.png' % lid) if is_on and is_reachable else 'icons/off.png'
+            icon = ('icons/%s.png' % lid) if is_on else 'icons/off.png'
         else:
             icon = 'icon.png'
 
-        if lid != 'all' and not is_reachable:
-            self._add_item(
-                title='%s is not reachable.' % light_name,
-                subtitle='Try turning on the light switch.',
-                valid=False,
-                icon=icon,
-            )
-
-        elif len(control) is 1:
+        if len(control) is 1:
             self.partial_query = control[0]
 
             if lid == 'all':
@@ -278,11 +269,15 @@ light_rename:
 
             if function == 'color':
                 converter = rgb_cie.Converter()
-                current_hex = converter.xyToHEX(
-                    light['state']['xy'][0],
-                    light['state']['xy'][1],
-                    light['state']['bri'],
-                )
+
+                if lid == 'all':
+                    current_hex = 'ffffff'
+                else:
+                    current_hex = converter.xyToHEX(
+                        light['state']['xy'][0],
+                        light['state']['xy'][1],
+                        light['state']['bri'],
+                    )
 
                 self._add_item('set_color',
                     valid=True,
