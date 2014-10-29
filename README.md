@@ -71,6 +71,10 @@ You can also add your own Hotkeys for saved presets:
 4. Edit your Hotkey to select the keyboard shortcut, and set the argument to "Text" with the value as the name of your preset.
 5. Connect this Hotkey action to the `/bin/bash` "Run Script" action that the other Hotkeys are attached to.
 
+## Issues
+
+If you're having issues feel free to contact me via Twitter at @babylemurman, email me at ben@benknight.me, or open an issue on this Github page.  I will try to get back to you within a day!
+
 ## Changelog
 
 #### 2.3
