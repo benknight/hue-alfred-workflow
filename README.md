@@ -7,7 +7,7 @@
 
 ## Installation
 
-1. **[Download the workflow](http://goo.gl/O0Pk0f)**
+1. **[Download the workflow](http://goo.gl/85imtI)**
 
 2. After adding the workflow to Alfred, press the button on top of the Hue bridge and then run this command within 30 seconds:
 
@@ -80,7 +80,8 @@ If you're having issues feel free to contact me via Twitter at @babylemurman, em
 #### 2.3
 * Bugfix: #17
 * Adds the ability to set Hotkeys for user-created presets.
-* Download link: http://goo.gl/O0Pk0f
+* Download link: http://goo.gl/85imtI
+* Download link 2: http://goo.gl/O0Pk0f
 
 #### 2.2
 * Adds hotkeys for toggling all lights on and off, and setting all lights to random color.
