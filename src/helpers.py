@@ -1,5 +1,6 @@
 import alp
 import png
+
 import rgb_cie
 
 
@@ -44,7 +45,6 @@ def _create_light_icon(lid, light_data):
     hex_color = converter.xyToHEX(
         light_data['state']['xy'][0],
         light_data['state']['xy'][1],
-        float(light_data['state']['bri']) / 255
     )
     f = open(alp.local('icons/%s.png' % lid), 'wb')
     w = png.Writer(1, 1)
