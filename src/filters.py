@@ -19,6 +19,9 @@ class HueFilterBase:
     # For filtering results at the end to add a simple autocomplete
     partial_query = None
 
+    # A default icon
+    icon = 'icon.png'
+
     def __init__(self):
         self.items = yaml.load(self.items_yaml)
 
@@ -27,6 +30,9 @@ class HueFilterBase:
         if string_key and self.items.get(string_key):
             for k, v in self.items[string_key].items():
                 kwargs.setdefault(k, v)
+
+        if not kwargs.get('icon'):
+            kwargs['icon'] = self.icon
 
         self.results.append(alp.Item(**kwargs))
 
@@ -96,7 +102,6 @@ presets:
             )
 
         elif query.startswith('presets'):
-
             control = query.split(' ')
 
             if len(control) > 1:
@@ -188,79 +193,43 @@ light_rename:
         light_name = light['name'] if lid != 'all' else 'All lights'
 
         if lid != 'all':
-            icon = ('icons/%s.png' % lid) if is_on else 'icons/off.png'
-        else:
-            icon = 'icon.png'
+            self.icon = ('icons/%s.png' % lid) if is_on else 'icons/off.png'
 
         if len(control) is 1:
             self.partial_query = control[0]
 
             if lid == 'all':
-                self._add_item(
-                    title='ALL OFF',
-                    icon=icon,
-                    arg=json.dumps({
-                        'data': {'on': False},
-                        'lid': 'all',
-                        'feedback': 'All lights toggled off.'
-                    }),
-                )
-
-                self._add_item(
-                    title='ALL ON',
-                    icon=icon,
-                    arg=json.dumps({
-                        'data': {'on': True},
-                        'lid': 'all',
-                        'feedback': 'All lights toggled on.'
-                    }),
-                )
+                self._add_item(title='ALL OFF', arg='lights:all:off')
+                self._add_item(title='ALL ON', arg='lights:all:on')
 
             if is_on:
                 self._add_item('light_off',
                     title='Turn %s off' % light_name,
-                    autocomplete='lights:%s:off' % lid,
-                    icon=icon,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'data': {'on': False},
-                        'feedback': '%s turned off.' % light_name,
-                    }))
+                    arg='lights:%s:off' % lid)
 
             elif is_on is not None:
                 self._add_item(
                     title='Turn %s on' % light_name,
-                    autocomplete='lights:%s:on' % lid,
-                    icon=icon,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'data': {'on': True},
-                        'feedback': '%s turned on.' % light_name,
-                    }))
+                    arg='lights:%s:on' % lid)
 
             if is_on or lid == 'all':
                 self._add_item('set_color',
                     subtitle='',
-                    icon=icon,
                     autocomplete='lights:%s:color:' % lid)
 
                 self._add_item('set_effect',
                     subtitle='',
-                    icon=icon,
                     autocomplete='lights:%s:effect:' % lid)
 
                 self._add_item('set_brightness',
                     subtitle='',
-                    icon=icon,
                     autocomplete='lights:%s:bri:' % lid)
 
                 self._add_item('set_reminder',
-                    icon=icon,
                     autocomplete='lights:%s:reminder:' % lid)
 
             if lid != 'all':
                 self._add_item('light_rename',
-                    icon=icon,
                     autocomplete='lights:%s:rename:' % lid)
 
         elif len(control) >= 2:
@@ -276,110 +245,57 @@ light_rename:
                     current_hex = converter.xyToHEX(
                         light['state']['xy'][0],
                         light['state']['xy'][1],
-                        light['state']['bri'],
-                    )
+                        light['state']['bri'])
 
-                self._add_item('set_color',
-                    valid=True,
-                    icon=icon,
-                    arg=json.dumps({
-                        'action': 'set_color',
-                        'lid': lid,
-                        'color': value,
-                        'feedback': '%s color set to %s.' % (light_name, value),
-                    }))
-
-                self._add_item('color_picker',
-                    icon=icon,
-                    arg='colorpicker:%s:%s' % (lid, current_hex))
+                self._add_item('set_color', valid=True, arg='lights:%s:color:%s' % (lid, value))
+                self._add_item('color_picker', arg='colorpicker:%s:%s' % (lid, current_hex))
 
             elif function == 'bri':
+                bri = int((float(value) / 100) * 255) if value else 255
+
                 self._add_item('set_brightness',
                     title='Set brightness to %s' % (value + '%' if value else u'…'),
-                    icon=icon,
                     valid=True if value else False,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'data': { 'bri': int((float(value) / 100) * 255) if value else 255 },
-                        'feedback': '%s brigtness set to %s%%.' % (light_name, value),
-                    }))
+                    arg='lights:%s:bri:%s' % (lid, bri))
 
             elif function == 'effect':
-                self._add_item('effect_none',
-                    icon=icon,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'data': {'effect': 'none'},
-                        'feedback': '%s effect set to none.' % light_name,
-                    }))
-
-                self._add_item('color_loop',
-                    icon=icon,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'data': {'effect': 'colorloop'},
-                        'feedback': '%s effect set to colorloop.' % light_name,
-                    }))
+                self._add_item('effect_none', arg='lights:%s:effect:none' % lid)
+                self._add_item('color_loop', arg='lights:%s:effect:colorloop' % lid)
 
             elif function == 'reminder':
-                try:
-                    int_value = int(value)
-                except ValueError:
-                    int_value = False
-
                 def reminder_title(suffix):
                     return u'Blink {light_name} in {time} {suffix}'.format(
                         light_name=light_name,
                         time=(int_value or u'…'),
-                        suffix=suffix,
-                    )
+                        suffix=suffix)
+
+                try:
+                    int_value = int(value)
+                except ValueError:
+                    int_value = 0
 
                 self._add_item(
                     title=reminder_title('seconds'),
                     subtitle='',
-                    icon=icon,
                     valid=True if int_value else False,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'action': 'reminder',
-                        'time_delta': int_value,
-                        'feedback': 'Reminder set for %s seconds.' % int_value,
-                    }))
+                    arg='lights:%s:reminder:%s' % (lid, int_value))
 
                 self._add_item(
                     title=reminder_title('minutes'),
                     subtitle='',
-                    icon=icon,
                     valid=True if int_value else False,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'action': 'reminder',
-                        'time_delta': (int_value * 60) if int_value else 0,
-                        'feedback': 'Reminder set for %s minute(s).' % int_value,
-                    }))
+                    arg='lights:%s:reminder:%s' % (lid, int_value * 60))
 
                 self._add_item(
                     title=reminder_title('hours'),
                     subtitle='',
-                    icon=icon,
                     valid=True if int_value else False,
-                    arg=json.dumps({
-                        'lid': lid,
-                        'action': 'reminder',
-                        'time_delta': (int_value * 60 * 60) if int_value else 0,
-                        'feedback': 'Reminder set for %s hour(s).' % int_value,
-                    }))
+                    arg='lights:%s:reminder:%s' % (lid, int_value * 60 * 60))
 
             elif function == 'rename':
                 self._add_item('light_rename',
-                    icon=icon,
                     valid=True,
-                    arg=json.dumps({
-                        'action': 'rename',
-                        'lid': lid,
-                        'data': {'name': value},
-                        'feedback': '%s renamed to %s.' % (light_name, value),
-                    }))
+                    arg='lights:%s:rename:%s' % (lid, value))
 
         self._filter_results()
         return self.results
@@ -387,7 +303,14 @@ light_rename:
 
 class HuePresetsFilter(HueFilterBase):
 
-    ICON = 'icons/preset.png'
+    items_yaml = '''
+no_presets:
+    title: You have no saved presets!
+    subtitle: Use "-hue save-preset" to save the current lights state as a preset.
+    valid: false
+'''
+
+    icon = 'icons/preset.png'
 
     def get_results(self, query):
         self.partial_query = query
@@ -396,21 +319,12 @@ class HuePresetsFilter(HueFilterBase):
             for subdirname in dirnames:
                 self._add_item(
                     title=subdirname,
-                    icon=self.ICON,
                     autocomplete=subdirname,
-                    arg=json.dumps({
-                        'action': 'load_preset',
-                        'preset_name': subdirname,
-                    }),
+                    arg='presets:load:%s' % subdirname
                 )
 
         if not self.results:
-            self._add_item(
-                title='You have no saved presets!',
-                subtitle='Use "-hue save-preset" to save the current lights state as a preset.',
-                icon=self.ICON,
-                valid=False,
-            )
+            self._add_item('no_presets')
 
         self._filter_results()
         return self.results
