@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .packages import alp
 from .packages import png
 
