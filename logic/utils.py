@@ -64,7 +64,7 @@ def get_lights(from_cache=False):
     output = dict()
 
     if not from_cache:
-        from requests.exceptions import RequestException
+        from .packages.requests.exceptions import RequestException
         try:
             _load_lights_data_from_api()
         except RequestException:
