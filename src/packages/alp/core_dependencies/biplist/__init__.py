@@ -15,12 +15,12 @@ Data object. The value must be a string.
 
 Date values can only be datetime.datetime objects.
 
-The exceptions InvalidPlistException and NotBinaryPlistException may be 
+The exceptions InvalidPlistException and NotBinaryPlistException may be
 thrown to indicate that the data cannot be serialized or deserialized as
 a binary plist.
 
 Plist generation example:
-    
+
     from biplist import *
     from datetime import datetime
     plist = {'aKey':'aValue',
@@ -54,7 +54,8 @@ from struct import pack, unpack
 import sys
 import time
 
-import alp.core_dependencies.six as six
+# import alp.core_dependencies.six as six
+from .. import six
 
 __all__ = [
     'Uid', 'Data', 'readPlist', 'writePlist', 'readPlistFromString',
@@ -166,21 +167,21 @@ class PlistReader(object):
     offsets = None
     trailer = None
     currentOffset = 0
-    
+
     def __init__(self, fileOrStream):
         """Raises NotBinaryPlistException."""
         self.reset()
         self.file = fileOrStream
-    
+
     def parse(self):
         return self.readRoot()
-    
+
     def reset(self):
         self.trailer = None
         self.contents = ''
         self.offsets = []
         self.currentOffset = 0
-    
+
     def readRoot(self):
         result = None
         self.reset()
@@ -209,10 +210,10 @@ class PlistReader(object):
         except TypeError as e:
             raise InvalidPlistException(e)
         return result
-    
+
     def setCurrentOffsetToObjectNumber(self, objectNumber):
         self.currentOffset = self.offsets[objectNumber]
-    
+
     def readObject(self):
         result = None
         tmp_byte = self.contents[self.currentOffset:self.currentOffset+1]
@@ -220,13 +221,13 @@ class PlistReader(object):
         format = (marker_byte >> 4) & 0x0f
         extra = marker_byte & 0x0f
         self.currentOffset += 1
-        
+
         def proc_extra(extra):
             if extra == 0b1111:
                 #self.currentOffset += 1
                 extra = self.readObject()
             return extra
-        
+
         # bool, null, or fill byte
         if format == 0b0000:
             if extra == 0b0000:
@@ -277,10 +278,10 @@ class PlistReader(object):
         elif format == 0b1101:
             extra = proc_extra(extra)
             result = self.readDict(extra)
-        else:    
+        else:
             raise InvalidPlistException("Invalid object found: {format: %s, extra: %s}" % (bin(format), bin(extra)))
         return result
-    
+
     def readInteger(self, bytes):
         result = 0
         original_offset = self.currentOffset
@@ -288,7 +289,7 @@ class PlistReader(object):
         result = self.getSizedInteger(data, bytes)
         self.currentOffset = original_offset + bytes
         return result
-    
+
     def readReal(self, length):
         result = 0.0
         to_read = pow(2, length)
@@ -300,8 +301,8 @@ class PlistReader(object):
         else:
             raise InvalidPlistException("Unknown real of length %d bytes" % to_read)
         return result
-    
-    def readRefs(self, count):    
+
+    def readRefs(self, count):
         refs = []
         i = 0
         while i < count:
@@ -311,7 +312,7 @@ class PlistReader(object):
             self.currentOffset += self.trailer.objectRefSize
             i += 1
         return refs
-    
+
     def readArray(self, count):
         result = []
         values = self.readRefs(count)
@@ -322,7 +323,7 @@ class PlistReader(object):
             result.append(value)
             i += 1
         return result
-    
+
     def readDict(self, count):
         result = {}
         keys = self.readRefs(count)
@@ -336,34 +337,34 @@ class PlistReader(object):
             result[key] = value
             i += 1
         return result
-    
+
     def readAsciiString(self, length):
         result = unpack("!%ds" % length, self.contents[self.currentOffset:self.currentOffset+length])[0]
         self.currentOffset += length
         return result
-    
+
     def readUnicode(self, length):
         actual_length = length*2
         data = self.contents[self.currentOffset:self.currentOffset+actual_length]
         # unpack not needed?!! data = unpack(">%ds" % (actual_length), data)[0]
         self.currentOffset += actual_length
         return data.decode('utf_16_be')
-    
+
     def readDate(self):
         global apple_reference_date_offset
         result = unpack(">d", self.contents[self.currentOffset:self.currentOffset+8])[0]
         result = datetime.datetime.utcfromtimestamp(result + apple_reference_date_offset)
         self.currentOffset += 8
         return result
-    
+
     def readData(self, length):
         result = self.contents[self.currentOffset:self.currentOffset+length]
         self.currentOffset += length
         return Data(result)
-    
+
     def readUid(self, length):
         return Uid(self.readInteger(length+1))
-    
+
     def getSizedInteger(self, data, bytes):
         result = 0
         # 1, 2, and 4 byte integers are unsigned
@@ -401,7 +402,7 @@ class PlistWriter(object):
     referencePositions = None
     wrappedTrue = None
     wrappedFalse = None
-    
+
     def __init__(self, file):
         self.reset()
         self.file = file
@@ -411,19 +412,19 @@ class PlistWriter(object):
     def reset(self):
         self.byteCounts = PlistByteCounts(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
         self.trailer = PlistTrailer(0, 0, 0, 0, 0)
-        
+
         # A set of all the uniques which have been computed.
         self.computedUniques = set()
         # A list of all the uniques which have been written.
         self.writtenReferences = {}
         # A dict of the positions of the written uniques.
         self.referencePositions = {}
-        
+
     def positionOfObjectReference(self, obj):
         """If the given object has been written already, return its
            position in the offset table. Otherwise, return None."""
         return self.writtenReferences.get(obj)
-        
+
     def writeRoot(self, root):
         """
         Strategy is:
@@ -447,7 +448,7 @@ class PlistWriter(object):
         self.trailer = self.trailer._replace(**{'objectRefSize':self.intSize(len(self.computedUniques))})
         (_, output) = self.writeObjectReference(wrapped_root, output)
         output = self.writeObject(wrapped_root, output, setReferencePosition=True)
-        
+
         # output size at this point is an upper bound on how big the
         # object reference offsets need to be.
         self.trailer = self.trailer._replace(**{
@@ -456,7 +457,7 @@ class PlistWriter(object):
             'offsetTableOffset':len(output),
             'topLevelObjectNumber':0
             })
-        
+
         output = self.writeOffsetTable(output)
         output += pack('!xxxxxxBBQQQ', *self.trailer)
         self.file.write(output)
@@ -499,7 +500,7 @@ class PlistWriter(object):
                 raise InvalidPlistException('Data cannot be dictionary keys in plists.')
             elif not isinstance(key, (six.binary_type, six.text_type)):
                 raise InvalidPlistException('Keys must be strings.')
-        
+
         def proc_size(size):
             if size > 0b1110:
                 size += self.intSize(size)
@@ -511,7 +512,7 @@ class PlistWriter(object):
                 return
             else:
                 self.computedUniques.add(obj)
-        
+
         if obj is None:
             self.incrementByteCount('nullBytes')
         elif isinstance(obj, BoolWrapper):
@@ -525,7 +526,7 @@ class PlistWriter(object):
         elif isinstance(obj, (float)):
             size = self.realSize(obj)
             self.incrementByteCount('realBytes', incr=1+size)
-        elif isinstance(obj, datetime.datetime):    
+        elif isinstance(obj, datetime.datetime):
             self.incrementByteCount('dateBytes', incr=2)
         elif isinstance(obj, Data):
             size = proc_size(len(obj))
@@ -585,14 +586,14 @@ class PlistWriter(object):
             else:
                 result += pack('!B', (format << 4) | length)
             return result
-        
+
         if isinstance(obj, six.text_type) and obj == six.u(''):
             # The Apple Plist decoder can't decode a zero length Unicode string.
             obj = six.b('')
-       
+
         if setReferencePosition:
             self.referencePositions[obj] = len(output)
-        
+
         if obj is None:
             output += pack('!B', 0b00000000)
         elif isinstance(obj, BoolWrapper):
@@ -636,7 +637,7 @@ class PlistWriter(object):
                     output += proc_variable_length(0b1100, len(obj))
                 else:
                     output += proc_variable_length(0b1010, len(obj))
-            
+
                 objectsToWrite = []
                 for objRef in obj:
                     (isNew, output) = self.writeObjectReference(objRef, output)
@@ -663,7 +664,7 @@ class PlistWriter(object):
                 for objRef in objectsToWrite:
                     output = self.writeObject(objRef, output, setReferencePosition=True)
         return output
-    
+
     def writeOffsetTable(self, output):
         """Writes all of the object reference offsets."""
         all_positions = []
@@ -683,12 +684,12 @@ class PlistWriter(object):
             output += self.binaryInt(position, self.trailer.offsetSize)
             all_positions.append(position)
         return output
-    
+
     def binaryReal(self, obj):
         # just use doubles
         result = pack('>d', obj)
         return result
-    
+
     def binaryInt(self, obj, bytes=None):
         result = six.b('')
         if bytes is None:
@@ -704,7 +705,7 @@ class PlistWriter(object):
         else:
             raise InvalidPlistException("Core Foundation can't handle integers with size greater than 8 bytes.")
         return result
-    
+
     def intSize(self, obj):
         """Returns the number of bytes necessary to store the given integer."""
         # SIGNED
@@ -723,6 +724,6 @@ class PlistWriter(object):
             return 8
         else:
             raise InvalidPlistException("Core Foundation can't handle integers with size greater than 8 bytes.")
-    
+
     def realSize(self, obj):
         return 8

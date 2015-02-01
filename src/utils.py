@@ -1,7 +1,7 @@
-import alp
-import png
+from .packages import alp
+from .packages import png
 
-import rgb_cie
+from . import colors
 
 
 def _load_lights_data_from_api(timeout=6):
@@ -39,8 +39,8 @@ def _create_light_icon(lid, light_data):
     """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
     """
     # Create a color converter & helper
-    converter = rgb_cie.Converter()
-    color_helper = rgb_cie.ColorHelper()
+    converter = colors.Converter()
+    color_helper = colors.ColorHelper()
 
     hex_color = converter.xyToHEX(
         light_data['state']['xy'][0],

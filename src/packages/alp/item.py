@@ -2,7 +2,8 @@
 
 from xml.etree import ElementTree as ET
 import copy
-import alp.core as core
+
+from . import core
 
 
 class Item(object):
@@ -58,7 +59,7 @@ class Item(object):
 
 def feedback(items):
     feedback = ET.Element("items")
-    
+
     def processItem(item):
         itemToAdd = ET.SubElement(feedback, "item")
 

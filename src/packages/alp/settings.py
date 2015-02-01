@@ -2,9 +2,9 @@
 
 import json
 import os
-import alp.core as core
 import codecs
 
+from . import core
 
 class Settings(object):
     def __init__(self):

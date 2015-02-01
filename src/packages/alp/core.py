@@ -85,7 +85,7 @@ def readPlist(path):
     # With thanks to https://github.com/congalong for solving the biplist problem
     if not os.path.isabs(path):
         path = storage(path)
-    
+
     if not isinstance(path, six.binary_type):
         with codecs.open(path, "r", "utf-8") as f:
             s = f.read()
@@ -97,7 +97,7 @@ def readPlist(path):
 def writePlist(obj, path):
     if not os.path.isabs(path):
         path = storage(path)
-    
+
     s = plistlib.writePlistToString(obj)
     with codecs.open(path, "w", "utf-8") as f:
         f.write(s)

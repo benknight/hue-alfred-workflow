@@ -1,7 +1,7 @@
 from distutils.version import LooseVersion
 
-import alp
-import requests
+from .packages import alp
+from .packages import requests
 
 
 REMOTE_VERSION_URI = 'https://raw.githubusercontent.com/benknight/hue-alfred-workflow/master/VERSION'

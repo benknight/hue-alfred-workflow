@@ -26,7 +26,7 @@ except ImportError:
     pass
 
 try:
-    from alp.request.request import *
+    from .request.request import *
 except ImportError:
     pass
 

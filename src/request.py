@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import alp
-import requests
+from .packages import alp
+from .packages import requests
 
 
 class HueRequest():
