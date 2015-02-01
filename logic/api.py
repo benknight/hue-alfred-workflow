@@ -114,7 +114,7 @@ class HueAPI:
 
             # Make the request
             self.hue_request.request(method, endpoint, json.dumps(data))
-            print 'Action completed: %s' % action
+            print 'Action completed! <%s>' % action
 
         if control[0] == 'presets':
             # Load or save

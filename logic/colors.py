@@ -359,3 +359,9 @@ class Converter:
         to a CSS hex color."""
         r, g, b = self.color.getRGBFromXYAndBrightness(x, y, bri)
         return self.color.rgbToHex(r, g, b)
+
+    def xyToRGB(self, x, y, bri=1):
+        """Converts CIE 1931 x and y coordinates and brightness value from 0 to 1
+        to a CSS hex color."""
+        r, g, b = self.color.getRGBFromXYAndBrightness(x, y, bri)
+        return (r, g, b)

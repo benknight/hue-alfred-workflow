@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import colorsys
+
 from .packages import alp
 from .packages import png
 
@@ -26,10 +28,6 @@ def _load_lights_data_from_api(timeout=6):
     if settings.get('group'):
         lights = {lid: lights[lid] for lid in settings.get('group')}
 
-    # Filter out anything that doesn't have an "xy" key in its state
-    # e.g. "Dimmable plug-in unit", see: http://goo.gl/a5P7yN
-    lights = {lid: lights[lid] for lid in lights if lights[lid]['state'].get('xy')}
-
     alp.jsonDump(lights, alp.cache('lights.json'))
 
     # Create icon for light
@@ -41,15 +39,20 @@ def _create_light_icon(lid, light_data):
     """
     # Create a color converter & helper
     converter = colors.Converter()
-    color_helper = colors.ColorHelper()
 
-    hex_color = converter.xyToHEX(
-        light_data['state']['xy'][0],
-        light_data['state']['xy'][1],
-    )
+    # Set color based on the type of light
+    # See: http://www.developers.meethue.com/documentation/supported-lights
+    if light_data['state'].get('xy'):
+        rgb_value = converter.xyToRGB(light_data['state']['xy'][0], light_data['state']['xy'][1])
+    elif light_data['state'].get('bri'):
+        rgb_value = colorsys.hsv_to_rgb(0, 0, float(light_data['state']['bri']) / 255)
+        rgb_value = tuple([255 * x for x in rgb_value])
+    else:
+        rgb_value = (255, 255, 255) if light_data['state']['on'] else (0, 0, 0)
+
     f = open(alp.local('icons/%s.png' % lid), 'wb')
     w = png.Writer(1, 1)
-    w.write(f, [color_helper.hexToRGB(hex_color)])
+    w.write(f, [rgb_value])
     f.close()
 
 def get_lights(from_cache=False):

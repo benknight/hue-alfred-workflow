@@ -125,9 +125,14 @@ presets:
 
                 for lid, light in lights.items():
                     if light['state']['on']:
-                        subtitle = u'hue: {hue}, brightness: {bri}'.format(
-                            bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100),
-                            hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360))
+                        subtitle = []
+                        if light['state'].get('hue'):
+                            subtitle.append(u'hue: {hue}'.format(
+                                hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
+                        if light['state'].get('bri'):
+                            subtitle.append(u'brightness: {bri}'.format(
+                                bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
+                        subtitle = ', '.join(subtitle) or 'on'
                         icon = 'icons/%s.png' % lid
                     else:
                         subtitle = 'off'
@@ -242,9 +247,10 @@ light_rename:
                     arg='lights:%s:on' % lid)
 
             if is_on or lid == 'all':
-                self._add_item('set_color',
-                    subtitle='',
-                    autocomplete='lights:%s:color:' % lid)
+                if light['state'].get('xy'):
+                    self._add_item('set_color',
+                        subtitle='',
+                        autocomplete='lights:%s:color:' % lid)
 
                 self._add_item('set_effect',
                     subtitle='',
