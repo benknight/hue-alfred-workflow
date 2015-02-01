@@ -11,7 +11,7 @@ def _load_lights_data_from_api(timeout=6):
     """Downloads lights data and caches it locally."""
 
     # Requests is an expensive import so we only do it when necessary.
-    import requests
+    from .packages import requests
 
     settings = alp.Settings()
 
