@@ -43,7 +43,10 @@ class HueFilterBase:
                 result - an instance of alp.Item
         """
         if self.partial_query:
-            return (self.partial_query.lower() in result.autocomplete.lower())
+            if result.autocomplete is not None:
+                return (self.partial_query.lower() in result.autocomplete.lower())
+            else:
+                return False
         else:
             return True
 
@@ -124,18 +127,18 @@ presets:
                     self.partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
-                    if light['state']['on']:
+                    if light['state']['on'] and light['state']['reachable']:
                         subtitle = []
                         if light['state'].get('hue'):
                             subtitle.append(u'hue: {hue}'.format(
                                 hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
-                        if light['state'].get('bri'):
+                        if light['state'].get('bri') is not None:
                             subtitle.append(u'brightness: {bri}'.format(
                                 bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
                         subtitle = ', '.join(subtitle) or 'on'
                         icon = 'icons/%s.png' % lid
                     else:
-                        subtitle = 'off'
+                        subtitle = 'off' if light['state']['reachable'] else 'unreachable'
                         icon = 'icons/off.png'
 
                     self.results.append(alp.Item(
@@ -146,7 +149,7 @@ presets:
                         ),
                         valid=False,
                         icon=icon,
-                        autocomplete='lights:%s:' % lid,))
+                        autocomplete='lights:%s:' % lid if light['state']['reachable'] else None,))
 
                 self._add_item('presets')
                 self._add_item('help')
@@ -196,6 +199,10 @@ color_picker:
   title: Use color picker…
   valid: true
 
+random_color:
+  title: Random color
+  valid: true
+
 set_effect:
   title: Set effect…
   valid: false
@@ -217,14 +224,14 @@ set_reminder:
   valid: false
 
 light_rename:
-  title: Set light name to…
+  title: Rename to…
   valid: false
 '''
 
     def get_results(self, lid, light, query):
         control = query.split(':')
         is_on = light and light['state']['on']
-        light_name = light['name'] if lid != 'all' else 'All lights'
+        light_name = light['name'] if lid != 'all' else 'all lights'
 
         if lid != 'all':
             self.icon = ('icons/%s.png' % lid) if is_on else 'icons/off.png'
@@ -232,22 +239,18 @@ light_rename:
         if len(control) is 1:
             self.partial_query = control[0]
 
-            if lid == 'all':
-                self._add_item(title='ALL OFF', arg='lights:all:off')
-                self._add_item(title='ALL ON', arg='lights:all:on')
-
-            if is_on:
+            if is_on or lid == 'all':
                 self._add_item('light_off',
                     title='Turn %s off' % light_name,
                     arg='lights:%s:off' % lid)
 
-            elif is_on is not None:
+            if not is_on or lid == 'all':
                 self._add_item(
                     title='Turn %s on' % light_name,
                     arg='lights:%s:on' % lid)
 
             if is_on or lid == 'all':
-                if light['state'].get('xy'):
+                if lid == 'all' or light['state'].get('xy'):
                     self._add_item('set_color',
                         subtitle='',
                         autocomplete='lights:%s:color:' % lid)
@@ -283,15 +286,14 @@ light_rename:
                         light['state']['bri'])
 
                 self._add_item('set_color', valid=True, arg='lights:%s:color:%s' % (lid, value))
+                self._add_item('random_color', arg='lights:%s:color:random' % lid)
                 self._add_item('color_picker', arg='colorpicker:%s:%s' % (lid, current_hex))
 
             elif function == 'bri':
-                bri = int((float(value) / 100) * 255) if value else 255
-
                 self._add_item('set_brightness',
                     title='Set brightness to %s' % (value + '%' if value else u'…'),
                     valid=True if value else False,
-                    arg='lights:%s:bri:%s' % (lid, bri))
+                    arg='lights:%s:bri:%s' % (lid, value))
 
             elif function == 'effect':
                 self._add_item('effect_none', arg='lights:%s:effect:none' % lid)
