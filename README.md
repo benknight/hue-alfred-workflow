@@ -81,6 +81,10 @@ presets:load:Red
 
 You can turn any one of these into a hotkey by going to Alfred Preferences > Workflows, selecting the Philips Hue Controller workflow, and then adding a hotkey action from the dropdown (click the + icon and select Triggers > Hotkey).  You then set the text argument to the action string, and then connect that to the same block as the other preloaded hotkeys.
 
+## Changelog
+
+Moved to [CHANGELOG.md](CHANGELOG.md)
+
 ## Issues
 
 If you're having issues feel free to contact me via Twitter at @babylemurman, email me at ben@benknight.me, or open an issue on this Github page.  I will try to get back to you within a day!
