@@ -55,72 +55,23 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ![Hotkeys](/screenshots/hotkeys.png)
 
-After installing the workflow you can edit it within the "Workflows" tab in the Alfred Preferences to set hotkey shortcuts for the following actions:
+This workflow uses a special action string format that you can use to create a hotkey for any action you can perform using the "hue" keyword.
 
-1. Toggle all lights on
-2. Toggle all lights off
-3. Set lamps to random colors.
+Examples:
 
-These have to be set by the user.  Personally I use `Control+O`, `Control+Shift+O`, and `Control+R` for each, respectively, as I find there are no collisions here with existing shortcuts.
+```
+lights:all:off
+lights:all:color:random
+lights:1:reminder:180
+presets:load:Red
+```
 
-You can also add your own Hotkeys for saved presets:
-
-1. Create your preset (see [Presets](#presets) section).
-2. Open up the Alfred Preferences, click the "Workflows" tab, and select the Philips Hue Controller workflow.
-3. Select the "+" icon, and select "Triggers > Hotkey" to add a new Hotkey.
-4. Edit your Hotkey to select the keyboard shortcut, and set the argument to "Text" with the value as the name of your preset.
-5. Connect this Hotkey action to the `/bin/bash` "Run Script" action that the other Hotkeys are attached to.
+You can turn any one of these into a hotkey by going to Alfred Preferences > Workflows, selecting the Philips Hue Controller workflow, and then adding a hotkey action from the dropdown (click the + icon and select Triggers > Hotkey).  You then set the text argument to the action string, and then connect that to the same block as the other preloaded hotkeys.
 
 ## Issues
 
 If you're having issues feel free to contact me via Twitter at @babylemurman, email me at ben@benknight.me, or open an issue on this Github page.  I will try to get back to you within a day!
 
-## Changelog
-
-#### 2.3
-* Bugfix: #17
-* Adds the ability to set Hotkeys for user-created presets.
-* Download link: http://goo.gl/85imtI
-* Download link 2: http://goo.gl/O0Pk0f
-
-#### 2.2
-* Adds hotkeys for toggling all lights on and off, and setting all lights to random color.
-* Adds help item to `hue` and `-hue` commands.
-* Adds more helpful feedback text for light actions.
-* Adds mechanism for checking if a new version exists.
-* New icons & style tweaks.
-* Made it possible to specify bridge IP as an argument to `-hue set-bridge`
-
-<!-- 2.2 Download Link: http://goo.gl/aot0aU (Don't use! Has bugs! #17) -->
-
-#### 2.1.1
-* Bugfix: workflow didn't work when there were things on the bridge that don't have color state (xy), such as dimmable plug-in units.
-* Old download link: http://goo.gl/aot0aU
-
-#### 2.1
-* Using full state/datastore API for getting lights state instead of getting and storing every light individually.  This is backwards incompatible and won't work with old presets since it saves data differently.
-* Old download link: http://goo.gl/o49DeD
-
-#### 2.0
-* Ported all workflow code to Python, built on top of alp.
-* 'Lights' is now the index result set.
-* New 'All Lights' option for setting the state for all lights in one command.
-* Lights icons are now the actual current light color!
-* Save presets states for all lights.
-* Set which lights the workflow controls using easy group management via `-hue set-group`
-* Set reminders (blink lights after some time delta).
-* Old download link: http://goo.gl/6oZwOZ
-
-#### 1.0
-* Speed improvements
-* Old download link: http://goo.gl/L3swBq
-
-#### 0.9
-* Initial Release
-* Old download link: http://goo.gl/H26W2
-
 ## Thanks
-
-Thanks to my testers & feature suggesters [Danny Ricciotti](https://github.com/objectiveSee) and [James Taylor](https://twitter.com/JamesCMTaylor)
 
 Thanks to [Daniel Shannon](https://github.com/phyllisstein) for creating [alp](https://github.com/phyllisstein/alp), which removed all the grunt work in creating a Workflow.
