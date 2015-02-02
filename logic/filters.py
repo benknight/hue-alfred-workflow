@@ -255,9 +255,10 @@ light_rename:
                         subtitle='',
                         autocomplete='lights:%s:color:' % lid)
 
-                self._add_item('set_effect',
-                    subtitle='',
-                    autocomplete='lights:%s:effect:' % lid)
+                if light['state'].get('effect') is not None:
+                    self._add_item('set_effect',
+                        subtitle='',
+                        autocomplete='lights:%s:effect:' % lid)
 
                 self._add_item('set_brightness',
                     subtitle='',
