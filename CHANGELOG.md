@@ -1,6 +1,6 @@
 ## Changelog
 
-#### 2.4:
+#### 2.4
 * Support for dimmables and on/off lights: #10
 * "Set color" how has "Random" option
 * Hotkeys for any workflow action e.g. <lights:all:color:random>

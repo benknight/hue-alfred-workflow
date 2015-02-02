@@ -55,14 +55,24 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 ![Hotkeys](/screenshots/hotkeys.png)
 
-This workflow uses a special action string format that you can use to create a hotkey for any action you can perform using the "hue" keyword.
+This workflow uses a special action string format that you can use to create a hotkey for any action you could otherwise perform using the "hue" keyword:
+
+```lights:[all,1,2,...]:[off,on,bri,rename,effect,color,reminder]:<value>```
+```presets:load:<name>```
 
 Examples:
 
 ```
+lights:all:on
 lights:all:off
 lights:all:color:random
-lights:1:reminder:180
+lights:all:color:red
+lights:1:color:random
+lights:1:color:bada55
+lights:1:reminder:180 (seconds)
+lights:1:bri:50 (percent)
+lights:2:rename:Kitchen
+lights:3:effect:colorloop
 presets:load:Red
 ```
 
