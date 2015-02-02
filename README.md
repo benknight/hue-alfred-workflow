@@ -57,9 +57,13 @@ To reset the group to all lamps again, use `-hue set-group 0`
 
 This workflow uses a special action string format that you can use to create a hotkey for any action you could otherwise perform using the "hue" keyword:
 
-```lights:[all,1,2,...]:[off,on,bri,rename,effect,color,reminder]:<value>```
+```
+lights:[all,1,2,...]:[off,on,bri,rename,effect,color,reminder]:<value>
+```
 
-```presets:load:<name>```
+```
+presets:load:<name>
+```
 
 Examples:
 
