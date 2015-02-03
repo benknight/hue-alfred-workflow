@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import colorsys
 import datetime
 import json
 import os
@@ -18,7 +19,7 @@ class HueAPI:
 
     def __init__(self):
         self.settings = alp.Settings()
-        self.group_id = self.settings.get('group_id') if self.settings.get('group') else '/groups/0'
+        self.group_id = self.settings.get('group_id') if self.settings.get('group') else '0'
         self.hue_request = request.HueRequest()
         self.converter = colors.Converter()
 
@@ -38,6 +39,11 @@ class HueAPI:
             raise ValueError()
 
         return self.converter.hexToCIE1931(color)
+
+    def _get_random_xy_color(self):
+        random_color = colorsys.hsv_to_rgb(random.random(), 1, 1)
+        random_color = tuple([255*x for x in random_color])
+        return self.converter.rgbToCIE1931(*random_color)
 
     def _load_preset(self, preset_name):
         lights = alp.jsonLoad('presets/%s/lights.json' % preset_name)
@@ -63,10 +69,7 @@ class HueAPI:
             self.hue_request.request(
                 'put',
                 '/lights/%s/state' % lid,
-                json.dumps({
-                    'hue': random.randrange(0, 65535),
-                    'sat': 255,
-                }))
+                json.dumps({'xy': self._get_random_xy_color()}))
 
     def _switch(self, control):
         if control[0] == 'lights':
@@ -76,7 +79,7 @@ class HueAPI:
 
             # Default API request parameters
             method = 'put'
-            endpoint = '%s/action' % self.group_id if lid == 'all' else '/lights/%s/state' % lid
+            endpoint = '/groups/%s/action' % self.group_id if lid == 'all' else '/lights/%s/state' % lid
 
             if function == 'off':
                 data = {'on': False}
@@ -100,7 +103,7 @@ class HueAPI:
                     if lid == 'all':
                         return self._set_all_random()
                     else:
-                        data = {'sat': 255, 'hue': random.randrange(0, 65535)}
+                        data = {'xy': self._get_random_xy_color()}
                 else:
                     try:
                         data = {'xy': self._get_xy_color(value)}
@@ -156,5 +159,5 @@ class HueAPI:
 
 
 if __name__ == '__main__':
-    hue_action = HueAlfredAction()
-    hue_action.send_filter_query(sys.argv[0])
+    api = HueAPI()
+    api.execute(sys.argv[1])

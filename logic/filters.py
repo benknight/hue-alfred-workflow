@@ -127,7 +127,7 @@ presets:
                     self.partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
-                    if light['state']['on'] and light['state']['reachable']:
+                    if light['state']['on']:
                         subtitle = []
                         if light['state'].get('hue'):
                             subtitle.append(u'hue: {hue}'.format(
@@ -138,7 +138,7 @@ presets:
                         subtitle = ', '.join(subtitle) or 'on'
                         icon = 'icons/%s.png' % lid
                     else:
-                        subtitle = 'off' if light['state']['reachable'] else 'unreachable'
+                        subtitle = 'off'
                         icon = 'icons/off.png'
 
                     self.results.append(alp.Item(
@@ -149,7 +149,7 @@ presets:
                         ),
                         valid=False,
                         icon=icon,
-                        autocomplete='lights:%s:' % lid if light['state']['reachable'] else None,))
+                        autocomplete='lights:%s:' % lid))
 
                 self._add_item('presets')
                 self._add_item('help')
