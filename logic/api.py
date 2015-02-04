@@ -47,16 +47,11 @@ class HueAPI:
 
     def _load_preset(self, preset_name):
         lights = alp.jsonLoad('presets/%s/lights.json' % preset_name)
+        wanted_keys = ['xy', 'on', 'bri']
 
         for lid, light_data in lights.iteritems():
-            self.hue_request.request(
-                'put',
-                '/lights/%s/state' % lid,
-                json.dumps({
-                     'xy': light_data['state']['xy'],
-                     'on': light_data['state']['on'],
-                    'bri': light_data['state']['bri'],
-                }))
+            light_state = dict((k, v) for k, v in light_data['state'].iteritems() if k in wanted_keys)
+            self.hue_request.request('put', '/lights/%s/state' % lid, json.dumps(light_state))
 
     def _set_all_random(self):
         lights = utils.get_lights()
