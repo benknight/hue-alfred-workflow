@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
+from os import system
 
 from .packages import alp
 from .packages import requests
+
+
+POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
 
 
 def setup(bridge_ip=None):
@@ -31,6 +35,9 @@ def setup(bridge_ip=None):
             settings.set(bridge_ip=bridge_ip, group='')
             settings.set(username=resp['success']['username'])
             print 'Success! You can now control your lights by using the "hue" keyword.'
+            system('open ' + POST_SETUP_FORM_URL)
+
+        return None
 
 
 def set_group(group):
@@ -74,3 +81,5 @@ def set_group(group):
             )
 
         settings.set(group=lights)
+
+    return None
