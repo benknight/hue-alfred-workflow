@@ -114,7 +114,7 @@ class HueAPI:
                     raise
 
                 if lid == 'all':
-                    address = self.hue_request.api_path + ('%s/action' % self.group_id)
+                    address = self.hue_request.api_path + ('/groups/%s/action' % self.group_id)
                 else:
                     address = self.hue_request.api_path + ('/lights/%s/state' % lid)
 

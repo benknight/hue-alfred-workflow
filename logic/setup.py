@@ -70,7 +70,7 @@ def set_group(group):
                     settings.set(group_id=resp[0]['success']['id'])
         else:
             r = requests.put(
-                'http://{bridge_ip}/api/{user}{group_id}'.format(
+                'http://{bridge_ip}/api/{user}/groups/{group_id}'.format(
                     bridge_ip=settings.get('bridge_ip'),
                     user=settings.get('username'),
                     group_id=settings.get('group_id'),
