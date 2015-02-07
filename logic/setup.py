@@ -82,4 +82,5 @@ def set_group(group):
 
         settings.set(group=lights)
 
+    print 'Group settings saved!'
     return None
