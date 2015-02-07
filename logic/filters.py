@@ -127,22 +127,31 @@ presets:
                     self.partial_query = query.split(':')[1]
 
                 for lid, light in lights.items():
+                    title = light['name']
+
                     if light['state']['on']:
                         subtitle = []
                         if light['state'].get('hue'):
                             subtitle.append(u'hue: {hue}'.format(
                                 hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
                         if light['state'].get('bri') is not None:
-                            subtitle.append(u'brightness: {bri}'.format(
+                            subtitle.append(u'bri: {bri}'.format(
                                 bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
+                        if light['state'].get('sat') is not None:
+                            subtitle.append(u'sat: {sat}'.format(
+                                sat=u'{0:.0f}%'.format(float(light['state']['sat']) / 255 * 100)))
                         subtitle = ', '.join(subtitle) or 'on'
                         icon = 'icons/%s.png' % lid
                     else:
                         subtitle = 'off'
                         icon = 'icons/off.png'
 
+                    if not light['state'].get('reachable'):
+                        title += u' **'
+                        subtitle += u' — may not be reachable'
+
                     self.results.append(alp.Item(
-                        title=light['name'],
+                        title=title,
                         subtitle=u'({lid}) {subtitle}'.format(
                             lid=lid,
                             subtitle=subtitle,
@@ -332,6 +341,7 @@ light_rename:
 
             elif function == 'rename':
                 self._add_item('light_rename',
+                    title='Rename to %s' % value,
                     valid=True,
                     arg='lights:%s:rename:%s' % (lid, value))
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import colorsys
+from collections import OrderedDict
 
 from .packages import alp
 from .packages import png
@@ -72,4 +73,4 @@ def get_lights(from_cache=False):
 
     lights = alp.jsonLoad(alp.cache('lights.json'))
 
-    return lights
+    return OrderedDict(sorted(lights.items()))
