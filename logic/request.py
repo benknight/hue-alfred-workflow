@@ -15,7 +15,7 @@ class HueRequest():
         )
 
     def request(self, method, endpoint, data=None):
-        requests.request(method, self.api_path_full + endpoint, data=data)
         alp.log('request({method}, {endpoint}, {data})'.format(
             method=method, endpoint=endpoint, data=data,
         ))
+        return requests.request(method, self.api_path_full + endpoint, data=data)
