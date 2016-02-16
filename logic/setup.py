@@ -5,6 +5,8 @@ from os import system
 from .packages import alp
 from .packages import requests
 
+from . import request
+
 
 POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
 
@@ -42,6 +44,7 @@ def setup(bridge_ip=None):
 
 def set_group(group):
     settings = alp.Settings()
+    hue_request = request.HueRequest()
 
     if group == '0':
         settings.set(group='')
@@ -50,16 +53,10 @@ def set_group(group):
 
         if not settings.get('group_id'):
             # Create a custom group for the workflow to use
-            r = requests.post(
-                'http://{bridge_ip}/api/{user}/groups'.format(
-                    bridge_ip=settings.get('bridge_ip'),
-                    user=settings.get('username')
-                ),
-                data=json.dumps({
-                    'name': 'Afred Hue Group',
-                    'lights': lights,
-                })
-            )
+            r = hue_request.request('post', '/groups', json.dumps({
+                'name': 'Afred Hue Group',
+                'lights': lights,
+            }))
 
             resp = r.json()
 
@@ -69,15 +66,10 @@ def set_group(group):
                 else:
                     settings.set(group_id=resp[0]['success']['id'])
         else:
-            r = requests.put(
-                'http://{bridge_ip}/api/{user}/groups/{group_id}'.format(
-                    bridge_ip=settings.get('bridge_ip'),
-                    user=settings.get('username'),
-                    group_id=settings.get('group_id'),
-                ),
-                data=json.dumps({
-                    'lights': lights,
-                })
+            r = hue_request.request(
+                'put',
+                '/groups/%s' % settings.get('group_id'),
+                data=json.dumps({'lights': lights})
             )
 
         settings.set(group=lights)
