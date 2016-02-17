@@ -6,6 +6,7 @@ from .packages import alp
 from .packages import requests
 
 from . import request
+from . import utils
 
 
 POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
@@ -13,33 +14,30 @@ POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
 
 def setup(bridge_ip=None):
     if not bridge_ip:
-        r = requests.get('http://www.meethue.com/api/nupnp')
-        bridges = r.json()
+        bridge_ip = utils.search_for_bridge()
 
-        if not bridges:
+        if not bridge_ip:
             print 'No bridges found on your network.  Try specifying the IP if you know it.'
-        else:
-            bridge_ip = bridges[0]['internalipaddress']
+            return None
 
-    if bridge_ip:
-        settings = alp.Settings()
+    settings = alp.Settings()
 
-        # Create API user for the workflow
-        r = requests.post(
-            'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
-            data=json.dumps({'devicetype': 'Alfred 2'}))
+    # Create API user for the workflow
+    r = requests.post(
+        'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
+        data=json.dumps({'devicetype': 'Alfred 2'}))
 
-        resp = r.json()[0]
+    resp = r.json()[0]
 
-        if resp.get('error'):
-            print 'Setup Error: %s' % resp['error'].get('description')
-        else:
-            settings.set(bridge_ip=bridge_ip, group='')
-            settings.set(username=resp['success']['username'])
-            print 'Success! You can now control your lights by using the "hue" keyword.'
-            system('open ' + POST_SETUP_FORM_URL)
+    if resp.get('error'):
+        print 'Setup Error: %s' % resp['error'].get('description')
+    else:
+        settings.set(bridge_ip=bridge_ip, group='')
+        settings.set(username=resp['success']['username'])
+        print 'Success! You can now control your lights by using the "hue" keyword.'
+        system('open ' + POST_SETUP_FORM_URL)
 
-        return None
+    return None
 
 
 def set_group(group):

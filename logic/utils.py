@@ -4,11 +4,19 @@ from collections import OrderedDict
 
 from .packages import alp
 from .packages import png
+from .packages import requests
 
 from . import colors
 
 
-def _load_lights_data_from_api(timeout=6):
+def search_for_bridge(timeout=3):
+    """Searches for a bridge on the local network and returns the IP if it
+    finds one."""
+    r = requests.get('http://www.meethue.com/api/nupnp', timeout=timeout)
+    bridges = r.json()
+    return bridges[0]['internalipaddress']
+
+def load_lights_data_from_api(timeout=3):
     """Downloads lights data and caches it locally."""
 
     # Requests is an expensive import so we only do it when necessary.
@@ -24,6 +32,7 @@ def _load_lights_data_from_api(timeout=6):
         timeout=timeout,
     )
     data = r.json()
+
     lights = data['lights']
 
     if settings.get('group'):
@@ -33,9 +42,9 @@ def _load_lights_data_from_api(timeout=6):
 
     # Create icon for light
     for lid, light_data in lights.iteritems():
-        _create_light_icon(lid, light_data)
+        create_light_icon(lid, light_data)
 
-def _create_light_icon(lid, light_data):
+def create_light_icon(lid, light_data):
     """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
     """
     # Create a color converter & helper
@@ -58,6 +67,7 @@ def _create_light_icon(lid, light_data):
 
 def get_lights(from_cache=False):
     """Returns a dictionary of lid => data, or None if no lights data is in the cache.
+    Returns None if there are issues connecting to the bridge.
 
     Options:
         from_cache - Read data from cached json files instead of querying the API.
@@ -67,8 +77,18 @@ def get_lights(from_cache=False):
     if not from_cache:
         from .packages.requests.exceptions import RequestException
         try:
-            _load_lights_data_from_api()
+            load_lights_data_from_api()
         except RequestException:
+            try:
+                bridge_ip = search_for_bridge()
+                if not bridge_ip:
+                    return None
+                settings = alp.Settings()
+                settings.set(bridge_ip=bridge_ip)
+                load_lights_data_from_api()
+            except RequestException:
+                return None
+        except TypeError:
             return None
 
     lights = alp.jsonLoad(alp.cache('lights.json'))
