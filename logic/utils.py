@@ -77,17 +77,18 @@ def get_lights(from_cache=False):
     if not from_cache:
         from .packages.requests.exceptions import RequestException
         try:
-            load_lights_data_from_api()
-        except RequestException:
             try:
-                bridge_ip = search_for_bridge()
-                if not bridge_ip:
-                    return None
-                settings = alp.Settings()
-                settings.set(bridge_ip=bridge_ip)
                 load_lights_data_from_api()
             except RequestException:
-                return None
+                try:
+                    bridge_ip = search_for_bridge()
+                    if not bridge_ip:
+                        return None
+                    settings = alp.Settings()
+                    settings.set(bridge_ip=bridge_ip)
+                    load_lights_data_from_api()
+                except RequestException:
+                    return None
         except TypeError:
             return None
 
