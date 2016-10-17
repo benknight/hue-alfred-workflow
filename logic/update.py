@@ -15,7 +15,7 @@ def check_version(remote_version):
     # Get local version
     with open('VERSION', 'r') as f: local_version = f.read()
 
-    if LooseVersion(local_version) < LooseVersion(remote_version):
+    if LooseVersion(local_version.rstrip()) < LooseVersion(remote_version.rstrip()):
         results.append(alp.Item(
             title='New version available! (%s)' % remote_version,
             subtitle='Press enter to download.  You are currently using version %s' % local_version,
