@@ -85,7 +85,7 @@ You can turn any one of these into a hotkey by going to Alfred Preferences > Wor
 
 ## Changelog
 
-Moved to [CHANGELOG.md](CHANGELOG.md)
+See release notes.
 
 ## Issues
 
