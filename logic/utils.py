@@ -75,7 +75,7 @@ def get_lights(from_cache=False):
     Options:
         from_cache - Read data from cached json files instead of querying the API.
     """
-    output = dict()
+    settings = alp.Settings()
 
     if not from_cache:
         from .packages.requests.exceptions import RequestException
@@ -87,7 +87,6 @@ def get_lights(from_cache=False):
                     bridge_ip = search_for_bridge()
                     if not bridge_ip:
                         return None
-                    settings = alp.Settings()
                     settings.set(bridge_ip=bridge_ip)
                     load_lights_data_from_api()
                 except RequestException:
@@ -97,4 +96,9 @@ def get_lights(from_cache=False):
 
     lights = alp.jsonLoad(alp.cache('lights.json'))
 
-    return OrderedDict(sorted(lights.items()))
+    if settings.get('group'):
+        sorted_lights = {lid: lights[lid] for lid in settings.get('group')}.items()
+    else:
+        sorted_lights = sorted(lights.items())
+
+    return OrderedDict(sorted_lights)
