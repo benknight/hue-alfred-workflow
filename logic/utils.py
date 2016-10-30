@@ -14,7 +14,10 @@ def search_for_bridge(timeout=3):
     finds one."""
     r = requests.get('http://www.meethue.com/api/nupnp', timeout=timeout)
     bridges = r.json()
-    return bridges[0]['internalipaddress']
+    if len(bridges) > 0:
+        return bridges[0]['internalipaddress']
+    else:
+        return None
 
 def load_lights_data_from_api(timeout=3):
     """Downloads lights data and caches it locally."""
