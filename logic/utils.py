@@ -94,11 +94,12 @@ def get_lights(from_cache=False):
         except TypeError:
             return None
 
-    lights = alp.jsonLoad(alp.cache('lights.json'))
+    lights = alp.jsonLoad(alp.cache('lights.json')).items()
+    group = settings.get('group')
 
     if settings.get('group'):
-        sorted_lights = {lid: lights[lid] for lid in settings.get('group')}.items()
+        sorted_lights = sorted(lights, key=lambda l: group.index(l[0]))
     else:
-        sorted_lights = sorted(lights.items())
+        sorted_lights = sorted(lights)
 
     return OrderedDict(sorted_lights)
