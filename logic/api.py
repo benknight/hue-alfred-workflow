@@ -4,7 +4,6 @@ import datetime
 import json
 import os
 import random
-import re
 import sys
 import time
 
@@ -25,20 +24,7 @@ class HueAPI:
 
     def _get_xy_color(self, color):
         """Validate and convert hex color to XY space."""
-        hex_color_re = re.compile(
-            r'(?<!\w)([a-f0-9]){2}([a-f0-9]){2}([a-f0-9]){2}\b',
-            re.IGNORECASE
-        )
-
-        if color in colors.CSS_LITERALS:
-            color = colors.CSS_LITERALS[color]
-
-        color = color.lstrip('#')
-
-        if not hex_color_re.match(color):
-            raise ValueError()
-
-        return self.converter.hexToCIE1931(color)
+        return self.converter.hexToCIE1931(utils.get_color_value(color))
 
     def _get_random_xy_color(self):
         random_color = colorsys.hsv_to_rgb(random.random(), 1, 1)

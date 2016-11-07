@@ -295,7 +295,7 @@ light_rename:
                         light['state']['xy'][1],
                         light['state']['bri'])
 
-                self._add_item('set_color', valid=True, arg='lights:%s:color:%s' % (lid, value))
+                self._add_item('set_color', valid=utils.is_valid_color(value), arg='lights:%s:color:%s' % (lid, value))
                 self._add_item('random_color', arg='lights:%s:color:random' % lid)
                 self._add_item('color_picker', arg='colorpicker:%s:%s' % (lid, current_hex))
 

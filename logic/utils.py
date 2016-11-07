@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import colorsys
+import re
 from collections import OrderedDict
 
 from .packages import alp
@@ -103,3 +104,29 @@ def get_lights(from_cache=False):
         sorted_lights = sorted(lights)
 
     return OrderedDict(sorted_lights)
+
+def get_color_value(color):
+    """Processes and returns a valid hex color value.
+    Raises error if 'color' is invalid.
+    """
+    hex_color_re = re.compile(
+        r'(?<!\w)([a-f0-9]){2}([a-f0-9]){2}([a-f0-9]){2}\b',
+        re.IGNORECASE
+    )
+
+    if color in colors.CSS_LITERALS:
+        color = colors.CSS_LITERALS[color]
+
+    color = color.lstrip('#')
+
+    if not hex_color_re.match(color):
+        raise ValueError
+
+    return color
+
+def is_valid_color(color):
+    try:
+        get_color_value(color)
+        return True
+    except ValueError:
+        return False
