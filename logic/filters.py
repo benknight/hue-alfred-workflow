@@ -200,7 +200,7 @@ class HueLightFilter(HueFilterBase):
 
     items_yaml = '''
 set_color:
-  title: Set color to…
+  title: Set color…
   subtitle: Accepts 6-digit hex colors or CSS literal color names (e.g. "blue")
   valid: false
 
@@ -238,8 +238,11 @@ light_rename:
 
 set_harmony:
   title: Set harmony…
-  subtitle: Set lights using a color wheel relationship (e.g. complementary, triads, etc.)
   valid: false
+
+shuffle:
+  title: Shuffle
+  value: true
 '''
 
     def get_results(self, lid, light, query):
@@ -265,22 +268,26 @@ set_harmony:
 
             if is_on or lid == 'all':
                 if lid == 'all':
-                    self._add_item('set_harmony',
-                        autocomplete='lights:all:harmony:')
+                    self._add_item('shuffle',
+                        arg='lights:all:shuffle')
 
                 if lid == 'all' or light['state'].get('xy'):
                     self._add_item('set_color',
                         subtitle='',
                         autocomplete='lights:%s:color:' % lid)
 
+                self._add_item('set_brightness',
+                    subtitle='',
+                    autocomplete='lights:%s:bri:' % lid)
+
+                if lid == 'all':
+                    self._add_item('set_harmony',
+                        autocomplete='lights:all:harmony:')
+
                 if lid == 'all' or light['state'].get('effect') is not None:
                     self._add_item('set_effect',
                         subtitle='',
                         autocomplete='lights:%s:effect:' % lid)
-
-                self._add_item('set_brightness',
-                    subtitle='',
-                    autocomplete='lights:%s:bri:' % lid)
 
                 self._add_item('set_reminder',
                     autocomplete='lights:%s:reminder:' % lid)

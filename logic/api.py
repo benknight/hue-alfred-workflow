@@ -74,6 +74,12 @@ class HueAPI:
                 value = int((float(value) / 100) * 255) if value else 255
                 data = {'bri': value}
 
+            elif function == 'shuffle':
+                lights = utils.get_lights()
+                palette = list(lights[lid]['state']['xy'] for lid in lights)
+                random.shuffle(palette)
+                return self._set_all(palette)
+
             elif function == 'rename':
                 endpoint = '/lights/%s' % lid
                 data = {'name': value}
