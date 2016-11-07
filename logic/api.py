@@ -10,9 +10,9 @@ import time
 from .packages import alp
 
 from . import colors
+from . import harmony
 from . import request
 from . import utils
-
 
 class HueAPI:
 
@@ -39,24 +39,26 @@ class HueAPI:
             light_state = dict((k, v) for k, v in light_data['state'].iteritems() if k in wanted_keys)
             self.hue_request.request('put', '/lights/%s/state' % lid, json.dumps(light_state))
 
-    def _set_all_random(self):
+    def _set_all(self, palette):
         lights = utils.get_lights()
 
         if not lights:
             print 'No Hue lights found. Try -hue set-bridge.'
             return None
 
-        for lid in lights:
+        for index, lid in enumerate(lights):
             self.hue_request.request(
                 'put',
                 '/lights/%s/state' % lid,
-                json.dumps({'xy': self._get_random_xy_color()}))
+                json.dumps({'xy': palette[index]})
+            )
 
     def _switch(self, control):
         if control[0] == 'lights':
             lid = control[1]
             function = control[2]
             value = control[3] if len(control) > 3 else None
+            lights = utils.get_lights()
 
             # Default API request parameters
             method = 'put'
@@ -65,24 +67,39 @@ class HueAPI:
             if function == 'off':
                 data = {'on': False}
 
-            if function == 'on':
+            elif function == 'on':
                 data = {'on': True}
 
-            if function == 'bri':
+            elif function == 'bri':
                 value = int((float(value) / 100) * 255) if value else 255
                 data = {'bri': value}
 
-            if function == 'rename':
+            elif function == 'rename':
                 endpoint = '/lights/%s' % lid
                 data = {'name': value}
 
-            if function == 'effect':
+            elif function == 'effect':
                 data = {'effect': value}
 
-            if function == 'color':
+            elif function == 'harmony':
+                if lid != 'all':
+                    print 'Color harmonies can only be set on the "all" group.'
+                    raise ValueError()
+
+                mode = control[4] if len(control) > 3 else None
+
+                if not mode in harmony.MODES:
+                    raise ValueError()
+
+                args = (len(lights), value)
+                palette = getattr(harmony, mode)(*args)
+                return self._set_all(map(self._get_xy_color, palette))
+
+            elif function == 'color':
                 if value == 'random':
                     if lid == 'all':
-                        return self._set_all_random()
+                        palette = [self._get_random_xy_color() for _ in range(len(lights))]
+                        return self._set_all(palette)
                     else:
                         data = {'xy': self._get_random_xy_color()}
                 else:
@@ -92,7 +109,7 @@ class HueAPI:
                         print 'Error: Invalid color. Please use a 6-digit hex color.'
                         raise
 
-            if function == 'reminder':
+            elif function == 'reminder':
                 try:
                     time_delta_int = int(value)
                 except ValueError:
@@ -117,6 +134,9 @@ class HueAPI:
                     },
                     'time': reminder_time.replace(microsecond=0).isoformat(),
                 }
+
+            else:
+                raise ValueError()
 
             # Make the request
             self.hue_request.request(method, endpoint, json.dumps(data))

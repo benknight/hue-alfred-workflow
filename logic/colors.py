@@ -3,7 +3,6 @@ import math
 import random
 from collections import namedtuple
 
-
 # color literals
 CSS_LITERALS = {
     'aliceblue': '#f0f8ff',
@@ -148,10 +147,8 @@ CSS_LITERALS = {
     'yellowgreen': '#9acd32'
 }
 
-
 # Represents a CIE 1931 XY coordinate pair.
 XYPoint = namedtuple('XYPoint', ['x', 'y'])
-
 
 class ColorHelper:
 
@@ -315,7 +312,6 @@ class ColorHelper:
 
         # Convert the RGB values to your color object The rgb values from the above formulas are between 0.0 and 1.0.
         return (r, g, b)
-
 
 class Converter:
 

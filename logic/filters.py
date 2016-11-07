@@ -235,6 +235,11 @@ set_reminder:
 light_rename:
   title: Rename to…
   valid: false
+
+set_harmony:
+  title: Set harmony…
+  subtitle: Set lights using a color wheel relationship (e.g. complementary, triads, etc.)
+  valid: false
 '''
 
     def get_results(self, lid, light, query):
@@ -259,6 +264,10 @@ light_rename:
                     arg='lights:%s:on' % lid)
 
             if is_on or lid == 'all':
+                if lid == 'all':
+                    self._add_item('set_harmony',
+                        autocomplete='lights:all:harmony:')
+
                 if lid == 'all' or light['state'].get('xy'):
                     self._add_item('set_color',
                         subtitle='',
@@ -344,6 +353,46 @@ light_rename:
                     title='Rename to %s' % value,
                     valid=True,
                     arg='lights:%s:rename:%s' % (lid, value))
+
+            elif function == 'harmony':
+                root = value or 'red'
+                is_valid_color = utils.is_valid_color(root)
+
+                self._add_item(
+                    title=u'Analogous – root color: "%s"' % root,
+                    subtitle='Colors that are adjacent to each other.',
+                    valid=is_valid_color,
+                    icon='icons/analogous.png',
+                    arg='lights:all:harmony:%s:analogous' % root)
+
+                self._add_item(
+                    title=u'Complementary – root color: "%s"' % root,
+                    subtitle='Colors that are opposite each other.',
+                    valid=is_valid_color,
+                    icon='icons/complementary.png',
+                    arg='lights:all:harmony:%s:complementary' % root)
+
+                self._add_item(
+                    title=u'Split Complementary – root color: "%s"' % root,
+                    subtitle='Colors that are opposite and adjacent.',
+                    valid=is_valid_color,
+                    icon='icons/split-complementary.png',
+                    arg='lights:all:harmony:%s:split_complementary' % root)
+
+                self._add_item(
+                    title=u'Triad – root color: "%s"' % root,
+                    subtitle='Colors that are evenly spaced by thirds.',
+                    valid=is_valid_color,
+                    icon='icons/triad.png',
+                    arg='lights:all:harmony:%s:triad' % root)
+
+                self._add_item(
+                    title=u'Tetrad – root color: "%s"' % root,
+                    subtitle='Colors that are evenly spaced by quarters.',
+                    valid=is_valid_color,
+                    icon='icons/tetrad.png',
+                    arg='lights:all:harmony:%s:tetrad' % root)
+
 
         self._filter_results()
         return self.results
