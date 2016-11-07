@@ -6,7 +6,7 @@ from .packages import requests
 
 
 REMOTE_VERSION_URI = 'https://raw.githubusercontent.com/benknight/hue-alfred-workflow/master/VERSION'
-DOWNLOAD_URI = 'https://github.com/benknight/hue-alfred-workflow'
+DOWNLOAD_URI = 'https://github.com/benknight/hue-alfred-workflow/releases/latest'
 
 results = []
 
