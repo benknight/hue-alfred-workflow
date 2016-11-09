@@ -21,16 +21,7 @@ def bundle():
     if gBundleID is not None:
         return gBundleID
 
-    infoPath = os.path.abspath("./info.plist")
-    if os.path.exists(infoPath):
-        info = plistlib.readPlist(infoPath)
-        try:
-            gBundleID = info["bundleid"]
-        except KeyError:
-            raise Exception("Bundle ID not defined or readable from info.plist.")
-    else:
-        raise Exception("info.plist missing.")
-
+    gBundleID = os.environ['alfred_workflow_bundleid']
     return gBundleID
 
 
@@ -56,8 +47,7 @@ def local(join=None):
 
 
 def cache(join=None):
-    bundleID = bundle()
-    vPath = os.path.expanduser(os.path.join("~/Library/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/", bundleID))
+    vPath = os.environ['alfred_workflow_cache']
 
     if not os.path.exists(vPath):
         os.makedirs(vPath)
@@ -69,8 +59,7 @@ def cache(join=None):
 
 
 def storage(join=None):
-    bundleID = bundle()
-    nvPath = os.path.expanduser(os.path.join("~/Library/Application Support/Alfred 2/Workflow Data/", bundleID))
+    nvPath = os.environ['alfred_workflow_data']
 
     if not os.path.exists(nvPath):
         os.makedirs(nvPath)
