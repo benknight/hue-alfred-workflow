@@ -14,22 +14,22 @@ from . import harmony
 from . import request
 from . import utils
 
+
 class HueAPI:
 
     def __init__(self):
         self.settings = alp.Settings()
         self.group_id = self.settings.get('group_id') if self.settings.get('group') else '0'
         self.hue_request = request.HueRequest()
-        self.converter = colors.Converter()
 
-    def _get_xy_color(self, color):
+    def _get_xy_color(self, color, gamut):
         """Validate and convert hex color to XY space."""
-        return self.converter.hexToCIE1931(utils.get_color_value(color))
+        return colors.Converter(gamut).hex_to_xy(utils.get_color_value(color))
 
-    def _get_random_xy_color(self):
+    def _get_random_xy_color(self, gamut):
         random_color = colorsys.hsv_to_rgb(random.random(), 1, 1)
-        random_color = tuple([255*x for x in random_color])
-        return self.converter.rgbToCIE1931(*random_color)
+        random_color = tuple([255 * x for x in random_color])
+        return colors.Converter(gamut).rgb_to_xy(*random_color)
 
     def _load_preset(self, preset_name):
         lights = alp.jsonLoad('presets/%s/lights.json' % preset_name)
@@ -75,8 +75,7 @@ class HueAPI:
                 data = {'bri': value}
 
             elif function == 'shuffle':
-                lights = utils.get_lights()
-                palette = list(lights[lid]['state']['xy'] for lid in lights)
+                palette = list(lights[_lid]['state']['xy'] for _lid in lights)
                 random.shuffle(palette)
                 return self._set_all(palette)
 
@@ -87,6 +86,28 @@ class HueAPI:
             elif function == 'effect':
                 data = {'effect': value}
 
+            elif function == 'color':
+                if value == 'random':
+                    if lid == 'all':
+                        palette = []
+                        for _lid in lights:
+                            gamut = colors.get_light_gamut(lights[_lid]['modelid'])
+                            palette.append(self._get_random_xy_color(gamut))
+                        return self._set_all(palette)
+                    else:
+                        gamut = colors.get_light_gamut(lights[lid]['modelid'])
+                        data = {'xy': self._get_random_xy_color(gamut)}
+                else:
+                    try:
+                        if lid == 'all':
+                            gamut = colors.GamutA
+                        else:
+                            gamut = colors.get_light_gamut(lights[lid]['modelid'])
+                        data = {'xy': self._get_xy_color(value, gamut)}
+                    except ValueError:
+                        print 'Error: Invalid color. Please use a 6-digit hex color.'
+                        raise
+
             elif function == 'harmony':
                 if lid != 'all':
                     print 'Color harmonies can only be set on the "all" group.'
@@ -94,26 +115,17 @@ class HueAPI:
 
                 mode = control[4] if len(control) > 3 else None
 
-                if not mode in harmony.MODES:
+                if mode not in harmony.MODES:
                     raise ValueError()
 
+                # TODO: Filter lights by on
                 args = (len(lights), value)
-                palette = getattr(harmony, mode)(*args)
-                return self._set_all(map(self._get_xy_color, palette))
-
-            elif function == 'color':
-                if value == 'random':
-                    if lid == 'all':
-                        palette = [self._get_random_xy_color() for _ in range(len(lights))]
-                        return self._set_all(palette)
-                    else:
-                        data = {'xy': self._get_random_xy_color()}
-                else:
-                    try:
-                        data = {'xy': self._get_xy_color(value)}
-                    except ValueError:
-                        print 'Error: Invalid color. Please use a 6-digit hex color.'
-                        raise
+                harmony_colors = getattr(harmony, mode)(*args)
+                palette = []
+                for index, _lid in enumerate(lights):
+                    gamut = colors.get_light_gamut(lights[_lid]['modelid'])
+                    palette.append(self._get_xy_color(harmony_colors[index], gamut))
+                return self._set_all(palette)
 
             elif function == 'reminder':
                 try:

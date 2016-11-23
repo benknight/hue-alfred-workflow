@@ -8,6 +8,7 @@ from .packages import png
 from .packages import requests
 
 from . import colors
+from .css_colors import CSS_LITERALS as css_colors
 
 
 def search_for_bridge(timeout=3):
@@ -19,6 +20,7 @@ def search_for_bridge(timeout=3):
         return bridges[0]['internalipaddress']
     else:
         return None
+
 
 def load_lights_data_from_api(timeout=3):
     """Downloads lights data and caches it locally."""
@@ -48,6 +50,7 @@ def load_lights_data_from_api(timeout=3):
     for lid, light_data in lights.iteritems():
         create_light_icon(lid, light_data)
 
+
 def create_light_icon(lid, light_data):
     """Creates a 1x1 PNG icon of light's RGB color and saves it to the local dir.
     """
@@ -57,7 +60,7 @@ def create_light_icon(lid, light_data):
     # Set color based on the type of light
     # See: http://www.developers.meethue.com/documentation/supported-lights
     if light_data['state'].get('xy'):
-        rgb_value = converter.xyToRGB(light_data['state']['xy'][0], light_data['state']['xy'][1])
+        rgb_value = converter.xy_to_rgb(light_data['state']['xy'][0], light_data['state']['xy'][1])
     elif light_data['state'].get('bri'):
         rgb_value = colorsys.hsv_to_rgb(0, 0, float(light_data['state']['bri']) / 255)
         rgb_value = tuple([255 * x for x in rgb_value])
@@ -68,6 +71,7 @@ def create_light_icon(lid, light_data):
     w = png.Writer(1, 1)
     w.write(f, [rgb_value])
     f.close()
+
 
 def get_lights(from_cache=False):
     """Returns a dictionary of lid => data, or None if no lights data is in the cache.
@@ -105,6 +109,7 @@ def get_lights(from_cache=False):
 
     return OrderedDict(sorted_lights)
 
+
 def get_color_value(color):
     """Processes and returns a valid hex color value.
     Raises error if 'color' is invalid.
@@ -114,8 +119,8 @@ def get_color_value(color):
         re.IGNORECASE
     )
 
-    if color in colors.CSS_LITERALS:
-        color = colors.CSS_LITERALS[color]
+    if color in css_colors:
+        color = css_colors[color]
 
     color = color.lstrip('#')
 
@@ -123,6 +128,7 @@ def get_color_value(color):
         raise ValueError
 
     return color
+
 
 def is_valid_color(color):
     try:

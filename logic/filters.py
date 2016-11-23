@@ -101,7 +101,7 @@ presets:
             self.results = light_filter.get_results(
                 lid=lid,
                 light=lights.get(lid, None),
-                query=':'.join(control[2:]), # lights:1:<light_query>
+                query=':'.join(control[2:]),  # lights:1:<light_query>
             )
 
         elif query.startswith('presets'):
@@ -115,7 +115,7 @@ presets:
             presets_filter = HuePresetsFilter()
             self.results = presets_filter.get_results(presets_query)
 
-        else: # Show index
+        else:  # Show index
             lights = utils.get_lights()
 
             if not lights:
@@ -257,7 +257,8 @@ shuffle:
             self.partial_query = control[0]
 
             if is_on or lid == 'all':
-                self._add_item('light_off',
+                self._add_item(
+                    'light_off',
                     title='Turn %s off' % light_name,
                     arg='lights:%s:off' % lid)
 
@@ -268,33 +269,32 @@ shuffle:
 
             if is_on or lid == 'all':
                 if lid == 'all':
-                    self._add_item('shuffle',
-                        arg='lights:all:shuffle')
+                    self._add_item('shuffle', arg='lights:all:shuffle')
 
                 if lid == 'all' or light['state'].get('xy'):
-                    self._add_item('set_color',
+                    self._add_item(
+                        'set_color',
                         subtitle='',
                         autocomplete='lights:%s:color:' % lid)
 
-                self._add_item('set_brightness',
+                self._add_item(
+                    'set_brightness',
                     subtitle='',
                     autocomplete='lights:%s:bri:' % lid)
 
                 if lid == 'all':
-                    self._add_item('set_harmony',
-                        autocomplete='lights:all:harmony:')
+                    self._add_item('set_harmony', autocomplete='lights:all:harmony:')
 
                 if lid == 'all' or light['state'].get('effect') is not None:
-                    self._add_item('set_effect',
+                    self._add_item(
+                        'set_effect',
                         subtitle='',
                         autocomplete='lights:%s:effect:' % lid)
 
-                self._add_item('set_reminder',
-                    autocomplete='lights:%s:reminder:' % lid)
+                self._add_item('set_reminder', autocomplete='lights:%s:reminder:' % lid)
 
             if lid != 'all':
-                self._add_item('light_rename',
-                    autocomplete='lights:%s:rename:' % lid)
+                self._add_item('light_rename', autocomplete='lights:%s:rename:' % lid)
 
         elif len(control) >= 2:
             function = control[0]
@@ -306,7 +306,7 @@ shuffle:
                 if lid == 'all':
                     current_hex = 'ffffff'
                 else:
-                    current_hex = converter.xyToHEX(
+                    current_hex = converter.xy_to_hex(
                         light['state']['xy'][0],
                         light['state']['xy'][1],
                         light['state']['bri'])
@@ -316,7 +316,8 @@ shuffle:
                 self._add_item('color_picker', arg='colorpicker:%s:%s' % (lid, current_hex))
 
             elif function == 'bri':
-                self._add_item('set_brightness',
+                self._add_item(
+                    'set_brightness',
                     title='Set brightness to %s' % (value + '%' if value else u'…'),
                     valid=True if value else False,
                     arg='lights:%s:bri:%s' % (lid, value))
@@ -356,7 +357,8 @@ shuffle:
                     arg='lights:%s:reminder:%s' % (lid, int_value * 60 * 60))
 
             elif function == 'rename':
-                self._add_item('light_rename',
+                self._add_item(
+                    'light_rename',
                     title='Rename to %s' % value,
                     valid=True,
                     arg='lights:%s:rename:%s' % (lid, value))
@@ -399,7 +401,6 @@ shuffle:
                     valid=is_valid_color,
                     icon='icons/tetrad.png',
                     arg='lights:all:harmony:%s:tetrad' % root)
-
 
         self._filter_results()
         return self.results

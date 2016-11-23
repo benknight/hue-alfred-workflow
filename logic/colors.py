@@ -1,202 +1,103 @@
 # -*- coding: utf-8 -*-
+"""
+Library for RGB / CIE1931 "x, y" coversion.
+Based on Philips implementation guidance:
+http://www.developers.meethue.com/documentation/color-conversions-rgb-xy
+Copyright (c) 2016 Benjamin Knight / MIT License.
+"""
 import math
 import random
 from collections import namedtuple
 
-# color literals
-CSS_LITERALS = {
-    'aliceblue': '#f0f8ff',
-    'antiquewhite': '#faebd7',
-    'aqua': '#00ffff',
-    'aquamarine': '#7fffd4',
-    'azure': '#f0ffff',
-    'beige': '#f5f5dc',
-    'bisque': '#ffe4c4',
-    'black': '#000000',
-    'blanchedalmond': '#ffebcd',
-    'blue': '#0000ff',
-    'blueviolet': '#8a2be2',
-    'brown': '#a52a2a',
-    'burlywood': '#deb887',
-    'cadetblue': '#5f9ea0',
-    'chartreuse': '#7fff00',
-    'chocolate': '#d2691e',
-    'coral': '#ff7f50',
-    'cornflowerblue': '#6495ed',
-    'cornsilk': '#fff8dc',
-    'crimson': '#dc143c',
-    'cyan': '#00ffff',
-    'darkblue': '#00008b',
-    'darkcyan': '#008b8b',
-    'darkgoldenrod': '#b8860b',
-    'darkgray': '#a9a9a9',
-    'darkgreen': '#006400',
-    'darkkhaki': '#bdb76b',
-    'darkmagenta': '#8b008b',
-    'darkolivegreen': '#556b2f',
-    'darkorange': '#ff8c00',
-    'darkorchid': '#9932cc',
-    'darkred': '#8b0000',
-    'darksalmon': '#e9967a',
-    'darkseagreen': '#8fbc8f',
-    'darkslateblue': '#483d8b',
-    'darkslategray': '#2f4f4f',
-    'darkturquoise': '#00ced1',
-    'darkviolet': '#9400d3',
-    'deeppink': '#ff1493',
-    'deepskyblue': '#00bfff',
-    'dimgray': '#696969',
-    'dodgerblue': '#1e90ff',
-    'firebrick': '#b22222',
-    'floralwhite': '#fffaf0',
-    'forestgreen': '#228b22',
-    'fuchsia': '#ff00ff',
-    'gainsboro': '#dcdcdc',
-    'ghostwhite': '#f8f8ff',
-    'gold': '#ffd700',
-    'goldenrod': '#daa520',
-    'gray': '#808080',
-    'green': '#008000',
-    'greenyellow': '#adff2f',
-    'honeydew': '#f0fff0',
-    'hotpink': '#ff69b4',
-    'indianred': '#cd5c5c',
-    'indigo': '#4b0082',
-    'ivory': '#fffff0',
-    'khaki': '#f0e68c',
-    'lavender': '#e6e6fa',
-    'lavenderblush': '#fff0f5',
-    'lawngreen': '#7cfc00',
-    'lemonchiffon': '#fffacd',
-    'lightblue': '#add8e6',
-    'lightcoral': '#f08080',
-    'lightcyan': '#e0ffff',
-    'lightgoldenrodyellow': '#fafad2',
-    'lightgreen': '#90ee90',
-    'lightgrey': '#d3d3d3',
-    'lightpink': '#ffb6c1',
-    'lightsalmon': '#ffa07a',
-    'lightseagreen': '#20b2aa',
-    'lightskyblue': '#87cefa',
-    'lightslategray': '#778899',
-    'lightsteelblue': '#b0c4de',
-    'lightyellow': '#ffffe0',
-    'lime': '#00ff00',
-    'limegreen': '#32cd32',
-    'linen': '#faf0e6',
-    'magenta': '#ff00ff',
-    'maroon': '#800000',
-    'mediumaquamarine': '#66cdaa',
-    'mediumblue': '#0000cd',
-    'mediumorchid': '#ba55d3',
-    'mediumpurple': '#9370db',
-    'mediumseagreen': '#3cb371',
-    'mediumslateblue': '#7b68ee',
-    'mediumspringgreen': '#00fa9a',
-    'mediumturquoise': '#48d1cc',
-    'mediumvioletred': '#c71585',
-    'midnightblue': '#191970',
-    'mintcream': '#f5fffa',
-    'mistyrose': '#ffe4e1',
-    'moccasin': '#ffe4b5',
-    'navajowhite': '#ffdead',
-    'navy': '#000080',
-    'oldlace': '#fdf5e6',
-    'olive': '#808000',
-    'olivedrab': '#6b8e23',
-    'orange': '#ffa500',
-    'orangered': '#ff4500',
-    'orchid': '#da70d6',
-    'palegoldenrod': '#eee8aa',
-    'palegreen': '#98fb98',
-    'paleturquoise': '#afeeee',
-    'palevioletred': '#db7093',
-    'papayawhip': '#ffefd5',
-    'peachpuff': '#ffdab9',
-    'peru': '#cd853f',
-    'pink': '#ffc0cb',
-    'plum': '#dda0dd',
-    'powderblue': '#b0e0e6',
-    'purple': '#800080',
-    'red': '#ff0000',
-    'rosybrown': '#bc8f8f',
-    'royalblue': '#4169e1',
-    'saddlebrown': '#8b4513',
-    'salmon': '#fa8072',
-    'sandybrown': '#f4a460',
-    'seagreen': '#2e8b57',
-    'seashell': '#fff5ee',
-    'sienna': '#a0522d',
-    'silver': '#c0c0c0',
-    'skyblue': '#87ceeb',
-    'slateblue': '#6a5acd',
-    'slategray': '#708090',
-    'snow': '#fffafa',
-    'springgreen': '#00ff7f',
-    'steelblue': '#4682b4',
-    'tan': '#d2b48c',
-    'teal': '#008080',
-    'thistle': '#d8bfd8',
-    'tomato': '#ff6347',
-    'turquoise': '#40e0d0',
-    'violet': '#ee82ee',
-    'wheat': '#f5deb3',
-    'white': '#ffffff',
-    'whitesmoke': '#f5f5f5',
-    'yellow': '#ffff00',
-    'yellowgreen': '#9acd32'
-}
 
 # Represents a CIE 1931 XY coordinate pair.
 XYPoint = namedtuple('XYPoint', ['x', 'y'])
 
+# LivingColors Iris, Bloom, Aura, LightStrips
+GamutA = (
+    XYPoint(0.704, 0.296),
+    XYPoint(0.2151, 0.7106),
+    XYPoint(0.138, 0.08),
+)
+
+# Hue A19 bulbs
+GamutB = (
+    XYPoint(0.675, 0.322),
+    XYPoint(0.4091, 0.518),
+    XYPoint(0.167, 0.04),
+)
+
+# Hue BR30, A19 (Gen 3), Hue Go, LightStrips plus
+GamutC = (
+    XYPoint(0.692, 0.308),
+    XYPoint(0.17, 0.7),
+    XYPoint(0.153, 0.048),
+)
+
+
+def get_light_gamut(modelId):
+    """Gets the correct color gamut for the provided model id.
+    Docs: http://www.developers.meethue.com/documentation/supported-lights
+    """
+    if modelId in ('LST001', 'LLC010', 'LLC011', 'LLC012', 'LLC006', 'LLC007', 'LLC013'):
+        return GamutA
+    elif modelId in ('LCT001', 'LCT007', 'LCT002', 'LCT003', 'LLM001'):
+        return GamutB
+    elif modelId in ('LCT010', 'LCT014', 'LCT011', 'LLC020', 'LST002'):
+        return GamutC
+    else:
+        raise ValueError
+    return None
+
+
 class ColorHelper:
 
-    Red = XYPoint(0.675, 0.322)
-    Lime = XYPoint(0.4091, 0.518)
-    Blue = XYPoint(0.167, 0.04)
+    def __init__(self, gamut=GamutB):
+        self.Red = gamut[0]
+        self.Lime = gamut[1]
+        self.Blue = gamut[2]
 
-    def hexToRed(self, hex):
+    def hex_to_red(self, hex):
         """Parses a valid hex color string and returns the Red RGB integer value."""
         return int(hex[0:2], 16)
 
-    def hexToGreen(self, hex):
+    def hex_to_green(self, hex):
         """Parses a valid hex color string and returns the Green RGB integer value."""
         return int(hex[2:4], 16)
 
-    def hexToBlue(self, hex):
+    def hex_to_blue(self, hex):
         """Parses a valid hex color string and returns the Blue RGB integer value."""
         return int(hex[4:6], 16)
 
-    def hexToRGB(self, h):
+    def hex_to_rgb(self, h):
         """Converts a valid hex color string to an RGB array."""
-        rgb = (self.hexToRed(h), self.hexToGreen(h), self.hexToBlue(h))
+        rgb = (self.hex_to_red(h), self.hex_to_green(h), self.hex_to_blue(h))
         return rgb
 
-    def rgbToHex(self, r, g, b):
+    def rgb_to_hex(self, r, g, b):
         """Converts RGB to hex."""
         return '%02x%02x%02x' % (r, g, b)
 
-    def randomRGBValue(self):
+    def random_rgb_value(self):
         """Return a random Integer in the range of 0 to 255, representing an RGB color value."""
         return random.randrange(0, 256)
 
-    def crossProduct(self, p1, p2):
+    def cross_product(self, p1, p2):
         """Returns the cross product of two XYPoints."""
         return (p1.x * p2.y - p1.y * p2.x)
 
-    def checkPointInLampsReach(self, p):
+    def check_point_in_lamps_reach(self, p):
         """Check if the provided XYPoint can be recreated by a Hue lamp."""
         v1 = XYPoint(self.Lime.x - self.Red.x, self.Lime.y - self.Red.y)
         v2 = XYPoint(self.Blue.x - self.Red.x, self.Blue.y - self.Red.y)
 
         q = XYPoint(p.x - self.Red.x, p.y - self.Red.y)
-        s = self.crossProduct(q, v2) / self.crossProduct(v1, v2)
-        t = self.crossProduct(v1, q) / self.crossProduct(v1, v2)
+        s = self.cross_product(q, v2) / self.cross_product(v1, v2)
+        t = self.cross_product(v1, q) / self.cross_product(v1, v2)
 
         return (s >= 0.0) and (t >= 0.0) and (s + t <= 1.0)
 
-    def getClosestPointToLine(self, A, B, P):
+    def get_closest_point_to_line(self, A, B, P):
         """Find the closest point on a line. This point will be reproducible by a Hue lamp."""
         AP = XYPoint(P.x - A.x, P.y - A.y)
         AB = XYPoint(B.x - A.x, B.y - A.y)
@@ -211,88 +112,88 @@ class ColorHelper:
 
         return XYPoint(A.x + AB.x * t, A.y + AB.y * t)
 
-    def getClosestPointToPoint(self, xyPoint):
+    def get_closest_point_to_point(self, xy_point):
         # Color is unreproducible, find the closest point on each line in the CIE 1931 'triangle'.
-        pAB = self.getClosestPointToLine(self.Red, self.Lime, xyPoint)
-        pAC = self.getClosestPointToLine(self.Blue, self.Red, xyPoint)
-        pBC = self.getClosestPointToLine(self.Lime, self.Blue, xyPoint)
+        pAB = self.get_closest_point_to_line(self.Red, self.Lime, xy_point)
+        pAC = self.get_closest_point_to_line(self.Blue, self.Red, xy_point)
+        pBC = self.get_closest_point_to_line(self.Lime, self.Blue, xy_point)
 
         # Get the distances per point and see which point is closer to our Point.
-        dAB = self.getDistanceBetweenTwoPoints(xyPoint, pAB)
-        dAC = self.getDistanceBetweenTwoPoints(xyPoint, pAC)
-        dBC = self.getDistanceBetweenTwoPoints(xyPoint, pBC)
+        dAB = self.get_distance_between_two_points(xy_point, pAB)
+        dAC = self.get_distance_between_two_points(xy_point, pAC)
+        dBC = self.get_distance_between_two_points(xy_point, pBC)
 
         lowest = dAB
-        closestPoint = pAB
+        closest_point = pAB
 
         if (dAC < lowest):
             lowest = dAC
-            closestPoint = pAC
+            closest_point = pAC
 
         if (dBC < lowest):
             lowest = dBC
-            closestPoint = pBC
+            closest_point = pBC
 
         # Change the xy value to a value which is within the reach of the lamp.
-        cx = closestPoint.x
-        cy = closestPoint.y
+        cx = closest_point.x
+        cy = closest_point.y
 
         return XYPoint(cx, cy)
 
-    def getDistanceBetweenTwoPoints(self, one, two):
+    def get_distance_between_two_points(self, one, two):
         """Returns the distance between two XYPoints."""
         dx = one.x - two.x
         dy = one.y - two.y
         return math.sqrt(dx * dx + dy * dy)
 
-    def getXYPointFromRGB(self, red, green, blue):
-        """Returns an XYPoint object containing the closest available CIE 1931 coordinates
+    def get_xy_point_from_rgb(self, red, green, blue):
+        """Returns an XYPoint object containing the closest available CIE 1931 x, y coordinates
         based on the RGB input values."""
 
         r = ((red + 0.055) / (1.0 + 0.055))**2.4 if (red > 0.04045) else (red / 12.92)
         g = ((green + 0.055) / (1.0 + 0.055))**2.4 if (green > 0.04045) else (green / 12.92)
         b = ((blue + 0.055) / (1.0 + 0.055))**2.4 if (blue > 0.04045) else (blue / 12.92)
 
-        X = r * 0.4360747 + g * 0.3850649 + b * 0.0930804
-        Y = r * 0.2225045 + g * 0.7168786 + b * 0.0406169
-        Z = r * 0.0139322 + g * 0.0971045 + b * 0.7141733
+        X = r * 0.664511 + g * 0.154324 + b * 0.162028
+        Y = r * 0.283881 + g * 0.668433 + b * 0.047685
+        Z = r * 0.000088 + g * 0.072310 + b * 0.986039
 
         cx = X / (X + Y + Z)
         cy = Y / (X + Y + Z)
 
         # Check if the given XY value is within the colourreach of our lamps.
-        xyPoint = XYPoint(cx, cy)
-        inReachOfLamps = self.checkPointInLampsReach(xyPoint)
+        xy_point = XYPoint(cx, cy)
+        in_reach = self.check_point_in_lamps_reach(xy_point)
 
-        if not inReachOfLamps:
-            xyPoint = self.getClosestPointToPoint(xyPoint)
+        if not in_reach:
+            xy_point = self.get_closest_point_to_point(xy_point)
 
-        return xyPoint
+        return xy_point
 
-    def getRGBFromXYAndBrightness(self, x, y, bri=1):
-        """Inverse of `getXYPointFromRGB`. Returns (r, g, b) for given x, y values.
+    def get_rgb_from_xy_and_brightness(self, x, y, bri=1):
+        """Inverse of `get_xy_point_from_rgb`. Returns (r, g, b) for given x, y values.
         Implementation of the instructions found on the Philips Hue iOS SDK docs: http://goo.gl/kWKXKl
         """
         # The xy to color conversion is almost the same, but in reverse order.
         # Check if the xy value is within the color gamut of the lamp.
         # If not continue with step 2, otherwise step 3.
         # We do this to calculate the most accurate color the given light can actually do.
-        xyPoint = XYPoint(x, y)
+        xy_point = XYPoint(x, y)
 
-        if not self.checkPointInLampsReach(xyPoint):
+        if not self.check_point_in_lamps_reach(xy_point):
             # Calculate the closest point on the color gamut triangle
             # and use that as xy value See step 6 of color to xy.
-            xyPoint = self.getClosestPointToPoint(xyPoint)
+            xy_point = self.get_closest_point_to_point(xy_point)
 
         # Calculate XYZ values Convert using the following formulas:
         Y = bri
-        X = (Y / xyPoint.y) * xyPoint.x
-        Z = (Y / xyPoint.y) * (1 - xyPoint.x - xyPoint.y)
+        X = (Y / xy_point.y) * xy_point.x
+        Z = (Y / xy_point.y) * (1 - xy_point.x - xy_point.y)
 
         # Convert to RGB using Wide RGB D65 conversion
-        r =  X * 1.612 - Y * 0.203 - Z * 0.302
-        g = -X * 0.509 + Y * 1.412 + Z * 0.066
-        b =  X * 0.026 - Y * 0.072 + Z * 0.962
+        r = X * 1.656492 - Y * 0.354851 - Z * 0.255038
+        g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152
+        b = X * 0.051713 - Y * 0.121364 + Z * 1.011530
 
         # Apply reverse gamma correction
         r, g, b = map(
@@ -313,51 +214,43 @@ class ColorHelper:
         # Convert the RGB values to your color object The rgb values from the above formulas are between 0.0 and 1.0.
         return (r, g, b)
 
+
 class Converter:
 
-    color = ColorHelper()
+    def __init__(self, gamut=GamutB):
+        self.color = ColorHelper(gamut)
 
-    def hexToCIE1931(self, h):
+    def hex_to_xy(self, h):
         """Converts hexadecimal colors represented as a String to approximate CIE
-        1931 coordinates. May not produce accurate values."""
-        rgb = self.color.hexToRGB(h)
-        return self.rgbToCIE1931(rgb[0], rgb[1], rgb[2])
-
-    def rgbToCIE1931(self, red, green, blue):
-        """Converts red, green and blue integer values to approximate CIE 1931
-        x and y coordinates. Algorithm from:
-        http://www.easyrgb.com/index.php?X=MATH&H=02#text2. May not produce
-        accurate values.
+        1931 x and y coordinates.
         """
-        point = self.color.getXYPointFromRGB(red, green, blue)
-        return [point.x, point.y]
+        rgb = self.color.hex_to_rgb(h)
+        return self.rgb_to_xy(rgb[0], rgb[1], rgb[2])
 
-    def getCIEColor(self, hexColor=None):
+    def rgb_to_xy(self, red, green, blue):
+        """Converts red, green and blue integer values to approximate CIE 1931
+        x and y coordinates.
+        """
+        point = self.color.get_xy_point_from_rgb(red, green, blue)
+        return (point.x, point.y)
+
+    def xy_to_hex(self, x, y, bri=1):
+        """Converts CIE 1931 x and y coordinates and brightness value from 0 to 1
+        to a CSS hex color."""
+        r, g, b = self.color.get_rgb_from_xy_and_brightness(x, y, bri)
+        return self.color.rgb_to_hex(r, g, b)
+
+    def xy_to_rgb(self, x, y, bri=1):
+        """Converts CIE 1931 x and y coordinates and brightness value from 0 to 1
+        to a CSS hex color."""
+        r, g, b = self.color.get_rgb_from_xy_and_brightness(x, y, bri)
+        return (r, g, b)
+
+    def get_random_xy_color(self):
         """Returns the approximate CIE 1931 x,y coordinates represented by the
         supplied hexColor parameter, or of a random color if the parameter
-        is not passed. The point of this function is to let people set a lamp's
-        color to any random color. Arguably this should be implemented elsewhere."""
-        xy = []
-
-        if hexColor:
-            xy = self.hexToCIE1931(hexColor)
-
-        else:
-            r = self.color.randomRGBValue()
-            g = self.color.randomRGBValue()
-            b = self.color.randomRGBValue()
-            xy = self.rgbToCIE1931(r, g, b)
-
-        return xy
-
-    def xyToHEX(self, x, y, bri=1):
-        """Converts CIE 1931 x and y coordinates and brightness value from 0 to 1
-        to a CSS hex color."""
-        r, g, b = self.color.getRGBFromXYAndBrightness(x, y, bri)
-        return self.color.rgbToHex(r, g, b)
-
-    def xyToRGB(self, x, y, bri=1):
-        """Converts CIE 1931 x and y coordinates and brightness value from 0 to 1
-        to a CSS hex color."""
-        r, g, b = self.color.getRGBFromXYAndBrightness(x, y, bri)
-        return (r, g, b)
+        is not passed."""
+        r = self.color.random_rgb_value()
+        g = self.color.random_rgb_value()
+        b = self.color.random_rgb_value()
+        return self.rgb_to_xy(r, g, b)
