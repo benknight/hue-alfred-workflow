@@ -41,13 +41,19 @@ Then load them:
 
 ![Presets](/screenshots/presets.png)
 
+### Color Harmony
+
+Use color wheel relationships such as analogous, complementary, triad, etc. to set your light colors:
+
+![Color Harmony](/screenshots/harmony.png)
+
 ### Easy light groups
 
 Control or save the state of just subset of lights so that you can have group presets or avoid turning your roommate's light off by accident.
 
 ![Set Group](/screenshots/group.png)
 
-This affects which lights will be changed when setting the state for "All lights" using the workflow.
+This configures which lights the workflow *knows about*, i.e. what is considered to be "All lights."  This allows you to ignore certain lights, and also **order is preserved** when lights are listed by the workflow.
 
 To reset the group to all lamps again, use `-hue set-group 0`
 
