@@ -75,8 +75,16 @@ class HueAPI:
                 data = {'bri': value}
 
             elif function == 'shuffle':
-                palette = list(lights[_lid]['state']['xy'] for _lid in lights)
-                random.shuffle(palette)
+                palette = [lights[_lid]['state']['xy'] for _lid in lights]
+
+                # Only shuffle the lights that are on
+                on_indexes = [i for i, _lid in enumerate(lights) if lights[_lid]['state']['on']]
+                on_xy = [xy for index, xy in enumerate(palette) if index in on_indexes]
+                random.shuffle(on_xy)
+                for index, _ in enumerate(palette):
+                    if (index in on_indexes):
+                        palette[index] = on_xy.pop()
+
                 return self._set_all(palette)
 
             elif function == 'rename':
@@ -118,13 +126,16 @@ class HueAPI:
                 if mode not in harmony.MODES:
                     raise ValueError()
 
-                # TODO: Filter lights by on
-                args = (len(lights), value)
-                harmony_colors = getattr(harmony, mode)(*args)
                 palette = []
+                on_indexes = [i for i, _lid in enumerate(lights) if lights[_lid]['state']['on']]
+                args = (len(on_indexes), value)
+                harmony_colors = getattr(harmony, mode)(*args)
                 for index, _lid in enumerate(lights):
-                    gamut = colors.get_light_gamut(lights[_lid]['modelid'])
-                    palette.append(self._get_xy_color(harmony_colors[index], gamut))
+                    if index in on_indexes:
+                        gamut = colors.get_light_gamut(lights[_lid]['modelid'])
+                        palette.append(self._get_xy_color(harmony_colors.pop(), gamut))
+                    else:
+                        palette.append(lights[_lid]['state']['xy'])
                 return self._set_all(palette)
 
             elif function == 'reminder':
