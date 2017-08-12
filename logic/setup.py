@@ -2,26 +2,28 @@
 import json
 from os import system
 
-from .packages import alp
-from .packages import requests
+from packages import requests
+from packages.workflow import Workflow3 as Workflow
 
-from . import request
-from . import utils
+import request
+import utils
 
 
 POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
 
 
-def setup(bridge_ip=None):
+def set_bridge(bridge_ip=None):
     try:
         if not bridge_ip:
             bridge_ip = utils.search_for_bridge()
 
             if not bridge_ip:
-                print 'No bridges found on your network.  Try specifying the IP if you know it.'
+                print 'No bridges found on your network. Try specifying the IP address.'
                 return None
 
-        settings = alp.Settings()
+        workflow = Workflow()
+
+        prev_username = workflow.settings.get('username')
 
         # Create API user for the workflow
         r = requests.post(
@@ -35,48 +37,14 @@ def setup(bridge_ip=None):
         if resp.get('error'):
             print 'Setup Error: %s' % resp['error'].get('description')
         else:
-            settings.set(bridge_ip=bridge_ip, group='')
-            settings.set(username=resp['success']['username'])
+            workflow.settings['bridge_ip'] = bridge_ip
+            workflow.settings['username'] = resp['success']['username']
+
             print 'Success! You can now control your lights by using the "hue" keyword.'
-            system('open ' + POST_SETUP_FORM_URL)
 
-    except requests.exceptions.RequestException:
-        print 'Connection error.'
-
-def set_group(group):
-    try:
-        settings = alp.Settings()
-        hue_request = request.HueRequest()
-
-        if group == '0':
-            settings.set(group='')
-        else:
-            lights = group.split(',')
-
-            if not settings.get('group_id'):
-                # Create a custom group for the workflow to use
-                r = hue_request.request('post', '/groups', json.dumps({
-                    'name': 'Afred Hue Group',
-                    'lights': lights,
-                }))
-
-                resp = r.json()
-
-                if len(resp) > 0:
-                    if resp[0].get('error'):
-                        print 'Setup Error: %s' % resp[0]['error'].get('description')
-                    else:
-                        settings.set(group_id=resp[0]['success']['id'])
-            else:
-                r = hue_request.request(
-                    'put',
-                    '/groups/%s' % settings.get('group_id'),
-                    data=json.dumps({'lights': lights})
-                )
-
-            settings.set(group=lights)
-
-        print 'Group settings saved!'
+            # TODO: Test that this only happens on first install
+            if not prev_username:
+                system('open ' + POST_SETUP_FORM_URL)
 
     except requests.exceptions.RequestException:
         print 'Connection error.'

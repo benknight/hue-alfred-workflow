@@ -1,54 +1,50 @@
 # -*- coding: utf-8 -*-
 import colorsys
 import re
-from collections import OrderedDict
 
-from .packages import alp
-from .packages import png
-from .packages import requests
+from packages import png
+from packages.workflow import Workflow3 as Workflow
 
-from . import colors
-from .css_colors import CSS_LITERALS as css_colors
+import colors
+from css_colors import CSS_LITERALS as css_colors
+
+workflow = Workflow()
 
 
 def search_for_bridge(timeout=3):
     """Searches for a bridge on the local network and returns the IP if it
     finds one."""
+    from packages import requests
+
     r = requests.get('http://www.meethue.com/api/nupnp', timeout=timeout)
     bridges = r.json()
+
     if len(bridges) > 0:
         return bridges[0]['internalipaddress']
     else:
         return None
 
 
-def load_lights_data_from_api(timeout=3):
-    """Downloads lights data and caches it locally."""
-
+def load_full_state(timeout=3):
+    """Downloads full state and caches it locally."""
     # Requests is an expensive import so we only do it when necessary.
-    from .packages import requests
-
-    settings = alp.Settings()
+    from packages import requests
 
     r = requests.get(
         'http://{0}/api/{1}'.format(
-            settings.get('bridge_ip'),
-            settings.get('username'),
+            workflow.settings['bridge_ip'],
+            workflow.settings['username'],
         ),
         timeout=timeout,
     )
+
     data = r.json()
 
-    lights = data['lights']
-
-    if settings.get('group'):
-        lights = {lid: lights[lid] for lid in settings.get('group')}
-
-    alp.jsonDump(lights, alp.cache('lights.json'))
-
     # Create icon for light
-    for lid, light_data in lights.iteritems():
+    for lid, light_data in data['lights'].iteritems():
         create_light_icon(lid, light_data)
+
+    workflow.store_data('full_state', data)
 
 
 def create_light_icon(lid, light_data):
@@ -67,7 +63,7 @@ def create_light_icon(lid, light_data):
     else:
         rgb_value = (255, 255, 255) if light_data['state']['on'] else (0, 0, 0)
 
-    f = open(alp.local('icons/%s.png' % lid), 'wb')
+    f = open('icons/%s.png' % lid, 'wb')
     w = png.Writer(1, 1)
     w.write(f, [rgb_value])
     f.close()
@@ -80,34 +76,54 @@ def get_lights(from_cache=False):
     Options:
         from_cache - Read data from cached json files instead of querying the API.
     """
-    settings = alp.Settings()
-
     if not from_cache:
         from .packages.requests.exceptions import RequestException
         try:
             try:
-                load_lights_data_from_api()
+                load_full_state()
             except RequestException:
                 try:
                     bridge_ip = search_for_bridge()
                     if not bridge_ip:
                         return None
-                    settings.set(bridge_ip=bridge_ip)
-                    load_lights_data_from_api()
+                    workflow.settings['bridge_ip'] = bridge_ip
+                    load_full_state()
                 except RequestException:
                     return None
         except TypeError:
             return None
 
-    lights = alp.jsonLoad(alp.cache('lights.json')).items()
-    group = settings.get('group')
+    data = workflow.stored_data('full_state')
+    return data['lights']
 
-    if settings.get('group'):
-        sorted_lights = sorted(lights, key=lambda l: group.index(l[0]))
+
+def get_groups():
+    data = workflow.stored_data('full_state')
+
+    try:
+        groups = data['groups']
+        return {id: group for id, group in groups.iteritems()}
+    except TypeError:
+        return None
+
+
+def get_group_lids(group_id):
+    if group_id == '0':
+        lids = get_lights(from_cache=True).keys()
     else:
-        sorted_lights = sorted(lights)
+        group = get_groups().get(group_id)
+        lids = group['lights']
+    return lids
 
-    return OrderedDict(sorted_lights)
+
+def get_scenes(group_id):
+    data = workflow.stored_data('full_state')
+    scenes = data['scenes']
+    lids = get_group_lids(group_id)
+    return {id: scene for id, scene in scenes.iteritems() if (
+            set(scene['lights']) == set(lids) and
+            scene['name'] != 'Off') and
+            scene['version'] >= 2}
 
 
 def get_color_value(color):
