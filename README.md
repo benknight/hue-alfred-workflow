@@ -1,3 +1,7 @@
+## Looking for contributors!
+
+If you're interested in contributing to this repo, please contact me (contact details below).
+
 # Philips Hue Controller for Alfred 2
 
 > Quickly and easily control Philips Hue lights with Alfred.
