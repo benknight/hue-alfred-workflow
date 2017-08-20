@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+from __future__ import unicode_literals
+
 import colorsys
 import datetime
 import json
@@ -98,7 +100,7 @@ class HueAction:
 
         elif function == 'shuffle':
             if not is_group:
-                print 'Shuffle can only be called on groups.'
+                print('Shuffle can only be called on groups.'.encode('utf-8'))
                 return
 
             self._shuffle_group(rid)
@@ -127,18 +129,18 @@ class HueAction:
                         gamut = colors.get_light_gamut(lights[rid]['modelid'])
                     data = {'xy': self._get_xy_color(value, gamut)}
                 except ValueError:
-                    print 'Error: Invalid color. Please use a 6-digit hex color.'
+                    print('Error: Invalid color. Please use a 6-digit hex color.'.encode('utf-8'))
                     return
 
         elif function == 'harmony':
             if not is_group:
-                print 'Color harmonies can only be set on groups.'
+                print('Color harmonies can only be set on groups.'.encode('utf-8'))
                 return
 
             root = action[4] if len(action) > 3 else None
 
             if value not in harmony.MODES:
-                print 'Invalid harmony mode.'
+                print('Invalid harmony mode.'.encode('utf-8'))
                 return
 
             self._set_harmony(rid, value, root)
@@ -148,7 +150,7 @@ class HueAction:
             try:
                 time_delta_int = int(value)
             except ValueError:
-                print 'Error: Invalid time delta for reminder.'
+                print('Error: Invalid time delta for reminder.'.encode('utf-8'))
                 return
 
             reminder_time = datetime.datetime.utcfromtimestamp(time.time() + time_delta_int)
@@ -193,7 +195,7 @@ def main(workflow):
         action = HueAction()
         try:
             action.execute(query)
-            print 'Action completed! <%s>' % workflow.args[0]
+            print(('Action completed! <%s>' % workflow.args[0]).encode('utf-8'))
         except ValueError:
             pass
 

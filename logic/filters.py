@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+from __future__ import unicode_literals
+
 import json
 import os
 import sys
@@ -123,14 +125,14 @@ all_lights:
                         if light['state']['on']:
                             subtitle = []
                             if light['state'].get('hue'):
-                                subtitle.append(u'hue: {hue}'.format(
-                                    hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
+                                subtitle.append('hue: {hue}'.format(
+                                    hue='{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
                             if light['state'].get('bri') is not None:
-                                subtitle.append(u'bri: {bri}'.format(
-                                    bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
+                                subtitle.append('bri: {bri}'.format(
+                                    bri='{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
                             if light['state'].get('sat') is not None:
-                                subtitle.append(u'sat: {sat}'.format(
-                                    sat=u'{0:.0f}%'.format(float(light['state']['sat']) / 255 * 100)))
+                                subtitle.append('sat: {sat}'.format(
+                                    sat='{0:.0f}%'.format(float(light['state']['sat']) / 255 * 100)))
                             subtitle = ', '.join(subtitle) or 'on'
                             icon = '%s.png' % lid
                         else:
@@ -138,12 +140,12 @@ all_lights:
                             icon = 'off.png'
 
                         if not light['state'].get('reachable'):
-                            title += u' **'
-                            subtitle += u' — may not be reachable'
+                            title += ' **'
+                            subtitle += ' — may not be reachable'
 
                         self._add_item(
                             title=title,
-                            subtitle=u'({lid}) {subtitle}'.format(
+                            subtitle='({lid}) {subtitle}'.format(
                                 lid=lid,
                                 subtitle=subtitle,
                             ),
@@ -305,7 +307,7 @@ save_scene:
             # if function == 'save':
             #     self._add_item(
             #         icon='scene.png',
-            #         title='Save current state as %s' % (value or u'…'),
+            #         title='Save current state as %s' % (value or '…'),
             #         valid=True,
             #         arg='groups:%s:save:%s' % (id, value))
 
@@ -339,7 +341,7 @@ save_scene:
             elif function == 'bri':
                 self._add_item(
                     'set_brightness',
-                    title='Set brightness to %s' % (value + '%' if value else u'…'),
+                    title='Set brightness to %s' % (value + '%' if value else '…'),
                     valid=True if value else False,
                     arg='%s:%s:bri:%s' % (type, id, value))
 
@@ -360,9 +362,9 @@ save_scene:
                 self.icon = 'reminder.png'
 
                 def reminder_title(suffix):
-                    return u'Blink {name} in {time} {suffix}'.format(
+                    return 'Blink {name} in {time} {suffix}'.format(
                         name=name,
-                        time=(int_value or u'…'),
+                        time=(int_value or '…'),
                         suffix=suffix)
 
                 try:
@@ -398,7 +400,7 @@ save_scene:
 
                     self._add_item(
                         'set_color',
-                        title=u'Set harmony root color…',
+                        title='Set harmony root color…',
                         icon='%s.png' % mode,
                         valid=is_valid_color,
                         arg='groups:%s:harmony:%s:%s' % (id, mode, root_color))
@@ -411,31 +413,31 @@ save_scene:
 
                 else:
                     self._add_item(
-                        title=u'Analogous',
+                        title='Analogous',
                         subtitle='Colors that are adjacent to each other. Recommended!',
                         icon='analogous.png',
                         autocomplete='groups:%s:harmony:analogous:' % id)
 
                     self._add_item(
-                        title=u'Complementary',
+                        title='Complementary',
                         subtitle='Colors that are opposite each other.',
                         icon='complementary.png',
                         autocomplete='groups:%s:harmony:complementary:' % id)
 
                     self._add_item(
-                        title=u'Triad',
+                        title='Triad',
                         subtitle='Colors that are evenly spaced by thirds.',
                         icon='triad.png',
                         autocomplete='groups:%s:harmony:triad:' % id)
 
                     self._add_item(
-                        title=u'Tetrad',
+                        title='Tetrad',
                         subtitle='Colors that are evenly spaced by quarters.',
                         icon='tetrad.png',
                         autocomplete='groups:%s:harmony:tetrad:' % id)
 
                     self._add_item(
-                        title=u'Split Complementary',
+                        title='Split Complementary',
                         subtitle='Colors that are opposite and adjacent.',
                         icon='split_complementary.png',
                         autocomplete='groups:%s:harmony:split_complementary:' % id)

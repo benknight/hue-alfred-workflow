@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+# encoding: utf-8
+from __future__ import unicode_literals
+
 """
 Library for RGB / CIE1931 "x, y" coversion.
 Based on Philips implementation guidance:
