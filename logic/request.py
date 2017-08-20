@@ -10,7 +10,7 @@ class HueRequest():
         self.workflow = Workflow()
         self.api_path = '/api/%s' % self.workflow.settings['username']
         self.api_path_full = 'http://{bridge_ip}{api_path}'.format(
-            bridge_ip=self.workflow.settings.get('bridge_ip'),
+            bridge_ip=self.workflow.settings['bridge_ip'],
             api_path=self.api_path,
         )
 

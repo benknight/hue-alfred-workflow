@@ -89,66 +89,68 @@ all_lights:
                 resource=lights.get(rid, None) if query.startswith('lights') else groups.get(rid, None))
 
         else:  # Show index
-            lights = utils.get_lights()
-            groups = utils.get_groups()
+            if not self.workflow.settings.get('username'):
+                self._add_item(
+                    'bridge_failed',
+                    valid=True,
+                    title='Link with Hue bridge',
+                    arg='set_bridge:%s' % query)
 
-            if not lights:
-                if self.workflow.settings['bridge_ip']:
-                    self._add_item(
-                        'bridge_failed',
-                        valid=True,
-                        arg='set_bridge:%s' % query)
-                else:
-                    self._add_item(
-                        'bridge_failed',
-                        valid=True,
-                        title='Link with Hue bridge',
-                        arg='set_bridge:%s' % query)
             else:
-                self._add_item('all_lights')
+                lights = utils.get_lights()
+                groups = utils.get_groups()
 
-                for rid, room in groups.items():
+                if not lights:
                     self._add_item(
-                        title=room['name'],
-                        autocomplete='groups:%s:' % rid)
+                        'bridge_failed',
+                        valid=True,
+                        arg='set_bridge:%s' % query)
 
-                if query.startswith('lights:') or query.startswith('groups:'):
-                    self.partial_query = query.split(':')[1]
+                else:
+                    self._add_item('all_lights')
 
-                for lid, light in lights.items():
-                    title = light['name']
+                    for rid, room in groups.items():
+                        self._add_item(
+                            title=room['name'],
+                            autocomplete='groups:%s:' % rid)
 
-                    if light['state']['on']:
-                        subtitle = []
-                        if light['state'].get('hue'):
-                            subtitle.append(u'hue: {hue}'.format(
-                                hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
-                        if light['state'].get('bri') is not None:
-                            subtitle.append(u'bri: {bri}'.format(
-                                bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
-                        if light['state'].get('sat') is not None:
-                            subtitle.append(u'sat: {sat}'.format(
-                                sat=u'{0:.0f}%'.format(float(light['state']['sat']) / 255 * 100)))
-                        subtitle = ', '.join(subtitle) or 'on'
-                        icon = '%s.png' % lid
-                    else:
-                        subtitle = 'off'
-                        icon = 'off.png'
+                    if query.startswith('lights:') or query.startswith('groups:'):
+                        self.partial_query = query.split(':')[1]
 
-                    if not light['state'].get('reachable'):
-                        title += u' **'
-                        subtitle += u' — may not be reachable'
+                    for lid, light in lights.items():
+                        title = light['name']
 
-                    self._add_item(
-                        title=title,
-                        subtitle=u'({lid}) {subtitle}'.format(
-                            lid=lid,
-                            subtitle=subtitle,
-                        ),
-                        icon=icon,
-                        autocomplete='lights:%s:' % lid)
+                        if light['state']['on']:
+                            subtitle = []
+                            if light['state'].get('hue'):
+                                subtitle.append(u'hue: {hue}'.format(
+                                    hue=u'{0:.0f}°'.format(float(light['state']['hue']) / 65535 * 360)))
+                            if light['state'].get('bri') is not None:
+                                subtitle.append(u'bri: {bri}'.format(
+                                    bri=u'{0:.0f}%'.format(float(light['state']['bri']) / 255 * 100)))
+                            if light['state'].get('sat') is not None:
+                                subtitle.append(u'sat: {sat}'.format(
+                                    sat=u'{0:.0f}%'.format(float(light['state']['sat']) / 255 * 100)))
+                            subtitle = ', '.join(subtitle) or 'on'
+                            icon = '%s.png' % lid
+                        else:
+                            subtitle = 'off'
+                            icon = 'off.png'
 
-                # self._add_item('help')
+                        if not light['state'].get('reachable'):
+                            title += u' **'
+                            subtitle += u' — may not be reachable'
+
+                        self._add_item(
+                            title=title,
+                            subtitle=u'({lid}) {subtitle}'.format(
+                                lid=lid,
+                                subtitle=subtitle,
+                            ),
+                            icon=icon,
+                            autocomplete='lights:%s:' % lid)
+
+                    # self._add_item('help')
 
         self._filter_items()
         return self.items
@@ -186,6 +188,7 @@ set_brightness:
 
 set_reminder:
   title: Set reminder…
+  subtitle: Blink after a specified interval.
   icon: reminder.png
 
 rename:
@@ -194,10 +197,12 @@ rename:
 
 set_harmony:
   title: Set harmony…
+  subtitle: Use color wheel relationships such as analogous, complementary, triad, etc.
   icon: harmony.png
 
 shuffle:
   title: Shuffle
+  subtitle: Shuffle to change each light to a new color, maintaining the same colors.
   icon: shuffle.png
 
 set_scene:
@@ -454,6 +459,6 @@ def main(workflow):
 
 if __name__ == '__main__':
     workflow = Workflow(update_settings={
-        'github_slug': 'benknight/hue-aflred-workflow'
+        'github_slug': 'benknight/hue-alfred-workflow',
     })
     sys.exit(workflow.run(main))

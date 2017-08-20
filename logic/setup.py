@@ -9,9 +9,6 @@ import request
 import utils
 
 
-POST_SETUP_FORM_URL = 'http://goo.gl/forms/ep0OuA2Mh2'
-
-
 def set_bridge(bridge_ip=None):
     try:
         if not bridge_ip:
@@ -23,13 +20,11 @@ def set_bridge(bridge_ip=None):
 
         workflow = Workflow()
 
-        prev_username = workflow.settings.get('username')
-
         # Create API user for the workflow
         r = requests.post(
             'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
             data=json.dumps({'devicetype': 'Alfred 2'}),
-            timeout=6
+            timeout=3
         )
 
         resp = r.json()[0]
@@ -41,10 +36,6 @@ def set_bridge(bridge_ip=None):
             workflow.settings['username'] = resp['success']['username']
 
             print 'Success! You can now control your lights by using the "hue" keyword.'
-
-            # TODO: Test that this only happens on first install
-            if not prev_username:
-                system('open ' + POST_SETUP_FORM_URL)
 
     except requests.exceptions.RequestException:
         print 'Connection error.'

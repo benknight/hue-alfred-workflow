@@ -69,139 +69,133 @@ class HueAction:
 
         self._set_palette(on_lids, palette)
 
-    # Returns True when an action is completed succesfully, False if not.
-    def _action(self, action):
-        is_setup = action[0] == 'set_bridge'
+    def execute(self, action):
         is_light = action[0] == 'lights'
         is_group = action[0] == 'groups'
 
-        if is_setup:
-            bridge_ip = action[1]
-            setup.set_bridge(bridge_ip)
-            return False
+        if not is_light and not is_group:
+            return
 
-        if is_light or is_group:
-            rid = action[1]
-            function = action[2]
-            value = action[3] if len(action) > 3 else None
-            lights = utils.get_lights()
-            groups = utils.get_groups()
+        rid = action[1]
+        function = action[2]
+        value = action[3] if len(action) > 3 else None
+        lights = utils.get_lights()
+        groups = utils.get_groups()
 
-            # Default API request parameters
-            method = 'put'
-            endpoint = '/groups/%s/action' % rid if is_group else '/lights/%s/state' % rid
+        # Default API request parameters
+        method = 'put'
+        endpoint = '/groups/%s/action' % rid if is_group else '/lights/%s/state' % rid
 
-            if function == 'off':
-                data = {'on': False}
+        if function == 'off':
+            data = {'on': False}
 
-            elif function == 'on':
-                data = {'on': True}
+        elif function == 'on':
+            data = {'on': True}
 
-            elif function == 'bri':
-                value = int((float(value) / 100) * 255) if value else 255
-                data = {'bri': value}
+        elif function == 'bri':
+            value = int((float(value) / 100) * 255) if value else 255
+            data = {'bri': value}
 
-            elif function == 'shuffle':
-                if not is_group:
-                    print 'Shuffle can only be called on groups.'
-                    return False
+        elif function == 'shuffle':
+            if not is_group:
+                print 'Shuffle can only be called on groups.'
+                return
 
-                self._shuffle_group(rid)
-                return True
+            self._shuffle_group(rid)
+            return True
 
-            elif function == 'rename':
-                endpoint = '/lights/%s' % rid
-                data = {'name': value}
+        elif function == 'rename':
+            endpoint = '/lights/%s' % rid
+            data = {'name': value}
 
-            elif function == 'effect':
-                data = {'effect': value}
+        elif function == 'effect':
+            data = {'effect': value}
 
-            elif function == 'color':
-                if value == 'random':
+        elif function == 'color':
+            if value == 'random':
+                if is_group:
+                    gamut = colors.GamutA
+                    data = {'xy': self._get_random_xy_color(gamut)}
+                else:
+                    gamut = colors.get_light_gamut(lights[rid]['modelid'])
+                    data = {'xy': self._get_random_xy_color(gamut)}
+            else:
+                try:
                     if is_group:
                         gamut = colors.GamutA
-                        data = {'xy': self._get_random_xy_color(gamut)}
                     else:
                         gamut = colors.get_light_gamut(lights[rid]['modelid'])
-                        data = {'xy': self._get_random_xy_color(gamut)}
-                else:
-                    try:
-                        if is_group:
-                            gamut = colors.GamutA
-                        else:
-                            gamut = colors.get_light_gamut(lights[rid]['modelid'])
-                        data = {'xy': self._get_xy_color(value, gamut)}
-                    except ValueError:
-                        print 'Error: Invalid color. Please use a 6-digit hex color.'
-                        return False
-
-            elif function == 'harmony':
-                if not is_group:
-                    print 'Color harmonies can only be set on groups.'
-                    return False
-
-                root = action[4] if len(action) > 3 else None
-
-                if value not in harmony.MODES:
-                    print 'Invalid harmony mode.'
-                    return False
-
-                self._set_harmony(rid, value, root)
-                return True
-
-            elif function == 'reminder':
-                try:
-                    time_delta_int = int(value)
+                    data = {'xy': self._get_xy_color(value, gamut)}
                 except ValueError:
-                    print 'Error: Invalid time delta for reminder.'
-                    return False
+                    print 'Error: Invalid color. Please use a 6-digit hex color.'
+                    return
 
-                reminder_time = datetime.datetime.utcfromtimestamp(time.time() + time_delta_int)
+        elif function == 'harmony':
+            if not is_group:
+                print 'Color harmonies can only be set on groups.'
+                return
 
-                method = 'post'
-                data = {
-                    'name': 'Alfred Hue Reminder',
-                    'command': {
-                        'address': self.hue_request.api_path + endpoint,
-                        'method': 'PUT',
-                        'body': {'alert': 'lselect'},
-                    },
-                    'time': reminder_time.replace(microsecond=0).isoformat(),
-                }
-                endpoint = '/schedules'
+            root = action[4] if len(action) > 3 else None
 
-            elif function == 'set':
-                data = {'scene': value}
+            if value not in harmony.MODES:
+                print 'Invalid harmony mode.'
+                return
 
-            elif function == 'save':
-                lids = utils.get_group_lids(rid)
-                method = 'post'
-                endpoint = '/scenes'
-                data = {'name': value, 'lights': lids, 'recycle': False}
+            self._set_harmony(rid, value, root)
+            return
 
-            else:
-                return False
+        elif function == 'reminder':
+            try:
+                time_delta_int = int(value)
+            except ValueError:
+                print 'Error: Invalid time delta for reminder.'
+                return
 
-            # Make the request
-            self.hue_request.request(method, endpoint, json.dumps(data))
+            reminder_time = datetime.datetime.utcfromtimestamp(time.time() + time_delta_int)
 
-        # end is_light or is_group check
-        return True
+            method = 'post'
+            data = {
+                'name': 'Alfred Hue Reminder',
+                'command': {
+                    'address': self.hue_request.api_path + endpoint,
+                    'method': 'PUT',
+                    'body': {'alert': 'lselect'},
+                },
+                'time': reminder_time.replace(microsecond=0).isoformat(),
+            }
+            endpoint = '/schedules'
 
-    def execute(self, action_string):
-        action = action_string.split(':')
-        try:
-            show_result = self._action(action)
-            if show_result:
-                print 'Action completed! <%s>' % action_string
-        except ValueError:
-            pass
+        elif function == 'set':
+            data = {'scene': value}
+
+        elif function == 'save':
+            lids = utils.get_group_lids(rid)
+            method = 'post'
+            endpoint = '/scenes'
+            data = {'name': value, 'lights': lids, 'recycle': False}
+
+        else:
+            return
+
+        # Make the request
+        self.hue_request.request(method, endpoint, json.dumps(data))
+
+        return
 
 
 def main(workflow):
-    query = workflow.args[0]
-    action = HueAction()
-    action.execute(query)
+    query = workflow.args[0].split(':')
+
+    if query[0] == 'set_bridge':
+        bridge_ip = query[1]
+        setup.set_bridge(bridge_ip)
+    else:
+        action = HueAction()
+        try:
+            action.execute(query)
+            print 'Action completed! <%s>' % workflow.args[0]
+        except ValueError:
+            pass
 
 
 if __name__ == '__main__':
