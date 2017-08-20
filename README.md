@@ -61,3 +61,7 @@ groups:0:on|lights:1:color:random
 To create a new hotkey, open Alfred Preferences.app, go to Workflows, select the Philips Hue Controller workflow, right click and select select Triggers > Hotkey.  Then set the text argument to the action string, and then connect that to the same block as the other preloaded hotkeys.
 
 To make this even easier, open `history.txt` inside of the Workflow's directory (right click Philips Hue Controller, select "Open in Finder") and there you can see history of all commands.  This makes creating a hotkey for setting a scene easier, for example, since scenes have long ID strings e.g. `ESyAHbZCG8RJTxi`.
+
+# Credits
+
+Thanks to iconsphere, To Uyen, Setyo Ari Wibowo, Austin Condiff, H Alberto Gongora, Andreis Kirma, and Ananth from the Noun Project for icons.
