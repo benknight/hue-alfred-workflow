@@ -2,7 +2,7 @@
 
 > Quickly and easily control Philips Hue lights with Alfred.
 
-![Index](/screenshots/index.png)
+<img src=/screenshots/index.png width=577 alt=Index>
 
 ## Installation
 
@@ -18,15 +18,15 @@ hue 192.168.1.103
 
 ### Control the state of lights and rooms
 
-![Control lights and rooms](/screenshots/light.png)
+<img src=/screenshots/light.png width=577 alt="Control lights">
 
-![Control lights and rooms](/screenshots/group.png)
+<img src=/screenshots/group.png width=577 alt="Control rooms">
 
 ### Color Harmonies
 
 Use color wheel relationships such as analogous, complementary, triad, etc. to set room colors:
 
-![Color Harmony](/screenshots/harmony.png)
+<img src=/screenshots/harmony.png width=577 alt="Color Harmony">
 
 ### Hotkeys
 
