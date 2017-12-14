@@ -26,6 +26,8 @@ hue 192.168.1.103
 
 <img src=/screenshots/group.png width=577 alt="Control rooms">
 
+_Note: `groups:0` as seen above is autocompleted by the workflow after selecting room name, or in this case "All lights".  Group '0' always refers to all lights. Each room name is associated with a specific group ID on the bridge.  Remember this ID if you wish to create hotkeys for rooms (see below)._
+
 ### Color Harmonies
 
 Use color wheel relationships such as analogous, complementary, triad, etc. to set room colors:
