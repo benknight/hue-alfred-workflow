@@ -8,7 +8,11 @@
 
 1. **[Download the workflow](https://github.com/benknight/hue-alfred-workflow/releases/latest)**
 
-2. The first time you run the workflow it will ask you to press the button on top of the Hue bridge then action the item to authorize the workflow to control your Hue lights.  The workflow automatically attempts to find the bridge on your local network.  You can also manually specify the bridge's IP address.  For example, if your bridge's IP is `192.168.1.103`:
+2. The first time you run the workflow it will ask you to press the button on top of the Hue bridge then action the item to authorize the workflow to control your Hue lights:
+
+<img src=/screenshots/setup.png width=577 alt="Setup">
+
+The workflow automatically attempts to find the bridge on your local network.  You can also manually specify the bridge's IP address.  For example, if your bridge's IP is `192.168.1.103`:
 
 ```
 hue 192.168.1.103
