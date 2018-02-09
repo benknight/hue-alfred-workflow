@@ -1,4 +1,4 @@
-# Philips Hue Controller for Alfred
+# [Philips Hue][philips-hue] Controller for [Alfred][alfred]
 
 > Quickly and easily control Philips Hue lights with Alfred.
 
@@ -6,7 +6,7 @@
 
 ## Installation
 
-1. **[Download the workflow](https://github.com/benknight/hue-alfred-workflow/releases/latest)**
+1. **[Download the workflow][download]**
 
 2. The first time you run the workflow it will ask you to press the button on top of the Hue bridge then action the item to authorize the workflow to control your Hue lights:
 
@@ -71,3 +71,8 @@ To make this even easier, open `history.txt` inside of the Workflow's directory 
 # Credits
 
 Thanks to iconsphere, To Uyen, Setyo Ari Wibowo, Austin Condiff, H Alberto Gongora, Andreis Kirma, and Ananth from the Noun Project for icons.
+
+
+[download]: https://github.com/benknight/hue-alfred-workflow/releases/latest
+[philips-hue]: https://www2.meethue.com/en-us
+[alfred]: http://www.alfredapp.com
