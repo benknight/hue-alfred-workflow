@@ -73,6 +73,6 @@ To make this even easier, open `history.txt` inside of the Workflow's directory 
 Thanks to iconsphere, To Uyen, Setyo Ari Wibowo, Austin Condiff, H Alberto Gongora, Andreis Kirma, and Ananth from the Noun Project for icons.
 
 
-[download]: https://github.com/benknight/hue-alfred-workflow/releases/latest
+[download]: https://github.com/benknight/hue-alfred-workflow/releases/download/v3.0/Philips.Hue.Controller.v3.0.alfredworkflow
 [philips-hue]: https://www2.meethue.com/en-us
 [alfred]: http://www.alfredapp.com
