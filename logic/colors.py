@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 """
 Library for RGB / CIE1931 "x, y" coversion.
 Based on Philips implementation guidance:
-http://www.developers.meethue.com/documentation/color-conversions-rgb-xy
+https://developers.meethue.com/develop/application-design-guidance/color-conversion-formulas-rgb-to-xy-and-back/
 Copyright (c) 2016 Benjamin Knight / MIT License.
 """
 import math
@@ -39,13 +39,13 @@ GamutC = (
 
 def get_light_gamut(modelId):
     """Gets the correct color gamut for the provided model id.
-    Docs: http://www.developers.meethue.com/documentation/supported-lights
+    Docs: https://developers.meethue.com/develop/hue-api/supported-devices/
     """
-    if modelId in ('LST001', 'LLC010', 'LLC011', 'LLC012', 'LLC006', 'LLC007', 'LLC013'):
+    if modelId in ('LST001', 'LLC005', 'LLC006', 'LLC007', 'LLC010', 'LLC011', 'LLC012', 'LLC013', 'LLC014'):
         return GamutA
     elif modelId in ('LCT001', 'LCT007', 'LCT002', 'LCT003', 'LLM001'):
         return GamutB
-    elif modelId in ('LCT010', 'LCT014', 'LCT011', 'LLC020', 'LST002'):
+    elif modelId in ('LCT010', 'LCT011', 'LCT012', 'LCT014', 'LCT015', 'LCT016', 'LLC020', 'LST002'):
         return GamutC
     else:
         raise ValueError
