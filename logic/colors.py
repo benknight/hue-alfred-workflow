@@ -1,6 +1,4 @@
-# encoding: utf-8
-from __future__ import unicode_literals
-
+# -*- coding: utf-8 -*-
 """
 Library for RGB / CIE1931 "x, y" coversion.
 Based on Philips implementation guidance:
@@ -11,6 +9,7 @@ import math
 import random
 from collections import namedtuple
 
+__version__ = '0.5'
 
 # Represents a CIE 1931 XY coordinate pair.
 XYPoint = namedtuple('XYPoint', ['x', 'y'])
@@ -39,13 +38,13 @@ GamutC = (
 
 def get_light_gamut(modelId):
     """Gets the correct color gamut for the provided model id.
-    Docs: https://developers.meethue.com/develop/hue-api/supported-devices/
+    Docs: http://www.developers.meethue.com/documentation/supported-lights
     """
-    if modelId in ('LST001', 'LLC005', 'LLC006', 'LLC007', 'LLC010', 'LLC011', 'LLC012', 'LLC013', 'LLC014'):
+    if modelId in ('LST001', 'LLC010', 'LLC011', 'LLC012', 'LLC006', 'LLC007', 'LLC013'):
         return GamutA
     elif modelId in ('LCT001', 'LCT007', 'LCT002', 'LCT003', 'LLM001'):
         return GamutB
-    elif modelId in ('LCT010', 'LCT011', 'LCT012', 'LCT014', 'LCT015', 'LCT016', 'LLC020', 'LST002'):
+    elif modelId in ('LCT010', 'LCT014', 'LCT011', 'LLC020', 'LST002'):
         return GamutC
     else:
         raise ValueError
@@ -148,9 +147,13 @@ class ColorHelper:
         dy = one.y - two.y
         return math.sqrt(dx * dx + dy * dy)
 
-    def get_xy_point_from_rgb(self, red, green, blue):
+    def get_xy_point_from_rgb(self, red_i, green_i, blue_i):
         """Returns an XYPoint object containing the closest available CIE 1931 x, y coordinates
         based on the RGB input values."""
+
+        red = red_i / 255.0
+        green = green_i / 255.0
+        blue = blue_i / 255.0
 
         r = ((red + 0.055) / (1.0 + 0.055))**2.4 if (red > 0.04045) else (red / 12.92)
         g = ((green + 0.055) / (1.0 + 0.055))**2.4 if (green > 0.04045) else (green / 12.92)
