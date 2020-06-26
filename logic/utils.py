@@ -18,7 +18,7 @@ def search_for_bridge(timeout=3):
     finds one."""
     from packages import requests
 
-    r = requests.get('http://www.meethue.com/api/nupnp', timeout=timeout)
+    r = requests.get('https://discovery.meethue.com', timeout=timeout)
     bridges = r.json()
 
     if len(bridges) > 0:
