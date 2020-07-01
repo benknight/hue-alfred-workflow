@@ -1,16 +1,15 @@
-# encoding: utf-8
-from __future__ import unicode_literals
-
+# -*- coding: utf-8 -*-
 """
 Library for RGB / CIE1931 "x, y" coversion.
 Based on Philips implementation guidance:
-https://developers.meethue.com/develop/application-design-guidance/color-conversion-formulas-rgb-to-xy-and-back/
+http://www.developers.meethue.com/documentation/color-conversions-rgb-xy
 Copyright (c) 2016 Benjamin Knight / MIT License.
 """
 import math
 import random
 from collections import namedtuple
 
+__version__ = '0.5.1'
 
 # Represents a CIE 1931 XY coordinate pair.
 XYPoint = namedtuple('XYPoint', ['x', 'y'])
@@ -148,9 +147,13 @@ class ColorHelper:
         dy = one.y - two.y
         return math.sqrt(dx * dx + dy * dy)
 
-    def get_xy_point_from_rgb(self, red, green, blue):
+    def get_xy_point_from_rgb(self, red_i, green_i, blue_i):
         """Returns an XYPoint object containing the closest available CIE 1931 x, y coordinates
         based on the RGB input values."""
+
+        red = red_i / 255.0
+        green = green_i / 255.0
+        blue = blue_i / 255.0
 
         r = ((red + 0.055) / (1.0 + 0.055))**2.4 if (red > 0.04045) else (red / 12.92)
         g = ((green + 0.055) / (1.0 + 0.055))**2.4 if (green > 0.04045) else (green / 12.92)
