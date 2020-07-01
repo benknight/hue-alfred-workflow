@@ -9,6 +9,8 @@
 
 """Lightweight HTTP library with a requests-like interface."""
 
+from __future__ import absolute_import, print_function
+
 import codecs
 import json
 import mimetypes
@@ -23,8 +25,10 @@ import urllib2
 import urlparse
 import zlib
 
+__version__ = open(os.path.join(os.path.dirname(__file__), 'version')).read()
 
-USER_AGENT = u'Alfred-Workflow/1.19 (+http://www.deanishe.net/alfred-workflow)'
+USER_AGENT = (u'Alfred-Workflow/' + __version__ +
+              ' (+http://www.deanishe.net/alfred-workflow)')
 
 # Valid characters for multipart form data boundaries
 BOUNDARY_CHARS = string.digits + string.ascii_letters
@@ -100,6 +104,7 @@ class NoRedirectHandler(urllib2.HTTPRedirectHandler):
     """Prevent redirections."""
 
     def redirect_request(self, *args):
+        """Ignore redirect."""
         return None
 
 
@@ -136,6 +141,7 @@ class CaseInsensitiveDictionary(dict):
         return dict.__setitem__(self, key.lower(), {'key': key, 'val': value})
 
     def get(self, key, default=None):
+        """Return value for case-insensitive key or default."""
         try:
             v = dict.__getitem__(self, key.lower())
         except KeyError:
@@ -144,29 +150,48 @@ class CaseInsensitiveDictionary(dict):
             return v['val']
 
     def update(self, other):
+        """Update values from other ``dict``."""
         for k, v in other.items():
             self[k] = v
 
     def items(self):
+        """Return ``(key, value)`` pairs."""
         return [(v['key'], v['val']) for v in dict.itervalues(self)]
 
     def keys(self):
+        """Return original keys."""
         return [v['key'] for v in dict.itervalues(self)]
 
     def values(self):
+        """Return all values."""
         return [v['val'] for v in dict.itervalues(self)]
 
     def iteritems(self):
+        """Iterate over ``(key, value)`` pairs."""
         for v in dict.itervalues(self):
             yield v['key'], v['val']
 
     def iterkeys(self):
+        """Iterate over original keys."""
         for v in dict.itervalues(self):
             yield v['key']
 
     def itervalues(self):
+        """Interate over values."""
         for v in dict.itervalues(self):
             yield v['val']
+
+
+class Request(urllib2.Request):
+    """Subclass of :class:`urllib2.Request` that supports custom methods."""
+
+    def __init__(self, *args, **kwargs):
+        """Create a new :class:`Request`."""
+        self._method = kwargs.pop('method', None)
+        urllib2.Request.__init__(self, *args, **kwargs)
+
+    def get_method(self):
+        return self._method.upper()
 
 
 class Response(object):
@@ -191,7 +216,7 @@ class Response(object):
     def __init__(self, request, stream=False):
         """Call `request` with :mod:`urllib2` and process results.
 
-        :param request: :class:`urllib2.Request` instance
+        :param request: :class:`Request` instance
         :param stream: Whether to stream response or retrieve it all at once
         :type stream: bool
 
@@ -240,8 +265,8 @@ class Response(object):
             # Transfer-Encoding appears to not be used in the wild
             # (contrary to the HTTP standard), but no harm in testing
             # for it
-            if ('gzip' in headers.get('content-encoding', '') or
-                    'gzip' in headers.get('transfer-encoding', '')):
+            if 'gzip' in headers.get('content-encoding', '') or \
+                    'gzip' in headers.get('transfer-encoding', ''):
                 self._gzipped = True
 
     @property
@@ -250,6 +275,7 @@ class Response(object):
 
         Returns:
             bool: `True` if response is streamed.
+
         """
         return self._stream
 
@@ -343,20 +369,18 @@ class Response(object):
                 "`content` has already been read from this Response.")
 
         def decode_stream(iterator, r):
-
-            decoder = codecs.getincrementaldecoder(r.encoding)(errors='replace')
+            dec = codecs.getincrementaldecoder(r.encoding)(errors='replace')
 
             for chunk in iterator:
-                data = decoder.decode(chunk)
+                data = dec.decode(chunk)
                 if data:
                     yield data
 
-            data = decoder.decode(b'', final=True)
+            data = dec.decode(b'', final=True)
             if data:  # pragma: no cover
                 yield data
 
         def generate():
-
             if self._gzipped:
                 decoder = zlib.decompressobj(16 + zlib.MAX_WBITS)
 
@@ -427,15 +451,15 @@ class Response(object):
         if not self.stream:  # Try sniffing response content
             # Encoding declared in document should override HTTP headers
             if self.mimetype == 'text/html':  # sniff HTML headers
-                m = re.search("""<meta.+charset=["']{0,1}(.+?)["'].*>""",
+                m = re.search(r"""<meta.+charset=["']{0,1}(.+?)["'].*>""",
                               self.content)
                 if m:
                     encoding = m.group(1)
 
-            elif ((self.mimetype.startswith('application/') or
-                   self.mimetype.startswith('text/')) and
-                  'xml' in self.mimetype):
-                m = re.search("""<?xml.+encoding=["'](.+?)["'][^>]*\?>""",
+            elif ((self.mimetype.startswith('application/')
+                   or self.mimetype.startswith('text/'))
+                  and 'xml' in self.mimetype):
+                m = re.search(r"""<?xml.+encoding=["'](.+?)["'][^>]*\?>""",
                               self.content)
                 if m:
                     encoding = m.group(1)
@@ -536,10 +560,6 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
 
     headers['accept-encoding'] = ', '.join(encodings)
 
-    # Force POST by providing an empty data string
-    if method == 'POST' and not data:
-        data = ''
-
     if files:
         if not data:
             data = {}
@@ -567,7 +587,7 @@ def request(method, url, params=None, data=None, headers=None, cookies=None,
         query = urllib.urlencode(str_dict(params), doseq=True)
         url = urlparse.urlunsplit((scheme, netloc, path, query, fragment))
 
-    req = urllib2.Request(url, data, headers)
+    req = Request(url, data, headers, method=method)
     return Response(req, stream)
 
 
@@ -583,6 +603,18 @@ def get(url, params=None, headers=None, cookies=None, auth=None,
                    stream=stream)
 
 
+def delete(url, params=None, data=None, headers=None, cookies=None, auth=None,
+           timeout=60, allow_redirects=True, stream=False):
+    """Initiate a DELETE request. Arguments as for :func:`request`.
+
+    :returns: :class:`Response` instance
+
+    """
+    return request('DELETE', url, params, data, headers=headers,
+                   cookies=cookies, auth=auth, timeout=timeout,
+                   allow_redirects=allow_redirects, stream=stream)
+
+
 def post(url, params=None, data=None, headers=None, cookies=None, files=None,
          auth=None, timeout=60, allow_redirects=False, stream=False):
     """Initiate a POST request. Arguments as for :func:`request`.
@@ -591,6 +623,17 @@ def post(url, params=None, data=None, headers=None, cookies=None, files=None,
 
     """
     return request('POST', url, params, data, headers, cookies, files, auth,
+                   timeout, allow_redirects, stream)
+
+
+def put(url, params=None, data=None, headers=None, cookies=None, files=None,
+        auth=None, timeout=60, allow_redirects=False, stream=False):
+    """Initiate a PUT request. Arguments as for :func:`request`.
+
+    :returns: :class:`Response` instance
+
+    """
+    return request('PUT', url, params, data, headers, cookies, files, auth,
                    timeout, allow_redirects, stream)
 
 
@@ -628,7 +671,6 @@ def encode_multipart_formdata(fields, files):
         :rtype: str
 
         """
-
         return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
     boundary = '-----' + ''.join(random.choice(BOUNDARY_CHARS)

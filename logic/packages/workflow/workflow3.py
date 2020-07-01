@@ -7,11 +7,11 @@
 # Created on 2016-06-25
 #
 
-"""An Alfred 3-only version of :class:`~workflow.Workflow`.
+"""An Alfred 3+ version of :class:`~workflow.Workflow`.
 
-:class:`~workflow.Workflow3` supports Alfred 3's new features, such as
+:class:`~workflow.Workflow3` supports new features, such as
 setting :ref:`workflow-variables` and
-:class:`the more advanced modifiers <Modifier>` supported by Alfred 3.
+:class:`the more advanced modifiers <Modifier>` supported by Alfred 3+.
 
 In order for the feedback mechanism to work correctly, it's important
 to create :class:`Item3` and :class:`Modifier` objects via the
@@ -29,7 +29,7 @@ import json
 import os
 import sys
 
-from .workflow import Workflow
+from .workflow import ICON_WARNING, Workflow
 
 
 class Variables(dict):
@@ -250,19 +250,19 @@ class Modifier(object):
 
 
 class Item3(object):
-    """Represents a feedback item for Alfred 3.
+    """Represents a feedback item for Alfred 3+.
 
     Generates Alfred-compliant JSON for a single item.
 
     Don't use this class directly (as it then won't be associated with
-    any :class:`Workflow3` object), but rather use
+    any :class:`Workflow3 <workflow.Workflow3>` object), but rather use
     :meth:`Workflow3.add_item() <workflow.Workflow3.add_item>`.
     See :meth:`~workflow.Workflow3.add_item` for details of arguments.
 
     """
 
     def __init__(self, title, subtitle='', arg=None, autocomplete=None,
-                 valid=False, uid=None, icon=None, icontype=None,
+                 match=None, valid=False, uid=None, icon=None, icontype=None,
                  type=None, largetext=None, copytext=None, quicklookurl=None):
         """Create a new :class:`Item3` object.
 
@@ -276,6 +276,7 @@ class Item3(object):
         self.subtitle = subtitle
         self.arg = arg
         self.autocomplete = autocomplete
+        self.match = match
         self.valid = valid
         self.uid = uid
         self.icon = icon
@@ -333,8 +334,8 @@ class Item3(object):
         """
         mod = Modifier(key, subtitle, arg, valid, icon, icontype)
 
-        for k in self.variables:
-            mod.setvar(k, self.variables[k])
+        # Add Item variables to Modifier
+        mod.variables.update(self.variables)
 
         self.modifiers[key] = mod
 
@@ -361,6 +362,9 @@ class Item3(object):
 
         if self.autocomplete is not None:
             o['autocomplete'] = self.autocomplete
+
+        if self.match is not None:
+            o['match'] = self.match
 
         if self.uid is not None:
             o['uid'] = self.uid
@@ -443,10 +447,10 @@ class Item3(object):
 
 
 class Workflow3(Workflow):
-    """Workflow class that generates Alfred 3 feedback.
+    """Workflow class that generates Alfred 3+ feedback.
 
-    ``Workflow3`` is a subclass of :class:`~workflow.Workflow` and
-    most of its methods are documented there.
+    It is a subclass of :class:`~workflow.Workflow` and most of its
+    methods are documented there.
 
     Attributes:
         item_class (class): Class used to generate feedback items.
@@ -465,22 +469,25 @@ class Workflow3(Workflow):
         Workflow.__init__(self, **kwargs)
         self.variables = {}
         self._rerun = 0
-        self._session_id = None
+        # Get session ID from environment if present
+        self._session_id = os.getenv('_WF_SESSION_ID') or None
+        if self._session_id:
+            self.setvar('_WF_SESSION_ID', self._session_id)
 
     @property
     def _default_cachedir(self):
-        """Alfred 3's default cache directory."""
+        """Alfred 4's default cache directory."""
         return os.path.join(
             os.path.expanduser(
-                '~/Library/Caches/com.runningwithcrayons.Alfred-3/'
+                '~/Library/Caches/com.runningwithcrayons.Alfred/'
                 'Workflow Data/'),
             self.bundleid)
 
     @property
     def _default_datadir(self):
-        """Alfred 3's default data directory."""
+        """Alfred 4's default data directory."""
         return os.path.join(os.path.expanduser(
-            '~/Library/Application Support/Alfred 3/Workflow Data/'),
+            '~/Library/Application Support/Alfred/Workflow Data/'),
             self.bundleid)
 
     @property
@@ -509,18 +516,16 @@ class Workflow3(Workflow):
 
         """
         if not self._session_id:
-            sid = os.getenv('_WF_SESSION_ID')
-            if not sid:
-                from uuid import uuid4
-                sid = uuid4().hex
-                self.setvar('_WF_SESSION_ID', sid)
-
-            self._session_id = sid
+            from uuid import uuid4
+            self._session_id = uuid4().hex
+            self.setvar('_WF_SESSION_ID', self._session_id)
 
         return self._session_id
 
-    def setvar(self, name, value):
+    def setvar(self, name, value, persist=False):
         """Set a "global" workflow variable.
+
+        .. versionchanged:: 1.33
 
         These variables are always passed to downstream workflow objects.
 
@@ -530,9 +535,15 @@ class Workflow3(Workflow):
         Args:
             name (unicode): Name of variable.
             value (unicode): Value of variable.
+            persist (bool, optional): Also save variable to ``info.plist``?
 
         """
         self.variables[name] = value
+        if persist:
+            from .util import set_config
+            set_config(name, value, self.bundleid)
+            self.logger.debug('saved variable %r with value %r to info.plist',
+                              name, value)
 
     def getvar(self, name, default=None):
         """Return value of workflow variable for ``name`` or ``default``.
@@ -548,12 +559,17 @@ class Workflow3(Workflow):
         return self.variables.get(name, default)
 
     def add_item(self, title, subtitle='', arg=None, autocomplete=None,
-                 valid=False, uid=None, icon=None, icontype=None,
-                 type=None, largetext=None, copytext=None, quicklookurl=None):
+                 valid=False, uid=None, icon=None, icontype=None, type=None,
+                 largetext=None, copytext=None, quicklookurl=None, match=None):
         """Add an item to be output to Alfred.
 
-        See :meth:`Workflow.add_item() <workflow.Workflow.add_item>` for the
-        main documentation.
+        Args:
+            match (unicode, optional): If you have "Alfred filters results"
+                turned on for your Script Filter, Alfred (version 3.5 and
+                above) will filter against this field, not ``title``.
+
+        See :meth:`Workflow.add_item() <workflow.Workflow.add_item>` for
+        the main documentation and other parameters.
 
         The key difference is that this method does not support the
         ``modifier_subtitles`` argument. Use the :meth:`~Item3.add_modifier()`
@@ -563,9 +579,12 @@ class Workflow3(Workflow):
             Item3: Alfred feedback item.
 
         """
-        item = self.item_class(title, subtitle, arg,
-                               autocomplete, valid, uid, icon, icontype, type,
+        item = self.item_class(title, subtitle, arg, autocomplete,
+                               match, valid, uid, icon, icontype, type,
                                largetext, copytext, quicklookurl)
+
+        # Add variables to child item
+        item.variables.update(self.variables)
 
         self._items.append(item)
         return item
@@ -577,7 +596,7 @@ class Workflow3(Workflow):
 
     def _mk_session_name(self, name):
         """New cache name/key based on session ID."""
-        return '{0}{1}'.format(self._session_prefix, name)
+        return self._session_prefix + name
 
     def cache_data(self, name, data, session=False):
         """Cache API with session-scoped expiry.
@@ -670,7 +689,36 @@ class Workflow3(Workflow):
             o['rerun'] = self.rerun
         return o
 
+    def warn_empty(self, title, subtitle=u'', icon=None):
+        """Add a warning to feedback if there are no items.
+
+        .. versionadded:: 1.31
+
+        Add a "warning" item to Alfred feedback if no other items
+        have been added. This is a handy shortcut to prevent Alfred
+        from showing its fallback searches, which is does if no
+        items are returned.
+
+        Args:
+            title (unicode): Title of feedback item.
+            subtitle (unicode, optional): Subtitle of feedback item.
+            icon (str, optional): Icon for feedback item. If not
+                specified, ``ICON_WARNING`` is used.
+
+        Returns:
+            Item3: Newly-created item.
+
+        """
+        if len(self._items):
+            return
+
+        icon = icon or ICON_WARNING
+        return self.add_item(title, subtitle, icon=icon)
+
     def send_feedback(self):
         """Print stored items to console/Alfred as JSON."""
-        json.dump(self.obj, sys.stdout)
+        if self.debugging:
+            json.dump(self.obj, sys.stdout, indent=2, separators=(',', ': '))
+        else:
+            json.dump(self.obj, sys.stdout)
         sys.stdout.flush()

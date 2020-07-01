@@ -11,9 +11,10 @@
 # TODO: Exclude this module from test and code coverage in py2.6
 
 """
-Post notifications via the macOS Notification Center. This feature
-is only available on Mountain Lion (10.8) and later. It will
-silently fail on older systems.
+Post notifications via the macOS Notification Center.
+
+This feature is only available on Mountain Lion (10.8) and later.
+It will silently fail on older systems.
 
 The main API is a single function, :func:`~workflow.notify.notify`.
 
@@ -116,8 +117,8 @@ def install_notifier():
     # z.extractall(destdir)
     tgz = tarfile.open(archive, 'r:gz')
     tgz.extractall(destdir)
-    assert os.path.exists(n), \
-        'Notify.app could not be installed in %s' % destdir
+    if not os.path.exists(n):  # pragma: nocover
+        raise RuntimeError('Notify.app could not be installed in ' + destdir)
 
     # Replace applet icon
     icon = notifier_icon_path()
@@ -198,7 +199,7 @@ def notify(title='', text='', sound=None):
     env = os.environ.copy()
     enc = 'utf-8'
     env['NOTIFY_TITLE'] = title.encode(enc)
-    env['NOTIFY_MESSAGE'] =  text.encode(enc)
+    env['NOTIFY_MESSAGE'] = text.encode(enc)
     env['NOTIFY_SOUND'] = sound.encode(enc)
     cmd = [n]
     retcode = subprocess.call(cmd, env=env)
@@ -252,8 +253,9 @@ def png_to_icns(png_path, icns_path):
     try:
         iconset = os.path.join(tempdir, 'Icon.iconset')
 
-        assert not os.path.exists(iconset), \
-            'iconset already exists: ' + iconset
+        if os.path.exists(iconset):  # pragma: nocover
+            raise RuntimeError('iconset already exists: ' + iconset)
+
         os.makedirs(iconset)
 
         # Copy source icon to icon set and generate all the other
@@ -282,8 +284,9 @@ def png_to_icns(png_path, icns_path):
         if retcode != 0:
             raise RuntimeError('iconset exited with %d' % retcode)
 
-        assert os.path.exists(icns_path), \
-            'generated ICNS file not found: ' + repr(icns_path)
+        if not os.path.exists(icns_path):  # pragma: nocover
+            raise ValueError(
+                'generated ICNS file not found: ' + repr(icns_path))
     finally:
         try:
             shutil.rmtree(tempdir)
@@ -331,8 +334,8 @@ if __name__ == '__main__':  # pragma: nocover
         print('converting {0!r} to {1!r} ...'.format(o.png, icns),
               file=sys.stderr)
 
-        assert not os.path.exists(icns), \
-            'destination file already exists: ' + icns
+        if os.path.exists(icns):
+            raise ValueError('destination file already exists: ' + icns)
 
         png_to_icns(o.png, icns)
         sys.exit(0)
