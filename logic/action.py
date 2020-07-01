@@ -189,7 +189,7 @@ def main(workflow):
     query = workflow.args[0].split(':')
 
     if query[0] == 'set_bridge':
-        bridge_ip = query[1]
+        bridge_ip = workflow.args[0].split(':', 1)[1]
         setup.set_bridge(bridge_ip)
     else:
         action = HueAction()
