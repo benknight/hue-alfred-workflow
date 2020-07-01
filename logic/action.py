@@ -107,7 +107,7 @@ class HueAction:
             return True
 
         elif function == 'rename':
-            endpoint = '/lights/%s' % rid
+            endpoint = '/groups/%s' % rid if is_group else '/lights/%s' % rid
             data = {'name': value}
 
         elif function == 'effect':
