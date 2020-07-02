@@ -296,6 +296,7 @@ save_scene:
 
             if function == 'set':
                 self.icon = 'scene.png'
+                self.partial_query = value
                 scenes = utils.get_scenes(id)
                 items = sorted(scenes.items(), key=lambda (k, v): v.get('lastupdated'))
                 for sid, scene in items:
@@ -347,6 +348,7 @@ save_scene:
 
             elif function == 'effect':
                 self.icon = 'effect.png'
+                self.partial_query = value
 
                 self._add_item(
                     'effect_none',
