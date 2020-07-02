@@ -1,0 +1,30 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "[{\"success\":{\"username\":\"testuser\"}}]"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/testuser"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": "{\"lights\":{\"1\":{\"state\":{\"on\":false,\"bri\":0,\"hue\":0,\"sat\":0,\"xy\":[0.0000,0.0000],\"ct\":0,\"alert\":\"none\",\"effect\":\"none\",\"colormode\":\"hs\",\"reachable\":true},\"type\":\"Extendedcolorlight\",\"name\":\"Hue Lamp 1\",\"modelid\":\"LCT001\",\"swversion\":\"65003148\"},\"2\":{\"state\":{\"on\":true,\"bri\":254,\"hue\":33536,\"sat\":144,\"xy\":[0.3460,0.3568],\"ct\":201,\"alert\":\"none\",\"effect\":\"none\",\"colormode\":\"hs\",\"reachable\":true},\"type\":\"Extendedcolorlight\",\"name\":\"Hue Lamp 2\",\"modelid\":\"LCT001\",\"swversion\":\"65003148\"}},\"groups\":{\"1\":{\"action\":{\"on\":true,\"bri\":254,\"hue\":33536,\"sat\":144,\"xy\":[0.3460,0.3568],\"ct\":201,\"effect\":\"none\",\"colormode\":\"xy\"},\"lights\":[\"1\",\"2\"],\"name\":\"Group 1\"}},\"config\":{\"name\":\"Philips hue\",\"mac\":\"00:00:88:00:bb:ee\",\"dhcp\":true,\"ipaddress\":\"192.168.1.74\",\"netmask\":\"255.255.255.0\",\"gateway\":\"192.168.1.254\",\"proxyaddress\":\"\",\"proxyport\":0,\"UTC\":\"2012-10-29T12:00:00\",\"whitelist\":{\"1028d66426293e821ecfd9ef1a0731df\":{\"lastusedate\":\"2012-10-29T12:00:00\",\"createdate\":\"2012-10-29T12:00:00\",\"name\":\"testuser\"}},\"swversion\":\"01003372\",\"swupdate\":{\"updatestate\":0,\"url\":\"\",\"text\":\"\",\"notify\":false},\"linkbutton\":false,\"portalservices\":false},\"swupdate2\":{\"checkforupdate\":false,\"lastchange\":\"2017-06-21T19:44:36\",\"bridge\":{\"state\":\"noupdates\",\"lastinstall\":\"2017-06-21T19:44:18\"},\"state\":\"noupdates\",\"autoinstall\":{\"updatetime\":\"T14:00:00\",\"on\":false}},\"schedules\":{\"1\":{\"name\":\"schedule\",\"description\":\"\",\"command\":{\"address\":\"/api/<username>/groups/0/action\",\"body\":{\"on\":true},\"method\":\"PUT\"},\"time\":\"2012-10-29T12:00:00\"}},\"scenes\":{\"scene-0\":{\"name\":\"Cozy dinner\",\"lights\":[\"1\",\"2\"],\"owner\":\"testuser\",\"recycle\":true,\"locked\":false,\"appdata\":{\"version\":1,\"data\":\"myAppData\"},\"picture\":\"\",\"lastupdated\":\"2015-12-03T10:09:22\",\"version\":2},\"scene-1\":{\"name\":\"Rainy movie\",\"lights\":[\"1\",\"2\"],\"owner\":\"testuser\",\"recycle\":true,\"locked\":false,\"appdata\":{\"version\":1,\"data\":\"myAppData\"},\"picture\":\"\",\"lastupdated\":\"2015-12-03T10:09:22\",\"version\":2},\"scene-3\":{\"name\":\"Gay Hitler\",\"lights\":[\"1\",\"2\"],\"owner\":\"testuser\",\"recycle\":true,\"locked\":false,\"appdata\":{\"version\":1,\"data\":\"myAppData\"},\"picture\":\"\",\"lastupdated\":\"2015-12-03T10:09:22\",\"version\":2}}}"
+      }
+    }
+  ]
+}
