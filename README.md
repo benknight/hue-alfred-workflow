@@ -4,6 +4,14 @@
 
 <img src=/screenshots/index.png width=577 alt=Index>
 
+## ⚠️ Contributing bugfixes and features ⚠️
+
+_Last udpated 2020-12-16_
+
+A few years ago I moved abroad and (gasp!) I didn't take my Hue lights with me. That makes debugging and/or adding new features to this workflow very difficult for me because my only option is to emulate the bridge API which is flawed to say the least.
+
+For bug fixes and or new features, please submit a pull request so that I can review and cut a new version.
+
 ## Features
 
 ### Control the state of lights and rooms
