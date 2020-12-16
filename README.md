@@ -4,9 +4,9 @@
 
 <img src=/screenshots/index.png width=577 alt=Index>
 
-## ⚠️ Contributing bugfixes and features ⚠️
+## ⚠️ Contributing bug fixes and features ⚠️
 
-_Last udpated 2020-12-16_
+_Last updated 2020-12-16_
 
 A few years ago I moved abroad and (gasp!) I didn't take my Hue lights with me. That makes debugging and/or adding new features to this workflow very difficult for me because my only option is to emulate the bridge API which is flawed to say the least.
 
