@@ -122,7 +122,7 @@ all_lights:
                     for lid, light in lights.items():
                         title = light['name']
 
-                        if light['state']['on']:
+                        if 'state' in light and 'on' in light['state'] and light['state']['on']:
                             subtitle = []
                             if light['state'].get('hue'):
                                 subtitle.append('hue: {hue}'.format(
