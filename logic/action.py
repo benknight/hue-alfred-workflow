@@ -45,7 +45,7 @@ class HueAction:
         lids = utils.get_group_lids(group_id)
 
         # Only shuffle the lights that are on
-        on_lids = [lid for lid in lids if lights[lid]['state']['on']]
+        on_lids = [lid for lid in lids if 'state' in lights[lid] and 'on' in lights[lid]['state'] and lights[lid]['state']['on']]
         on_xy = [lights[lid]['state']['xy'] for lid in on_lids]
         shuffled = list(on_xy)
 
@@ -60,7 +60,7 @@ class HueAction:
         lids = utils.get_group_lids(group_id)
         palette = []
 
-        on_lids = [lid for lid in lids if lights[lid]['state']['on']]
+        on_lids = [lid for lid in lids if 'state' in lights[lid] and 'on' in lights[lid]['state'] and lights[lid]['state']['on']]
         args = (len(on_lids), '#%s' % utils.get_color_value(root))
         harmony_colors = getattr(harmony, mode)(*args)
 
