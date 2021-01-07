@@ -104,7 +104,7 @@ def get_groups():
 
     try:
         groups = data['groups']
-        return {id: group for id, group in groups.iteritems()}
+        return {gid: group for gid, group in groups.iteritems()}
     except TypeError:
         return None
 
