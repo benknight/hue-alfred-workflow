@@ -96,7 +96,13 @@ def get_lights(from_cache=False):
             return None
 
     data = workflow.stored_data('full_state')
-    return data['lights']
+    lights = data['lights']
+    # Filter only lights that have a on/off state
+    # This prevents issues with Deconz and Homekit hue bridges which set their config on a light
+    return {
+        lid: light for lid, light in lights.iteritems()
+        if 'state' in lights[lid] and 'on' in lights[lid]['state']
+    }
 
 
 def get_groups():
