@@ -42,10 +42,6 @@ def load_full_state(timeout=3):
 
     data = r.json()
 
-    # Create icon for light
-    for lid, light_data in data['lights'].iteritems():
-        create_light_icon(lid, light_data)
-
     workflow.store_data('full_state', data)
 
 
@@ -97,12 +93,20 @@ def get_lights(from_cache=False):
 
     data = workflow.stored_data('full_state')
     lights = data['lights']
+
     # Filter only lights that have a on/off state
     # This prevents issues with Deconz and Homekit hue bridges which set their config on a light
-    return {
+    filtered_lights = {
         lid: light for lid, light in lights.iteritems()
         if 'state' in lights[lid] and 'on' in lights[lid]['state']
     }
+
+    if not from_cache:
+        # Create icon for lights
+        for lid, light_data in filtered_lights.iteritems():
+            create_light_icon(lid, light_data)
+
+    return filtered_lights
 
 
 def get_groups():
