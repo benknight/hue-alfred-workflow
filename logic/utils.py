@@ -143,6 +143,9 @@ def get_scenes(group_id):
 
     if is_deconz:
         workflow.logger.debug("This is deconz")
+        # Not sure if "All lights" always has id 0
+        if group_id == "0":
+            return {}
         scenes = data["groups"][group_id]["scenes"]
         workflow.logger.debug(scenes)
         # in deconz, scenes are stored a list, convert to dict
