@@ -254,6 +254,8 @@ save_scene:
                         valid=True)
 
                 if type == self.GROUP_TYPE:
+                    # maybe settings scenes should be disabled for "All lights"
+                    # if the bridge is deconz
                     self._add_item(
                         'set_scene',
                         autocomplete='groups:%s:set:' % id)
