@@ -168,7 +168,23 @@ class HueAction:
             endpoint = '/schedules'
 
         elif function == 'set':
-            data = {'scene': value}
+            # if bridge is deconz, scenes are set differently.
+            # what we need is groups:group_id:scenes:scene_id:recall
+            is_deconz = False
+            try:
+                if workflow.stored_data("full_state")["config"]["modelid"] == "deCONZ":
+                    is_deconz = True
+            except:
+                # not sure if hue also returns config/modelid
+                pass
+
+            if is_deconz:
+                method = 'put'
+                endpoint = '/groups/{}/scenes/{}/recall'.format(rid, value)
+                data = {}
+            else:
+                data = {'scene': value}
+
 
         elif function == 'save':
             lids = utils.get_group_lids(rid)
