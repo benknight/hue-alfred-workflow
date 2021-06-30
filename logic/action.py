@@ -200,20 +200,22 @@ class HueAction:
 
         return
 
-
 def main(workflow):
-    query = workflow.args[0].split(':')
-
-    if query[0] == 'set_bridge':
-        bridge_ip = workflow.args[0].split(':', 1)[1]
-        setup.set_bridge(bridge_ip)
-    else:
-        action = HueAction()
-        try:
-            action.execute(query)
-            print(('Action completed! <%s>' % workflow.args[0]).encode('utf-8'))
-        except ValueError:
-            pass
+    # Handle multiple queries separated with '|' (pipe) character
+    queries = workflow.args[0].split('|')
+    
+    for this_query in queries:
+        query = this_query.split(':')
+        if this_query == 'set_bridge':
+            bridge_ip = this_query.split(':', 1)[1]
+            setup.set_bridge(bridge_ip)
+        else:
+            action = HueAction()
+            try:
+                action.execute(query)
+                print(('Action completed! <%s>' % this_query).encode('utf-8'))
+            except ValueError:
+                pass
 
 
 if __name__ == '__main__':
