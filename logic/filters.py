@@ -221,7 +221,7 @@ save_scene:
 
     def get_items(self, query, id, type, resource):
         control = query.split(':')
-        is_on = (type == self.LIGHT_TYPE and 'state' in resource and 'on' in resource['state'] and resource['state']['on'])
+        is_on = (type == self.LIGHT_TYPE and resource['state']['on'])
         name = resource['name'] if resource else 'All lights'
 
         if type == self.LIGHT_TYPE:
