@@ -59,7 +59,7 @@ def create_light_icon(lid, light_data):
         rgb_value = colorsys.hsv_to_rgb(0, 0, float(light_data['state']['bri']) / 255)
         rgb_value = tuple([255 * x for x in rgb_value])
     else:
-        rgb_value = (255, 255, 255) if ('state' in light_data and 'on' in light_data['state'] and light_data['state']['on']) else (0, 0, 0)
+        rgb_value = (255, 255, 255) if light_data['state']['on'] else (0, 0, 0)
 
     f = open('icons/%s.png' % lid, 'wb')
     w = png.Writer(1, 1)
