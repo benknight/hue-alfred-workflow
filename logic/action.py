@@ -204,16 +204,15 @@ def main(workflow):
     # Handle multiple queries separated with '|' (pipe) character
     queries = workflow.args[0].split('|')
     
-    for this_query in queries:
-        query = this_query.split(':')
-        if this_query == 'set_bridge':
-            bridge_ip = this_query.split(':', 1)[1]
-            setup.set_bridge(bridge_ip)
+    for query_str in queries:
+        query = query_str.split(':')
+        if query[0] == 'set_bridge':
+            setup.set_bridge(query[1] if len(query) > 1 else None)
         else:
             action = HueAction()
             try:
                 action.execute(query)
-                print(('Action completed! <%s>' % this_query).encode('utf-8'))
+                print(('Action completed! <%s>' % query_str).encode('utf-8'))
             except ValueError:
                 pass
 
