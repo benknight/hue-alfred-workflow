@@ -206,7 +206,7 @@ def main(workflow):
     
     for this_query in queries:
         query = this_query.split(':')
-        if this_query == 'set_bridge':
+        if this_query.startswith('set_bridge:'):
             bridge_ip = this_query.split(':', 1)[1]
             setup.set_bridge(bridge_ip)
         else:
