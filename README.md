@@ -4,13 +4,21 @@
 
 <img src=/screenshots/index.png width=577 alt=Index>
 
-## ⚠️ Contributing bug fixes and features ⚠️
+## ⚠️ Using this workflow macOS 12.3+ ⚠️
 
-_Last updated 2020-12-16_
+_Last updated 2022-05-07_
 
-A few years ago I moved abroad and (gasp!) I didn't take my Hue lights with me. That makes debugging and/or adding new features to this workflow very difficult for me because my only option is to emulate the bridge API which is flawed to say the least.
+This workflow has a dependency on Python 2 which was removed in macOS version 12.3. This means the workflow will no longer work if you've upgraded macOS to the latest version.
 
-For bug fixes and or new features, please submit a pull request so that I can review and cut a new version.
+In order for this workflow to "just work", it will need to be upgraded to support Python 3, but this requires all its dependencies to add Python 3 support as well, which has not happened yet, particularly this library: https://github.com/deanishe/alfred-workflow
+
+In the mean time, to make this workflow work you must perform the following steps:
+
+1. Install Python 2 using Homebrew: https://www.alfredapp.com/help/kb/python-2-monterey/
+2. Open Alfred Prferences > Workflows > Philip Hue Controller.
+3. Update the "Script Filter" input and "Run Script" action and replace `/usr/bin/python` with `/opt/homebrew/bin/python`
+
+See the open issues for additional support regarding this change.
 
 ## Features
 
