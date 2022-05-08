@@ -87,7 +87,7 @@ To make this even easier, open `history.txt` inside of the Workflow's directory 
 
 ## Setup & Installation
 
-1. **[Download the workflow][download]**
+1. Download the workflow
 
 2. The first time you run the workflow it will ask you to press the button on top of the Hue bridge then action the item to authorize the workflow to control your Hue lights:
 
