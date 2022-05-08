@@ -14,11 +14,9 @@ This workflow has a dependency on Python 2 which was removed in macOS version 12
 
 In order for this workflow to "just work", it will need to be upgraded to support Python 3, but this requires all its dependencies to add Python 3 support as well, which has not happened yet, particularly this library: https://github.com/deanishe/alfred-workflow
 
-In the mean time, to make this workflow work you must perform the following steps:
+In the mean time, to make this workflow work you must perform the following steps to install Python 2 using Homebrew: https://www.alfredapp.com/help/kb/python-2-monterey/
 
-1. Install Python 2 using Homebrew: https://www.alfredapp.com/help/kb/python-2-monterey/
-2. Open Alfred Prferences > Workflows > Philip Hue Controller.
-3. Update the "Script Filter" input and "Run Script" action and replace `/usr/bin/python` with `/opt/homebrew/bin/python`
+If you are already using an older version of this workflow (before version 3.0.7), you can either upgrade to the latest version, or open Alfred Prferences > Workflows > Philip Hue Controller and update the "Script Filter" input and "Run Script" action and replace `/usr/bin/python` with `/opt/homebrew/bin/python`. 
 
 See the open issues for additional support regarding this change.
 
