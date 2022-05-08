@@ -1,6 +1,8 @@
 # [Philips Hue][philips-hue] Controller for [Alfred][alfred]
 
-> Quickly and easily control Philips Hue lights with Alfred. **[Download the workflow][download]**
+> Quickly and easily control Philips Hue lights with Alfred.
+
+Download the latest version on the [releases page](https://github.com/benknight/hue-alfred-workflow/releases).
 
 <img src=/screenshots/index.png width=577 alt=Index>
 
@@ -105,7 +107,5 @@ hue 192.168.1.103
 
 Thanks to iconsphere, To Uyen, Setyo Ari Wibowo, Austin Condiff, H Alberto Gongora, Andreis Kirma, and Ananth from the Noun Project for icons.
 
-
-[download]: https://github.com/benknight/hue-alfred-workflow/releases/download/v3.0/Philips.Hue.Controller.v3.0.alfredworkflow
 [philips-hue]: https://www2.meethue.com/en-us
 [alfred]: http://www.alfredapp.com
