@@ -1,16 +1,24 @@
 # [Philips Hue][philips-hue] Controller for [Alfred][alfred]
 
-> Quickly and easily control Philips Hue lights with Alfred. **[Download the workflow][download]**
+> Quickly and easily control Philips Hue lights with Alfred.
+
+Download the latest version on the [releases page](https://github.com/benknight/hue-alfred-workflow/releases).
 
 <img src=/screenshots/index.png width=577 alt=Index>
 
-## ⚠️ Contributing bug fixes and features ⚠️
+## ⚠️ Using this workflow macOS 12.3+ ⚠️
 
-_Last updated 2020-12-16_
+_Last updated 2022-05-07_
 
-A few years ago I moved abroad and (gasp!) I didn't take my Hue lights with me. That makes debugging and/or adding new features to this workflow very difficult for me because my only option is to emulate the bridge API which is flawed to say the least.
+This workflow has a dependency on Python 2 which was removed in macOS version 12.3. This means the workflow will no longer work if you've upgraded macOS to the latest version.
 
-For bug fixes and or new features, please submit a pull request so that I can review and cut a new version.
+In order for this workflow to "just work", it will need to be upgraded to support Python 3, but this requires all its dependencies to add Python 3 support as well, which has not happened yet, particularly this library: https://github.com/deanishe/alfred-workflow
+
+In the mean time, to make this workflow work you must perform the following steps to install Python 2 using Homebrew: https://www.alfredapp.com/help/kb/python-2-monterey/
+
+If you are already using an older version of this workflow (before version 3.0.7), you can either upgrade to the latest version, or open Alfred Prferences > Workflows > Philip Hue Controller and update the "Script Filter" input and "Run Script" action and replace `/usr/bin/python` with `/opt/homebrew/bin/python`. 
+
+See the open issues for additional support regarding this change.
 
 ## Features
 
@@ -79,7 +87,7 @@ To make this even easier, open `history.txt` inside of the Workflow's directory 
 
 ## Setup & Installation
 
-1. **[Download the workflow][download]**
+1. Download the workflow
 
 2. The first time you run the workflow it will ask you to press the button on top of the Hue bridge then action the item to authorize the workflow to control your Hue lights:
 
@@ -97,7 +105,5 @@ hue 192.168.1.103
 
 Thanks to iconsphere, To Uyen, Setyo Ari Wibowo, Austin Condiff, H Alberto Gongora, Andreis Kirma, and Ananth from the Noun Project for icons.
 
-
-[download]: https://github.com/benknight/hue-alfred-workflow/releases/download/v3.0/Philips.Hue.Controller.v3.0.alfredworkflow
 [philips-hue]: https://www2.meethue.com/en-us
 [alfred]: http://www.alfredapp.com
