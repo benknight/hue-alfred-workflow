@@ -8,7 +8,7 @@ Download the latest version on the [releases page](https://github.com/benknight/
 
 ## ⚠️ Using this workflow macOS 12.3+ ⚠️
 
-_Last updated 2022-05-07_
+_Last updated May 22, 2022_
 
 This workflow has a dependency on Python 2 which was removed in macOS version 12.3. This means the workflow will no longer work if you've upgraded macOS to the latest version.
 
