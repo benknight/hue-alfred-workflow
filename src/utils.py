@@ -4,11 +4,10 @@ from __future__ import unicode_literals
 import colorsys
 import re
 
-from packages import png
-from packages.workflow import Workflow3 as Workflow
-
 import colors
 from css_colors import CSS_LITERALS as css_colors
+from libs import png
+from workflow import Workflow3 as Workflow
 
 workflow = Workflow()
 
@@ -16,7 +15,7 @@ workflow = Workflow()
 def search_for_bridge(timeout=3):
     """Searches for a bridge on the local network and returns the IP if it
     finds one."""
-    from packages import requests
+    from libs import requests
 
     r = requests.get('https://discovery.meethue.com', timeout=timeout)
     bridges = r.json()
@@ -30,7 +29,7 @@ def search_for_bridge(timeout=3):
 def load_full_state(timeout=3):
     """Downloads full state and caches it locally."""
     # Requests is an expensive import so we only do it when necessary.
-    from packages import requests
+    from libs import requests
 
     r = requests.get(
         'http://{0}/api/{1}'.format(
@@ -75,7 +74,7 @@ def get_lights(from_cache=False):
         from_cache - Read data from cached json files instead of querying the API.
     """
     if not from_cache:
-        from .packages.requests.exceptions import RequestException
+        from .libs.requests.exceptions import RequestException
         try:
             try:
                 load_full_state()
