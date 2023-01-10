@@ -5,11 +5,10 @@ import json
 import os
 import sys
 
-from packages.workflow import Workflow3 as Workflow
-from packages import yaml
-
 import colors
 import utils
+from libs import yaml
+from workflow import Workflow3 as Workflow
 
 
 class HueFilterBase:

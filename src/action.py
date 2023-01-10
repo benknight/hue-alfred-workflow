@@ -9,13 +9,12 @@ import random
 import sys
 import time
 
-from packages.workflow import Workflow3 as Workflow
-
 import colors
 import harmony
 import request
 import setup
 import utils
+from workflow import Workflow3 as Workflow
 
 
 class HueAction:
@@ -203,7 +202,7 @@ class HueAction:
 def main(workflow):
     # Handle multiple queries separated with '|' (pipe) character
     queries = workflow.args[0].split('|')
-    
+
     for query_str in queries:
         query = query_str.split(':')
         if query[0] == 'set_bridge':
