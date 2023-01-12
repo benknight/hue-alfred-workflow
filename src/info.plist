@@ -12,7 +12,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>EAAD0296-B5E8-4181-A246-F60DAEB5EF20</string>
+				<string>2DD4B6FC-CE1F-4F32-A643-9F1DE63A2102</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -34,11 +34,23 @@
 				<false/>
 			</dict>
 		</array>
-		<key>53C8B12D-485A-478D-8893-D06A8BBB60BD</key>
+		<key>2DD4B6FC-CE1F-4F32-A643-9F1DE63A2102</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
 				<string>216B830D-985E-4E88-B42E-AC3AFE11AC21</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>B3350665-BF52-4784-B219-2E1D89944FEB</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>B6CCCE87-79BC-4AA7-9CBB-2597A4C7D3CC</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -75,42 +87,6 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>70308F47-2164-4E1B-A86C-CC8D95C585FB</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
-		</array>
-		<key>EAAD0296-B5E8-4181-A246-F60DAEB5EF20</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>53C8B12D-485A-478D-8893-D06A8BBB60BD</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
-			<dict>
-				<key>destinationuid</key>
-				<string>FEB9F705-002F-45B6-98BC-7646C9B20A80</string>
-				<key>modifiers</key>
-				<integer>0</integer>
-				<key>modifiersubtext</key>
-				<string></string>
-				<key>vitoclose</key>
-				<false/>
-			</dict>
-		</array>
-		<key>FEB9F705-002F-45B6-98BC-7646C9B20A80</key>
-		<array>
-			<dict>
-				<key>destinationuid</key>
-				<string>B6CCCE87-79BC-4AA7-9CBB-2597A4C7D3CC</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -236,50 +212,59 @@ color_picker($action);</string>
 			<integer>3</integer>
 		</dict>
 		<dict>
+			<key>config</key>
+			<dict>
+				<key>conditions</key>
+				<array>
+					<dict>
+						<key>inputstring</key>
+						<string>{query}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>0</integer>
+						<key>matchstring</key>
+						<string>^colorpicker.*</string>
+						<key>outputlabel</key>
+						<string>Color Picker</string>
+						<key>uid</key>
+						<string>B3350665-BF52-4784-B219-2E1D89944FEB</string>
+					</dict>
+				</array>
+				<key>elselabel</key>
+				<string>else</string>
+				<key>hideelse</key>
+				<false/>
+			</dict>
 			<key>type</key>
-			<string>alfred.workflow.utility.junction</string>
+			<string>alfred.workflow.utility.conditional</string>
 			<key>uid</key>
-			<string>EAAD0296-B5E8-4181-A246-F60DAEB5EF20</string>
+			<string>2DD4B6FC-CE1F-4F32-A643-9F1DE63A2102</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>inputstring</key>
-				<string>{query}</string>
-				<key>matchcasesensitive</key>
+				<key>concurrently</key>
 				<false/>
-				<key>matchmode</key>
-				<integer>2</integer>
-				<key>matchstring</key>
-				<string>^colorpicker.*</string>
+				<key>escaping</key>
+				<integer>4</integer>
+				<key>script</key>
+				<string>/usr/bin/env python3 action.py "{query}"</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.utility.filter</string>
+			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>53C8B12D-485A-478D-8893-D06A8BBB60BD</string>
+			<string>B6CCCE87-79BC-4AA7-9CBB-2597A4C7D3CC</string>
 			<key>version</key>
-			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>inputstring</key>
-				<string>{query}</string>
-				<key>matchcasesensitive</key>
-				<false/>
-				<key>matchmode</key>
-				<integer>2</integer>
-				<key>matchstring</key>
-				<string>^(?!colorpicker).*</string>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.utility.filter</string>
-			<key>uid</key>
-			<string>FEB9F705-002F-45B6-98BC-7646C9B20A80</string>
-			<key>version</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -307,29 +292,6 @@ color_picker($action);</string>
 			<string>70308F47-2164-4E1B-A86C-CC8D95C585FB</string>
 			<key>version</key>
 			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>4</integer>
-				<key>script</key>
-				<string>/usr/bin/env python3 action.py "{query}"</string>
-				<key>scriptargtype</key>
-				<integer>0</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>B6CCCE87-79BC-4AA7-9CBB-2597A4C7D3CC</string>
-			<key>version</key>
-			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -401,9 +363,9 @@ color_picker($action);</string>
 		<key>024CCF2C-F278-4295-B1AF-CCF8771F79AB</key>
 		<dict>
 			<key>xpos</key>
-			<real>30</real>
+			<real>90</real>
 			<key>ypos</key>
-			<real>20</real>
+			<real>75</real>
 		</dict>
 		<key>1218287C-8BB7-435C-83CD-1DC8081A0C37</key>
 		<dict>
@@ -419,12 +381,12 @@ color_picker($action);</string>
 			<key>ypos</key>
 			<real>20</real>
 		</dict>
-		<key>53C8B12D-485A-478D-8893-D06A8BBB60BD</key>
+		<key>2DD4B6FC-CE1F-4F32-A643-9F1DE63A2102</key>
 		<dict>
 			<key>xpos</key>
-			<real>360</real>
+			<real>295</real>
 			<key>ypos</key>
-			<real>50</real>
+			<real>95</real>
 		</dict>
 		<key>59765BEC-5EE9-41D5-A8A4-95CE1D7ECF4A</key>
 		<dict>
@@ -453,20 +415,6 @@ color_picker($action);</string>
 			<real>680</real>
 			<key>ypos</key>
 			<real>20</real>
-		</dict>
-		<key>EAAD0296-B5E8-4181-A246-F60DAEB5EF20</key>
-		<dict>
-			<key>xpos</key>
-			<real>230</real>
-			<key>ypos</key>
-			<real>50</real>
-		</dict>
-		<key>FEB9F705-002F-45B6-98BC-7646C9B20A80</key>
-		<dict>
-			<key>xpos</key>
-			<real>360</real>
-			<key>ypos</key>
-			<real>100</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
