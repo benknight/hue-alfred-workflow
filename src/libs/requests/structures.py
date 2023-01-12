@@ -1,75 +1,83 @@
-# -*- coding: utf-8 -*-
-
 """
 requests.structures
 ~~~~~~~~~~~~~~~~~~~
 
 Data structures that power Requests.
-
 """
 
-import os
-from itertools import islice
+from collections import OrderedDict
+
+from .compat import Mapping, MutableMapping
 
 
-class IteratorProxy(object):
-    """docstring for IteratorProxy"""
-    def __init__(self, i):
-        self.i = i
-        # self.i = chain.from_iterable(i)
+class CaseInsensitiveDict(MutableMapping):
+    """A case-insensitive ``dict``-like object.
 
-    def __iter__(self):
-        return self.i
+    Implements all methods and operations of
+    ``MutableMapping`` as well as dict's ``copy``. Also
+    provides ``lower_items``.
 
-    def __len__(self):
-        if hasattr(self.i, '__len__'):
-            return len(self.i)
-        if hasattr(self.i, 'len'):
-            return self.i.len
-        if hasattr(self.i, 'fileno'):
-            return os.fstat(self.i.fileno()).st_size
+    All keys are expected to be strings. The structure remembers the
+    case of the last key to be set, and ``iter(instance)``,
+    ``keys()``, ``items()``, ``iterkeys()``, and ``iteritems()``
+    will contain case-sensitive keys. However, querying and contains
+    testing is case insensitive::
 
-    def read(self, n):
-        return "".join(islice(self.i, None, n))
-
-
-class CaseInsensitiveDict(dict):
-    """Case-insensitive Dictionary
+        cid = CaseInsensitiveDict()
+        cid['Accept'] = 'application/json'
+        cid['aCCEPT'] == 'application/json'  # True
+        list(cid) == ['Accept']  # True
 
     For example, ``headers['content-encoding']`` will return the
-    value of a ``'Content-Encoding'`` response header."""
+    value of a ``'Content-Encoding'`` response header, regardless
+    of how the header name was originally stored.
 
-    @property
-    def lower_keys(self):
-        if not hasattr(self, '_lower_keys') or not self._lower_keys:
-            self._lower_keys = dict((k.lower(), k) for k in list(self.keys()))
-        return self._lower_keys
+    If the constructor, ``.update``, or equality comparison
+    operations are given keys that have equal ``.lower()``s, the
+    behavior is undefined.
+    """
 
-    def _clear_lower_keys(self):
-        if hasattr(self, '_lower_keys'):
-            self._lower_keys.clear()
+    def __init__(self, data=None, **kwargs):
+        self._store = OrderedDict()
+        if data is None:
+            data = {}
+        self.update(data, **kwargs)
 
     def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        self._clear_lower_keys()
-
-    def __delitem__(self, key):
-        dict.__delitem__(self, self.lower_keys.get(key.lower(), key))
-        self._lower_keys.clear()
-
-    def __contains__(self, key):
-        return key.lower() in self.lower_keys
+        # Use the lowercased key for lookups, but store the actual
+        # key alongside the value.
+        self._store[key.lower()] = (key, value)
 
     def __getitem__(self, key):
-        # We allow fall-through here, so values default to None
-        if key in self:
-            return dict.__getitem__(self, self.lower_keys[key.lower()])
+        return self._store[key.lower()][1]
 
-    def get(self, key, default=None):
-        if key in self:
-            return self[key]
+    def __delitem__(self, key):
+        del self._store[key.lower()]
+
+    def __iter__(self):
+        return (casedkey for casedkey, mappedvalue in self._store.values())
+
+    def __len__(self):
+        return len(self._store)
+
+    def lower_items(self):
+        """Like iteritems(), but with all lowercase keys."""
+        return ((lowerkey, keyval[1]) for (lowerkey, keyval) in self._store.items())
+
+    def __eq__(self, other):
+        if isinstance(other, Mapping):
+            other = CaseInsensitiveDict(other)
         else:
-            return default
+            return NotImplemented
+        # Compare insensitively
+        return dict(self.lower_items()) == dict(other.lower_items())
+
+    # Copy is required
+    def copy(self):
+        return CaseInsensitiveDict(self._store.values())
+
+    def __repr__(self):
+        return str(dict(self.items()))
 
 
 class LookupDict(dict):
@@ -77,10 +85,10 @@ class LookupDict(dict):
 
     def __init__(self, name=None):
         self.name = name
-        super(LookupDict, self).__init__()
+        super().__init__()
 
     def __repr__(self):
-        return '<lookup \'%s\'>' % (self.name)
+        return f"<lookup '{self.name}'>"
 
     def __getitem__(self, key):
         # We allow fall-through here, so values default to None
