@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+
 CSS_LITERALS = {
     'aliceblue': '#f0f8ff',
     'antiquewhite': '#faebd7',

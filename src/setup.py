@@ -1,13 +1,11 @@
+#!/usr/bin/env python3
 # encoding: utf-8
-from __future__ import unicode_literals
 
 import json
-from os import system
 
-import request
 import utils
 from libs import requests
-from workflow import Workflow3 as Workflow
+from workflow import Workflow
 
 
 def set_bridge(bridge_ip=None):
@@ -16,7 +14,7 @@ def set_bridge(bridge_ip=None):
             bridge_ip = utils.search_for_bridge()
 
             if not bridge_ip:
-                print('No bridges found on your network. Try specifying the IP address.'.encode('utf-8'))
+                print('No bridges found on your network. Try specifying the IP address.')
                 return None
 
         workflow = Workflow()
@@ -31,12 +29,12 @@ def set_bridge(bridge_ip=None):
         resp = r.json()[0]
 
         if resp.get('error'):
-            print('Setup Error: %s' % resp['error'].get('description').encode('utf-8'))
+            print('Setup Error: %s' % resp['error'].get('description'))
         else:
             workflow.settings['bridge_ip'] = bridge_ip
             workflow.settings['username'] = resp['success']['username']
 
-            print('Success! You can now control your lights by using the "hue" keyword.'.encode('utf-8'))
+            print('Success! You can now control your lights by using the "hue" keyword.')
 
     except requests.exceptions.RequestException:
-        print('Connection error.'.encode('utf-8'))
+        print('Connection error.')

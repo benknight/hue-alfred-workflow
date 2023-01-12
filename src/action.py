@@ -1,10 +1,15 @@
+#!/usr/bin/env python3
 # encoding: utf-8
-from __future__ import unicode_literals
+
+import os
+import sys
+
+# Add the libs folder to the system path
+sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import colorsys
 import datetime
 import json
-import os
 import random
 import sys
 import time
@@ -12,9 +17,8 @@ import time
 import colors
 import harmony
 import request
-import setup
 import utils
-from workflow import Workflow3 as Workflow
+from workflow import Workflow
 
 
 class HueAction:
@@ -99,7 +103,7 @@ class HueAction:
 
         elif function == 'shuffle':
             if not is_group:
-                print('Shuffle can only be called on groups.'.encode('utf-8'))
+                print('Shuffle can only be called on groups.')
                 return
 
             self._shuffle_group(rid)
@@ -128,18 +132,18 @@ class HueAction:
                         gamut = colors.get_light_gamut(lights[rid]['modelid'])
                     data = {'xy': self._get_xy_color(value, gamut)}
                 except ValueError:
-                    print('Error: Invalid color. Please use a 6-digit hex color.'.encode('utf-8'))
+                    print('Error: Invalid color. Please use a 6-digit hex color.')
                     return
 
         elif function == 'harmony':
             if not is_group:
-                print('Color harmonies can only be set on groups.'.encode('utf-8'))
+                print('Color harmonies can only be set on groups.')
                 return
 
             root = action[4] if len(action) > 3 else None
 
             if value not in harmony.MODES:
-                print('Invalid harmony mode.'.encode('utf-8'))
+                print('Invalid harmony mode.')
                 return
 
             self._set_harmony(rid, value, root)
@@ -149,7 +153,7 @@ class HueAction:
             try:
                 time_delta_int = int(value)
             except ValueError:
-                print('Error: Invalid time delta for reminder.'.encode('utf-8'))
+                print('Error: Invalid time delta for reminder.')
                 return
 
             reminder_time = datetime.datetime.utcfromtimestamp(time.time() + time_delta_int)
@@ -200,6 +204,8 @@ class HueAction:
         return
 
 def main(workflow):
+    import setup
+
     # Handle multiple queries separated with '|' (pipe) character
     queries = workflow.args[0].split('|')
 
@@ -211,11 +217,11 @@ def main(workflow):
             action = HueAction()
             try:
                 action.execute(query)
-                print(('Action completed! <%s>' % query_str).encode('utf-8'))
+                print(('Action completed! <%s>' % query_str))
             except ValueError:
                 pass
 
 
 if __name__ == '__main__':
-    workflow = Workflow()
+    workflow = Workflow(libraries=['libs'])
     sys.exit(workflow.run(main))

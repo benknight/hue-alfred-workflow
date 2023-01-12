@@ -1,8 +1,8 @@
+#!/usr/bin/env python3
 # encoding: utf-8
-from __future__ import unicode_literals
 
 from libs import requests
-from workflow import Workflow3 as Workflow
+from workflow import Workflow
 
 
 class HueRequest():

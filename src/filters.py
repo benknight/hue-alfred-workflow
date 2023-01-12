@@ -1,14 +1,19 @@
+#!/usr/bin/env python3
 # encoding: utf-8
-from __future__ import unicode_literals
 
-import json
 import os
 import sys
+
+# Add the libs folder to the system path
+sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import colors
 import utils
 from libs import yaml
-from workflow import Workflow3 as Workflow
+from workflow import Workflow
+
+# GitHub repo for self-updating
+UPDATE_SETTINGS = {'github_slug': 'benknight/hue-alfred-workflow'}
 
 
 class HueFilterBase:
@@ -34,7 +39,7 @@ class HueFilterBase:
     def __init__(self, workflow):
         self.query = workflow.args[0]
         self.workflow = workflow
-        self.templates = yaml.load(self.templates_yaml)
+        self.templates = yaml.load(self.templates_yaml, Loader=yaml.FullLoader)
 
     def _add_item(self, string_key=None, **item):
         if string_key and self.templates.get(string_key):
@@ -226,7 +231,7 @@ save_scene:
         if type == self.LIGHT_TYPE:
             self.icon = ('%s.png' % id) if is_on else 'off.png'
 
-        if len(control) is 1:
+        if len(control) == 1:
             self.partial_query = control[0]
 
             if type == self.GROUP_TYPE or is_on:
@@ -299,7 +304,7 @@ save_scene:
                 self.icon = 'scene.png'
                 self.partial_query = value
                 scenes = utils.get_scenes(id)
-                items = sorted(scenes.items(), key=lambda (k, v): v.get('lastupdated'))
+                items = sorted(scenes.items(), key=lambda v: v[1].get('lastupdated'))
                 for sid, scene in items:
                     self._add_item(
                         title=scene['name'],
@@ -463,7 +468,7 @@ def main(workflow):
 
 
 if __name__ == '__main__':
-    workflow = Workflow(update_settings={
-        'github_slug': 'benknight/hue-alfred-workflow',
-    })
+    workflow = Workflow(
+        libraries=['libs'],
+        update_settings=UPDATE_SETTINGS)
     sys.exit(workflow.run(main))

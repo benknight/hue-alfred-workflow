@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# encoding: utf-8
+
 """
 Library for RGB / CIE1931 "x, y" coversion.
 Based on Philips implementation guidance:

@@ -1,13 +1,20 @@
+#!/usr/bin/env python3
 # encoding: utf-8
-from __future__ import unicode_literals
+
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "libs"))
 
 import colorsys
 import re
 
+import png
+import requests
+
 import colors
 from css_colors import CSS_LITERALS as css_colors
-from libs import png
-from workflow import Workflow3 as Workflow
+from workflow import Workflow
 
 workflow = Workflow()
 
@@ -15,8 +22,6 @@ workflow = Workflow()
 def search_for_bridge(timeout=3):
     """Searches for a bridge on the local network and returns the IP if it
     finds one."""
-    from libs import requests
-
     r = requests.get('https://discovery.meethue.com', timeout=timeout)
     bridges = r.json()
 
@@ -29,8 +34,6 @@ def search_for_bridge(timeout=3):
 def load_full_state(timeout=3):
     """Downloads full state and caches it locally."""
     # Requests is an expensive import so we only do it when necessary.
-    from libs import requests
-
     r = requests.get(
         'http://{0}/api/{1}'.format(
             workflow.settings['bridge_ip'],
@@ -61,7 +64,7 @@ def create_light_icon(lid, light_data):
         rgb_value = (255, 255, 255) if light_data['state']['on'] else (0, 0, 0)
 
     f = open('icons/%s.png' % lid, 'wb')
-    w = png.Writer(1, 1)
+    w = png.Writer(1, 1, greyscale=False)
     w.write(f, [rgb_value])
     f.close()
 
@@ -74,7 +77,7 @@ def get_lights(from_cache=False):
         from_cache - Read data from cached json files instead of querying the API.
     """
     if not from_cache:
-        from .libs.requests.exceptions import RequestException
+        from requests.exceptions import RequestException
         try:
             try:
                 load_full_state()
@@ -96,13 +99,13 @@ def get_lights(from_cache=False):
     # Filter only lights that have a on/off state
     # This prevents issues with Deconz and Homekit hue bridges which set their config on a light
     filtered_lights = {
-        lid: light for lid, light in lights.iteritems()
+        lid: light for lid, light in lights.items()
         if 'state' in lights[lid] and 'on' in lights[lid]['state']
     }
 
     if not from_cache:
         # Create icon for lights
-        for lid, light_data in filtered_lights.iteritems():
+        for lid, light_data in filtered_lights.items():
             create_light_icon(lid, light_data)
 
     return filtered_lights
@@ -113,7 +116,7 @@ def get_groups():
 
     try:
         groups = data['groups']
-        return {gid: group for gid, group in groups.iteritems()}
+        return {gid: group for gid, group in groups.items()}
     except TypeError:
         return None
 
@@ -155,7 +158,7 @@ def get_scenes(group_id):
         lids = get_group_lids(group_id)
         return {
             id: scene
-            for id, scene in scenes.iteritems()
+            for id, scene in scenes.items()
             if (set(scene["lights"]) == set(lids) and scene["name"] != "Off")
             and scene["version"] >= 2
         }
