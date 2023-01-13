@@ -22,7 +22,7 @@ def set_bridge(bridge_ip=None):
         # Create API user for the workflow
         r = requests.post(
             'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
-            data=json.dumps({'devicetype': 'Alfred 2'}),
+            data=json.dumps({'devicetype': 'Alfred Workflow'}),
             timeout=3
         )
 
