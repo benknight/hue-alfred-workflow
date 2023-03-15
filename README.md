@@ -8,16 +8,9 @@ Download the latest version on the [releases page](https://github.com/benknight/
 
 ## ⚠️ Using this workflow macOS 12.3+ ⚠️
 
-_Last updated May 22, 2022_
+_Last updated March 15, 2023_
 
-This workflow has a dependency on Python 2 which was removed in macOS version 12.3. This means the workflow will no longer work if you've upgraded macOS to the latest version.
-
-In order for this workflow to "just work", it will need to be upgraded to support Python 3, but this requires all its dependencies to add Python 3 support as well, which has not happened yet, particularly this library: https://github.com/deanishe/alfred-workflow
-
-In the mean time, to make this workflow work you must perform the following steps to install Python 2 using Homebrew: 
-https://www.alfredapp.com/help/kb/python-2-monterey/ and then download the latest release from the releases page.
-
-See the open issues for additional support regarding this change.
+This workflow used to have a dependency on Python 2 which was removed in macOS version 12.3. As of version 3.1, Python 3 support has been added. However if you're using an older version of workflow, it will no longer work after macOS upgrade.
 
 ## Features
 
