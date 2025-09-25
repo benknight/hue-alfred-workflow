@@ -175,7 +175,8 @@ class HueAction:
             # what we need is groups:group_id:scenes:scene_id:recall
             is_deconz = False
             try:
-                if workflow.stored_data("full_state")["config"]["modelid"] == "deCONZ":
+                stored_data = workflow.stored_data("full_state")
+                if isinstance(stored_data, dict) and stored_data.get("config", {}).get("modelid") == "deCONZ":
                     is_deconz = True
             except:
                 # not sure if hue also returns config/modelid
