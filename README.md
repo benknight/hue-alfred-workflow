@@ -14,6 +14,13 @@ This workflow used to have a dependency on Python 2 which was removed in macOS v
 
 ## Features
 
+### Bridge Compatibility
+
+This workflow supports multiple bridge types:
+* **Philips Hue Bridge** (all generations including Bridge Pro)
+* **deCONZ bridge** (Raspberry Pi and other platforms)  
+* **HomeKit-compatible bridges**
+
 ### Control the state of lights and rooms
 
 * Set brightness for lights or groups
@@ -92,6 +99,10 @@ The workflow automatically attempts to find the bridge on your local network.  Y
 ```
 hue 192.168.1.103
 ```
+
+## Troubleshooting
+
+If you're having issues connecting to your bridge (especially with newer models like the Hue Bridge Pro), see [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.
 
 ## Credits
 
