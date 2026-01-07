@@ -11,10 +11,14 @@ import re
 
 import png
 import requests
+import urllib3
 
 import colors
 from css_colors import CSS_LITERALS as css_colors
 from workflow import Workflow
+
+# Suppress SSL warnings for self-signed Hue bridge certificates
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 workflow = Workflow()
 
@@ -26,7 +30,7 @@ def search_for_bridge(timeout=3):
         r = requests.get('https://discovery.meethue.com', timeout=timeout)
         r.raise_for_status()  # Raise an exception for bad status codes
         bridges = r.json()
-        
+
         if not isinstance(bridges, list):
             workflow.logger.error('Discovery service returned unexpected format: %s', type(bridges))
             return None
@@ -34,7 +38,7 @@ def search_for_bridge(timeout=3):
         if len(bridges) > 0:
             # Log all discovered bridges for debugging
             workflow.logger.info('Found %d bridge(s): %s', len(bridges), [b.get('internalipaddress', 'Unknown IP') for b in bridges if isinstance(b, dict)])
-            
+
             # Return the first bridge's IP
             first_bridge = bridges[0]
             if isinstance(first_bridge, dict) and 'internalipaddress' in first_bridge:
@@ -56,16 +60,18 @@ def search_for_bridge(timeout=3):
 def load_full_state(timeout=3):
     """Downloads full state and caches it locally."""
     # Requests is an expensive import so we only do it when necessary.
+    # Use HTTPS with verify=False for Hue Bridge Pro compatibility (self-signed cert)
     r = requests.get(
-        'http://{0}/api/{1}'.format(
+        'https://{0}/api/{1}'.format(
             workflow.settings['bridge_ip'],
             workflow.settings['username'],
         ),
         timeout=timeout,
+        verify=False,
     )
 
     data = r.json()
-    
+
     # Handle cases where API returns error response as list instead of dict
     if isinstance(data, list) and len(data) > 0:
         # Check if this is an error response
@@ -76,12 +82,12 @@ def load_full_state(timeout=3):
         # If it's a list but not an error, this might be an unexpected format
         workflow.logger.warning('Bridge returned unexpected list format, attempting to use first element')
         data = data[0] if data else {}
-    
+
     # Validate that we have the expected structure
     if not isinstance(data, dict):
         workflow.logger.error('Bridge returned unexpected data format: %s', type(data))
         raise Exception('Bridge returned unexpected data format')
-    
+
     if 'lights' not in data:
         workflow.logger.error('Bridge response missing lights data. Response keys: %s', list(data.keys()))
         raise Exception('Bridge response missing lights data')
@@ -104,7 +110,7 @@ def create_light_icon(lid, light_data):
         rgb_value = tuple([int(255 * x) for x in rgb_value])
     else:
         rgb_value = (255, 255, 255) if light_data['state']['on'] else (0, 0, 0)
-    
+
     f = open('icons/%s.png' % lid, 'wb')
     w = png.Writer(1, 1, greyscale=False)
     w.write(f, [rgb_value])
@@ -135,18 +141,18 @@ def get_lights(from_cache=False):
             return None
 
     data = workflow.stored_data('full_state')
-    
+
     # Additional safety check for data structure
     if not isinstance(data, dict):
         workflow.logger.error('Stored full_state data is not a dictionary: %s', type(data))
         return None
-        
+
     if 'lights' not in data:
         workflow.logger.error('Stored full_state data missing lights key. Available keys: %s', list(data.keys()) if isinstance(data, dict) else 'Not a dict')
         return None
-        
+
     lights = data['lights']
-    
+
     if not isinstance(lights, dict):
         workflow.logger.error('Lights data is not a dictionary: %s', type(lights))
         return None
@@ -168,12 +174,12 @@ def get_lights(from_cache=False):
 
 def get_groups():
     data = workflow.stored_data('full_state')
-    
+
     # Additional safety check for data structure
     if not isinstance(data, dict):
         workflow.logger.error('Stored full_state data is not a dictionary: %s', type(data))
         return None
-        
+
     if 'groups' not in data:
         workflow.logger.error('Stored full_state data missing groups key. Available keys: %s', list(data.keys()) if isinstance(data, dict) else 'Not a dict')
         return None
@@ -208,7 +214,7 @@ def get_group_lids(group_id):
 
 def get_scenes(group_id):
     data = workflow.stored_data("full_state")
-    
+
     # Additional safety check for data structure
     if not isinstance(data, dict):
         workflow.logger.error('Stored full_state data is not a dictionary: %s', type(data))
@@ -229,17 +235,17 @@ def get_scenes(group_id):
         # Not sure if "All lights" always has id 0
         if group_id == "0":
             return {}
-        
+
         # Safety check for groups data
         if "groups" not in data or group_id not in data["groups"]:
             workflow.logger.error('Group %s not found in deconz bridge data', group_id)
             return {}
-            
+
         group_data = data["groups"][group_id]
         if not isinstance(group_data, dict) or "scenes" not in group_data:
-            workflow.logger.error('Group %s missing scenes data in deconz bridge', group_id) 
+            workflow.logger.error('Group %s missing scenes data in deconz bridge', group_id)
             return {}
-            
+
         scenes = group_data["scenes"]
         workflow.logger.debug(scenes)
         # in deconz, scenes are stored a list, convert to dict
@@ -253,21 +259,21 @@ def get_scenes(group_id):
         if "scenes" not in data:
             workflow.logger.error('Hue bridge data missing scenes key')
             return {}
-            
+
         scenes = data["scenes"]
         if not isinstance(scenes, dict):
             workflow.logger.error('Hue scenes data is not a dictionary: %s', type(scenes))
             return {}
-            
+
         try:
             lids = get_group_lids(group_id)
             if lids is None:
                 return {}
-                
+
             return {
                 id: scene
                 for id, scene in scenes.items()
-                if isinstance(scene, dict) and 
+                if isinstance(scene, dict) and
                    "lights" in scene and "name" in scene and "version" in scene and
                    (set(scene["lights"]) == set(lids) and scene["name"] != "Off")
                    and scene["version"] >= 2
