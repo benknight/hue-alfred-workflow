@@ -2,7 +2,11 @@
 # encoding: utf-8
 
 from libs import requests
+from libs import urllib3
 from workflow import Workflow
+
+# Suppress SSL warnings for self-signed Hue bridge certificates
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class HueRequest():
@@ -11,7 +15,8 @@ class HueRequest():
     def __init__(self):
         self.workflow = Workflow()
         self.api_path = '/api/%s' % self.workflow.settings['username']
-        self.api_path_full = 'http://{bridge_ip}{api_path}'.format(
+        # Use HTTPS for Hue Bridge Pro compatibility
+        self.api_path_full = 'https://{bridge_ip}{api_path}'.format(
             bridge_ip=self.workflow.settings['bridge_ip'],
             api_path=self.api_path,
         )
@@ -20,4 +25,5 @@ class HueRequest():
         self.workflow.logger.info('request({method}, {endpoint}, {data})'.format(
             method=method, endpoint=endpoint, data=data,
         ))
-        return requests.request(method, self.api_path_full + endpoint, data=data)
+        # Use verify=False for self-signed Hue bridge certificates
+        return requests.request(method, self.api_path_full + endpoint, data=data, verify=False)

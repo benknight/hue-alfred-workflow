@@ -5,7 +5,11 @@ import json
 
 import utils
 from libs import requests
+from libs import urllib3
 from workflow import Workflow
+
+# Suppress SSL warnings for self-signed Hue bridge certificates
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def set_bridge(bridge_ip=None):
@@ -20,10 +24,12 @@ def set_bridge(bridge_ip=None):
         workflow = Workflow()
 
         # Create API user for the workflow
+        # Use HTTPS with verify=False for Hue Bridge Pro compatibility (self-signed cert)
         r = requests.post(
-            'http://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
+            'https://{bridge_ip}/api'.format(bridge_ip=bridge_ip),
             data=json.dumps({'devicetype': 'Alfred Workflow'}),
-            timeout=3
+            timeout=3,
+            verify=False
         )
 
         try:
@@ -44,7 +50,7 @@ def set_bridge(bridge_ip=None):
         if resp.get('error'):
             error_desc = resp['error'].get('description', 'Unknown error')
             error_type = resp['error'].get('type', 'Unknown type')
-            
+
             if error_type == 101:
                 print('Setup Error: Press the button on your Hue bridge and try again within 30 seconds.')
             else:
