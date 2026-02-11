@@ -422,7 +422,7 @@ color_picker($action);</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>3.0.8</string>
+	<string>3.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/benknight/hue-alfred-workflow</string>
 </dict>
