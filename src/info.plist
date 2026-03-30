@@ -363,58 +363,58 @@ color_picker($action);</string>
 		<key>024CCF2C-F278-4295-B1AF-CCF8771F79AB</key>
 		<dict>
 			<key>xpos</key>
-			<real>90</real>
+			<real>90.0</real>
 			<key>ypos</key>
-			<real>75</real>
+			<real>75.0</real>
 		</dict>
 		<key>1218287C-8BB7-435C-83CD-1DC8081A0C37</key>
 		<dict>
 			<key>xpos</key>
-			<real>270</real>
+			<real>270.0</real>
 			<key>ypos</key>
-			<real>235</real>
+			<real>235.0</real>
 		</dict>
 		<key>216B830D-985E-4E88-B42E-AC3AFE11AC21</key>
 		<dict>
 			<key>xpos</key>
-			<real>490</real>
+			<real>490.0</real>
 			<key>ypos</key>
-			<real>20</real>
+			<real>20.0</real>
 		</dict>
 		<key>2DD4B6FC-CE1F-4F32-A643-9F1DE63A2102</key>
 		<dict>
 			<key>xpos</key>
-			<real>295</real>
+			<real>295.0</real>
 			<key>ypos</key>
-			<real>95</real>
+			<real>95.0</real>
 		</dict>
 		<key>59765BEC-5EE9-41D5-A8A4-95CE1D7ECF4A</key>
 		<dict>
 			<key>xpos</key>
-			<real>270</real>
+			<real>270.0</real>
 			<key>ypos</key>
-			<real>345</real>
+			<real>345.0</real>
 		</dict>
 		<key>70308F47-2164-4E1B-A86C-CC8D95C585FB</key>
 		<dict>
 			<key>xpos</key>
-			<real>680</real>
+			<real>680.0</real>
 			<key>ypos</key>
-			<real>135</real>
+			<real>135.0</real>
 		</dict>
 		<key>B6CCCE87-79BC-4AA7-9CBB-2597A4C7D3CC</key>
 		<dict>
 			<key>xpos</key>
-			<real>490</real>
+			<real>490.0</real>
 			<key>ypos</key>
-			<real>135</real>
+			<real>135.0</real>
 		</dict>
 		<key>CFDFE33B-7FFC-4F4D-A692-80C56EDFF968</key>
 		<dict>
 			<key>xpos</key>
-			<real>680</real>
+			<real>680.0</real>
 			<key>ypos</key>
-			<real>20</real>
+			<real>20.0</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
@@ -422,7 +422,7 @@ color_picker($action);</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>3.0.8</string>
+	<string>3.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/benknight/hue-alfred-workflow</string>
 </dict>
